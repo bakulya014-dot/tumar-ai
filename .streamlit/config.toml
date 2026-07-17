@@ -1,0 +1,9 @@
+# Tumar.AI theme — dark "security dashboard" look.
+# Streamlit reads this file automatically on startup.
+
+[theme]
+base = "dark"
+primaryColor = "#00C2FF"
+backgroundColor = "#0E1525"
+secondaryBackgroundColor = "#171F31"
+textColor = "#E6EDF7"
