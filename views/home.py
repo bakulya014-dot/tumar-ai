@@ -2,49 +2,43 @@
 
 import streamlit as st
 
-from components import feature_card, page_header
+from components import feature_card, render_hero
+from i18n import t
 
-page_header(
-    "🛡️ Tumar.AI",
-    "Your digital tumar — a personal AI amulet against online scams.",
-)
+render_hero("Tumar.AI", t("home.subtitle"))
 
-st.write(
-    "Online scams get smarter every year — fake bank messages, phishing "
-    "links, leaked passwords. **Tumar.AI** checks the danger for you and "
-    "explains it in plain language. No security degree required."
-)
+st.write(t("home.intro"))
 
-st.subheader("What can I do here?")
+st.subheader(t("home.tools_title"))
 
 feature_card(
     "🔍",
-    "Scam Analyzer",
-    "Paste a suspicious message and AI will rate how dangerous it is, "
-    "spot the manipulation tricks, and tell you exactly what to do.",
+    t("home.scam_card_title"),
+    t("home.scam_card_text"),
     "views/scam_analyzer.py",
-    "Analyze a message",
+    t("home.scam_card_link"),
 )
 feature_card(
     "📧",
-    "Email Breach Checker",
-    "Find out whether your email address appears in known data breaches — "
-    "and what to do if it does.",
+    t("home.breach_card_title"),
+    t("home.breach_card_text"),
     "views/breach_checker.py",
-    "Check my email",
+    t("home.breach_card_link"),
 )
 feature_card(
     "🔑",
-    "Password Health",
-    "Check whether a password has already leaked to the internet — without "
-    "your password ever leaving your device unprotected.",
+    t("home.password_card_title"),
+    t("home.password_card_text"),
     "views/password_checker.py",
-    "Test a password",
+    t("home.password_card_link"),
 )
 
-st.subheader("How it works")
+st.subheader(t("home.how_title"))
 
 step1, step2, step3 = st.columns(3)
-step1.markdown("**1. Pick a tool**  \nChoose a check in the sidebar.")
-step2.markdown("**2. Paste your data**  \nA message, an email, or a password.")
-step3.markdown("**3. Get plain advice**  \nA clear verdict and simple next steps.")
+with step1, st.container(border=True, key="tstep_1"):
+    st.markdown(t("home.how_step1"))
+with step2, st.container(border=True, key="tstep_2"):
+    st.markdown(t("home.how_step2"))
+with step3, st.container(border=True, key="tstep_3"):
+    st.markdown(t("home.how_step3"))

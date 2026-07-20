@@ -1,10 +1,16 @@
 """AI scam analysis service.
 
-Sends a suspicious message to Google Gemini and returns a validated,
-structured verdict. This module knows nothing about Streamlit — it can
-be reused unchanged by a future API server, bot, or browser extension.
+Orchestrates one analysis: runs the deterministic scanner first
+(services/heuristics.py), then sends the message plus the scanner
+findings to Google Gemini, validates the AI's structured answer, and
+returns both layers as one ScamReport.
+
+This module knows nothing about Streamlit — it can be reused unchanged
+by a future API server, bot, or browser extension. Errors carry short
+codes (not sentences); the UI translates codes for the user.
 """
 
+from dataclasses import dataclass
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -12,6 +18,9 @@ from typing import Literal
 from google import genai
 from google.genai import errors as genai_errors
 from pydantic import BaseModel, Field, ValidationError
+
+from services.common import ServiceError
+from services.heuristics import HeuristicReport, scan_message
 
 # Models to try, in order. Availability, quotas, and retirement are
 # tracked per model on Google's side, so if the primary model is
@@ -23,7 +32,7 @@ MODEL_CANDIDATES: tuple[str, ...] = (
 
 # System prompt lives in a versioned file, not in code, so we can
 # iterate on prompt wording without touching the service logic.
-PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "scam_analyzer_v1.md"
+PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "scam_analyzer_v2.md"
 
 # Low temperature = focused, consistent answers (0 = deterministic,
 # 2 = very creative). A security verdict should not be creative.
@@ -34,22 +43,32 @@ REQUEST_TIMEOUT_MS = 30_000
 
 
 class ScamAnalysis(BaseModel):
-    """Validated result of one scam analysis.
+    """Validated AI layer of the analysis.
 
-    Pydantic enforces this schema on the AI's answer: a verdict outside
-    the three allowed values or a risk score outside 0–100 is rejected
-    before it can ever reach the UI.
+    Pydantic enforces this schema on the AI's answer: values outside
+    the allowed ranges are rejected before they can reach the UI.
     """
 
     verdict: Literal["Safe", "Suspicious", "Dangerous"]
     risk_score: int = Field(ge=0, le=100)
+    confidence: int = Field(ge=0, le=100)
+    credential_theft_risk: int = Field(ge=0, le=100)
+    financial_scam_risk: int = Field(ge=0, le=100)
     red_flags: list[str]
     explanation: str
     recommended_actions: list[str]
 
 
-class ScamAnalysisError(Exception):
-    """Analysis failed. The exception message is safe to show to users."""
+@dataclass(frozen=True)
+class ScamReport:
+    """Complete result: deterministic scanner layer + AI layer."""
+
+    ai: ScamAnalysis
+    heuristics: HeuristicReport
+
+
+class ScamAnalysisError(ServiceError):
+    """Analysis failed. `code` selects a localized message in the UI."""
 
 
 @lru_cache(maxsize=1)
@@ -58,14 +77,11 @@ def _load_system_prompt() -> str:
     try:
         return PROMPT_FILE.read_text(encoding="utf-8")
     except OSError as exc:
-        raise ScamAnalysisError(
-            "The analysis engine is misconfigured (prompt file missing). "
-            "Please contact support."
-        ) from exc
+        raise ScamAnalysisError("prompt_missing") from exc
 
 
-def analyze_message(message: str, api_key: str) -> ScamAnalysis:
-    """Analyze a suspicious message and return a validated verdict.
+def analyze_message(message: str, api_key: str) -> ScamReport:
+    """Analyze a suspicious message and return a validated report.
 
     Args:
         message: The raw text the user wants checked.
@@ -73,10 +89,12 @@ def analyze_message(message: str, api_key: str) -> ScamAnalysis:
             stays free of any secret-storage details.
 
     Raises:
-        ScamAnalysisError: With a user-friendly message on any failure.
+        ScamAnalysisError: With a short error code on any failure.
     """
     if not api_key:
-        raise ScamAnalysisError("The AI engine is not configured (missing API key).")
+        raise ScamAnalysisError("missing_key")
+
+    heuristics = scan_message(message)
 
     client = genai.Client(
         api_key=api_key,
@@ -89,9 +107,7 @@ def analyze_message(message: str, api_key: str) -> ScamAnalysis:
         try:
             response = client.models.generate_content(
                 model=model,
-                # The user's text goes in as plain content, clearly separated
-                # from our instructions (which travel as system_instruction).
-                contents=message,
+                contents=_build_contents(message, heuristics),
                 config=genai.types.GenerateContentConfig(
                     system_instruction=_load_system_prompt(),
                     response_mime_type="application/json",
@@ -104,32 +120,52 @@ def analyze_message(message: str, api_key: str) -> ScamAnalysis:
             if _is_retriable(exc):
                 last_error = exc
                 continue  # A different model may still succeed.
-            raise ScamAnalysisError(_friendly_api_error(exc)) from exc
+            raise ScamAnalysisError(_api_error_code(exc)) from exc
         except Exception as exc:  # Network failures, timeouts, DNS errors…
-            raise ScamAnalysisError(
-                "Could not reach the AI service. Check your internet "
-                "connection and try again."
-            ) from exc
+            raise ScamAnalysisError("unreachable") from exc
 
     if response is None:
-        friendly = (
-            _friendly_api_error(last_error)
-            if last_error is not None
-            else "The AI service is unavailable right now. Please try again."
-        )
-        raise ScamAnalysisError(friendly) from last_error
+        code = _api_error_code(last_error) if last_error else "unavailable"
+        raise ScamAnalysisError(code) from last_error
 
     # The SDK parses the JSON into our model when it can; fall back to
     # validating the raw text ourselves, and reject anything malformed.
     parsed = response.parsed
     if isinstance(parsed, ScamAnalysis):
-        return parsed
+        return ScamReport(ai=parsed, heuristics=heuristics)
     try:
-        return ScamAnalysis.model_validate_json(response.text or "")
+        analysis = ScamAnalysis.model_validate_json(response.text or "")
     except ValidationError as exc:
-        raise ScamAnalysisError(
-            "The AI returned an unexpected answer. Please try again."
-        ) from exc
+        raise ScamAnalysisError("unexpected_answer") from exc
+    return ScamReport(ai=analysis, heuristics=heuristics)
+
+
+def _build_contents(message: str, heuristics: HeuristicReport) -> str:
+    """Combine the untrusted message with the scanner's findings.
+
+    Both blocks originate from the user's message, so the prompt
+    instructs the model to treat them strictly as evidence.
+    """
+    lines: list[str] = []
+    if heuristics.urgency_matches:
+        lines.append(f"- Urgency phrases matched: {', '.join(heuristics.urgency_matches)}")
+    if heuristics.otp_matches:
+        lines.append(f"- OTP/verification-code phrases matched: {', '.join(heuristics.otp_matches)}")
+    if heuristics.credential_indicators:
+        lines.append(f"- Credential-theft phrases matched: {', '.join(heuristics.credential_indicators)}")
+    if heuristics.financial_indicators:
+        lines.append(f"- Financial-bait phrases matched: {', '.join(heuristics.financial_indicators)}")
+    if heuristics.manipulation_indicators:
+        lines.append(f"- Manipulation phrases matched: {', '.join(heuristics.manipulation_indicators)}")
+    for finding in heuristics.suspicious_urls:
+        lines.append(f"- Suspicious URL {finding.url}: {', '.join(finding.reasons)}")
+    summary = "\n".join(lines) or "- The scanner detected nothing."
+
+    return (
+        "MESSAGE TO ANALYZE (untrusted data between the markers):\n"
+        f"<<<MESSAGE\n{message}\nMESSAGE>>>\n\n"
+        f"AUTOMATED SCANNER FINDINGS:\n{summary}"
+    )
 
 
 def _is_retriable(exc: genai_errors.APIError) -> bool:
@@ -143,31 +179,19 @@ def _is_retriable(exc: genai_errors.APIError) -> bool:
     return code in (404, 429) or (code is not None and code >= 500)
 
 
-def _friendly_api_error(exc: genai_errors.APIError) -> str:
-    """Translate an API error into a message safe to show users.
+def _api_error_code(exc: genai_errors.APIError) -> str:
+    """Map an API error to a short code the UI can localize.
 
-    Never leak internal details (keys, URLs, stack traces) into the UI.
+    Never leak internal details (keys, URLs, stack traces) to users.
     """
     code = getattr(exc, "code", None)
     # Gemini reports a bad key as HTTP 400, so also match on the message.
     if code in (401, 403) or "api key" in str(exc).lower():
-        return (
-            "The AI service rejected our credentials. Please check the "
-            "configured API key."
-        )
+        return "credentials"
     if code == 404:
-        return (
-            "The AI models are unavailable for this account right now. "
-            "Please contact support."
-        )
+        return "model_unavailable"
     if code == 429:
-        return (
-            "The AI service is busy right now (rate limit reached). "
-            "Please wait a few seconds and try again."
-        )
+        return "rate_limited"
     if code is not None and code >= 500:
-        return (
-            "The AI service is temporarily unavailable. Please try again "
-            "in a moment."
-        )
-    return "The AI service reported an error. Please try again."
+        return "service_down"
+    return "ai_error"

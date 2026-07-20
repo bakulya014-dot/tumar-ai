@@ -1,9 +1,13 @@
-# Tumar.AI theme — dark "security dashboard" look.
+# Tumar.AI theme — "Midnight Aurora" design system.
 # Streamlit reads this file automatically on startup.
+# Fine-grained styling lives in assets/styles.css.
 
 [theme]
 base = "dark"
-primaryColor = "#00C2FF"
-backgroundColor = "#0E1525"
-secondaryBackgroundColor = "#171F31"
-textColor = "#E6EDF7"
+primaryColor = "#22D3EE"
+backgroundColor = "#070D1A"
+secondaryBackgroundColor = "#0C1424"
+textColor = "#E8EEF9"
+linkColor = "#7DD3FC"
+borderColor = "#1B2740"
+baseRadius = "12px"
