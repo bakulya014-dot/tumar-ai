@@ -1,6 +1,14 @@
 # 🛡️ Tumar.AI
 
-**Your digital amulet against online scams.**
+# Python 3.11+
+# Streamlit
+# Google Gemini
+# License  
+
+**Your digital amulet against online scams. .**
+** 🛡️ Tumar.AI
+
+# AI-powered cybersecurity assistant for scam detection, breach monitoring, and digital safety. **
 
 Tumar.AI is an AI-powered cybersecurity assistant that helps people identify
 scams, detect data breaches, improve password security, and make safer
