@@ -1,19 +1,21 @@
 """URL Scanner page — paste a link, get a trust verdict before clicking.
 
-UI only: it collects input, calls the URL scanner service, and renders
-the returned TrustReport with the Aura design system. All analysis
-logic lives in services/url_scanner.py.
+UI only: collect input, call the scanner service, remember the result,
+and render it through the shared report view. All analysis logic lives
+in services/url_scanner.py.
 """
 
 import streamlit as st
 
 import components
+import report_store
 from components import page_header
 from i18n import current_language, t
-from services.trust_report import TrustReport
+from report_view import render_trust_report
 from services.url_scanner import UrlScanError, scan_url
 
 MAX_URL_LENGTH = 500
+SOURCE = "url_scanner"
 
 
 def _fill_example() -> None:
@@ -21,52 +23,11 @@ def _fill_example() -> None:
     st.session_state["url_input"] = t("url.example_url")
 
 
-def _render_report(report: TrustReport) -> None:
-    """Show the TrustReport: verdict, scores, evidence, and advice."""
-    components.verdict_card(
-        components.TRUST_CSS_VARIANTS[report.verdict],
-        t(f"trust.verdict.{report.verdict}"),
-        report.trust_score,
-        t("trust.score_label"),
-    )
-    components.meter(
-        t("trust.confidence"),
-        report.confidence,
-        "brand",
-        t("scam.metric_confidence_help"),
-    )
-    st.caption(t("url.address_only_note"))
-
-    ai_flags = [item.detail for item in report.evidence if item.kind == "ai"]
-    if ai_flags:
-        st.subheader(t("url.red_flags_title"))
-        components.chip_row(ai_flags, "danger")
-
-    st.subheader(t("url.explanation_title"))
-    st.write(report.explanation)
-
-    st.subheader(t("url.actions_title"))
-    for number, action in enumerate(report.recommended_actions, start=1):
-        st.markdown(f"{number}. {action}")
-
-    with st.expander(t("url.breakdown_title"), expanded=True):
-        heuristic_codes = [
-            item.code for item in report.evidence if item.kind == "heuristic"
-        ]
-        if heuristic_codes:
-            reasons = "; ".join(
-                t(f"scam.url_reason.{code}") for code in heuristic_codes
-            )
-            components.threat_card(report.subject_preview, reasons)
-        else:
-            st.caption(t("url.no_signals"))
-
-
 page_header(t("url.title"), t("url.subtitle"))
 
 api_key = components.get_gemini_api_key()
 if not api_key:
-    st.error(t("scam.not_configured"))
+    components.error_view(t("scam.not_configured"))
     st.stop()
 
 url = st.text_input(
@@ -96,6 +57,14 @@ if check_clicked:
                     cleaned, api_key=api_key, language=current_language()
                 )
             except UrlScanError as error:
-                st.error(f"😕 {t(f'errors.{error.code}')}")
+                components.error_view(f"😕 {t(f'errors.{error.code}')}")
             else:
-                _render_report(report)
+                report_store.remember(st.session_state, report)
+
+# Rendered from the store so the verdict survives later re-runs.
+remembered = report_store.latest(st.session_state, SOURCE)
+if remembered:
+    render_trust_report(remembered)
+    st.caption(t("url.address_only_note"))
+else:
+    components.empty_state("🔗", t("url.empty_title"), t("url.empty_text"))

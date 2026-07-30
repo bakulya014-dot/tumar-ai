@@ -74,8 +74,9 @@ def test_build_report_combines_both_layers() -> None:
     assert report.trust_score == 12  # 100 - risk 88
     kinds = {item.kind for item in report.evidence}
     assert kinds == {"heuristic", "ai"}
+    # Shared "url_" vocabulary, same as the scam analyzer's link findings.
     heuristic_codes = [i.code for i in report.evidence if i.kind == "heuristic"]
-    assert "brand_lookalike" in heuristic_codes
+    assert "url_brand_lookalike" in heuristic_codes
     assert report.subject_preview.startswith("http://kaspi-bonus")
     print("test_build_report_combines_both_layers PASSED")
 

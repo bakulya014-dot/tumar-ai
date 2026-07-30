@@ -61,6 +61,18 @@ def test_scam_adapter_maps_verdict_and_score() -> None:
     print("test_scam_adapter_maps_verdict_and_score PASSED")
 
 
+def test_scam_adapter_exposes_risk_breakdown_as_metrics() -> None:
+    # Module-specific numbers travel inside the unified schema, so the
+    # shared renderer draws them without module-specific code.
+    report = from_scam_report(_sample_scam_report(), "Urgent! Send the code")
+    by_key = {metric.label_key: metric.value for metric in report.metrics}
+    assert by_key["scam.credential_risk_label"] == 80
+    assert by_key["scam.financial_risk_label"] == 70
+    assert by_key["scam.metric_urgency"] == 35
+    assert all(metric.higher_is_worse for metric in report.metrics)
+    print("test_scam_adapter_exposes_risk_breakdown_as_metrics PASSED")
+
+
 def test_scam_adapter_collects_all_evidence_layers() -> None:
     report = from_scam_report(_sample_scam_report(), "Urgent! Send the code")
     kinds = {item.kind for item in report.evidence}
@@ -142,6 +154,7 @@ def test_mask_email_hides_local_part() -> None:
 
 if __name__ == "__main__":
     test_scam_adapter_maps_verdict_and_score()
+    test_scam_adapter_exposes_risk_breakdown_as_metrics()
     test_scam_adapter_collects_all_evidence_layers()
     test_breach_adapter_breached_email()
     test_breach_adapter_clean_email_is_not_certainty()

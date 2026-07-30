@@ -1,19 +1,23 @@
-"""Scam Analyzer page — paste a message, get a two-layer risk report.
+"""Scam Analyzer page — paste a message, get a trust report.
 
-UI only: it collects input, calls the analysis service, and renders
-the validated report with the Aura design system. The deterministic
-scanner lives in services/heuristics.py and the AI logic in
+UI only: collect input, call the analysis service, remember the result,
+and render it through the shared report view. The deterministic scanner
+lives in services/heuristics.py and the AI logic in
 services/scam_analysis.py.
 """
 
 import streamlit as st
 
 import components
+import report_store
 from components import page_header
+from report_view import render_trust_report
+from services.scam_analysis import ScamAnalysisError, analyze_message
+from services.trust_report import TrustReport, from_scam_report
 from i18n import t
-from services.scam_analysis import ScamAnalysisError, ScamReport, analyze_message
 
 MAX_MESSAGE_LENGTH = 5000
+SOURCE = "scam_analyzer"
 
 
 def _fill_example() -> None:
@@ -21,104 +25,20 @@ def _fill_example() -> None:
     st.session_state["scam_message"] = t("scam.example_message")
 
 
-def _meter_variant(value: int) -> str:
-    """Color a 0–100 meter like a verdict: green, amber, red."""
-    if value >= 66:
-        return "danger"
-    if value >= 26:
-        return "warn"
-    return "ok"
-
-
-def _render_report(report: ScamReport) -> None:
-    """Show the two-layer analysis: AI verdict + deterministic findings."""
-    ai = report.ai
-    heuristics = report.heuristics
-
-    components.verdict_card(
-        ai.verdict,
-        t(f"scam.verdict.{ai.verdict.lower()}"),
-        ai.risk_score,
-        t("scam.metric_risk"),
-    )
-
-    confidence_col, urgency_col = st.columns(2)
-    with confidence_col:
-        components.meter(
-            t("scam.metric_confidence"),
-            ai.confidence,
-            "brand",
-            t("scam.metric_confidence_help"),
-        )
-    with urgency_col:
-        components.meter(
-            t("scam.metric_urgency"),
-            heuristics.urgency_score,
-            _meter_variant(heuristics.urgency_score),
-            t("scam.metric_urgency_help"),
-        )
-
-    if ai.red_flags:
-        st.subheader(t("scam.red_flags_title"))
-        components.chip_row(ai.red_flags, "danger")
-
-    st.subheader(t("scam.explanation_title"))
-    st.write(ai.explanation)
-
-    st.subheader(t("scam.actions_title"))
-    for number, action in enumerate(ai.recommended_actions, start=1):
-        st.markdown(f"{number}. {action}")
-
-    with st.expander(t("scam.breakdown_title"), expanded=True):
-        components.meter(
-            t("scam.credential_risk_label"),
-            ai.credential_theft_risk,
-            _meter_variant(ai.credential_theft_risk),
-        )
-        components.meter(
-            t("scam.financial_risk_label"),
-            ai.financial_scam_risk,
-            _meter_variant(ai.financial_scam_risk),
-        )
-
-        otp = heuristics.otp_requested
-        components.kv_chip(
-            t("scam.otp_label"),
-            t("scam.yes") if otp else t("scam.no"),
-            "danger" if otp else "ok",
-        )
-        if otp:
-            st.warning(t("scam.otp_warning"))
-
-        if heuristics.suspicious_urls:
-            st.markdown(f"**{t('scam.urls_title')}**")
-            for finding in heuristics.suspicious_urls:
-                reasons = "; ".join(
-                    t(f"scam.url_reason.{code}") for code in finding.reasons
-                )
-                components.threat_card(finding.url, reasons)
-
-        signal_groups = (
-            ("scam.signal_urgency", heuristics.urgency_matches),
-            ("scam.signal_credential", heuristics.credential_indicators),
-            ("scam.signal_financial", heuristics.financial_indicators),
-            ("scam.signal_manipulation", heuristics.manipulation_indicators),
-        )
-        detected = [(key, matches) for key, matches in signal_groups if matches]
-        if detected:
-            st.markdown(f"**{t('scam.signals_title')}**")
-            for label_key, matches in detected:
-                st.caption(t(label_key))
-                components.chip_row(matches, "warn")
-        elif not heuristics.suspicious_urls and not otp:
-            st.caption(t("scam.no_signals"))
+def _render(report: TrustReport) -> None:
+    """Shared report layout, plus this module's own safety warning."""
+    render_trust_report(report)
+    # One-time codes are the single most damaging thing a victim can
+    # hand over, so this module escalates it above the evidence list.
+    if any(item.code == "otp" for item in report.evidence):
+        st.warning(t("scam.otp_warning"))
 
 
 page_header(t("scam.title"), t("scam.subtitle"))
 
 api_key = components.get_gemini_api_key()
 if not api_key:
-    st.error(t("scam.not_configured"))
+    components.error_view(t("scam.not_configured"))
     st.stop()
 
 message = st.text_area(
@@ -145,8 +65,20 @@ if analyze_clicked:
     else:
         with st.spinner(t("scam.spinner")):
             try:
-                report = analyze_message(cleaned, api_key=api_key)
+                result = analyze_message(cleaned, api_key=api_key)
             except ScamAnalysisError as error:
-                st.error(f"😕 {t(f'errors.{error.code}')}")
+                components.error_view(f"😕 {t(f'errors.{error.code}')}")
             else:
-                _render_report(report)
+                report_store.remember(
+                    st.session_state, from_scam_report(result, cleaned)
+                )
+
+# Rendered from the store, not from the click: a result must survive
+# every later re-run (language switch, typing, any other widget).
+remembered = report_store.latest(st.session_state, SOURCE)
+if remembered:
+    _render(remembered)
+else:
+    components.empty_state(
+        "🔍", t("scam.empty_title"), t("scam.empty_text")
+    )

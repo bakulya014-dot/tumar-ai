@@ -61,6 +61,36 @@ report = TrustEngine().analyze(
 Adding a capability = write an `Analyzer`, add one line to the registry.
 `TrustEngine` itself is never edited (Open/Closed Principle).
 
+## Design system
+
+Every module renders its result through one shared view, so modules cannot
+drift into their own visual dialect and a new module page needs no layout
+code of its own:
+
+```python
+render_trust_report(report)   # report_view.py
+```
+
+Fixed layout for every module: verdict and trust score → confidence and
+module metrics → what is going on → what you should do → evidence grouped by
+who found it (collapsed) → footer with timestamp, detection method, and the
+privacy note.
+
+- `components.py` holds the primitives: `verdict_card`, `meter`, `chip_row`,
+  `threat_card`, `status_badge`, `stat`, `section_header`, `empty_state`,
+  `error_view`. Every dynamic value is `html.escape()`d.
+- `report_view.py` composes them. It reads only the `TrustReport` schema and
+  never learns which module produced the report — free-text fields (AI
+  modules) and translation-key fields (deterministic modules) both just work.
+- Module-specific numbers travel as `TrustReport.metrics`, so a module can
+  expose its own breakdown without any module-specific rendering code.
+  Metrics carry meaning (`higher_is_worse`), never colors — the data layer
+  does not know about CSS.
+- `report_store.py` keeps the last report per module in session state, so a
+  result survives every later re-run. The state container is passed in
+  explicitly; a security product must never hold user data in globals where
+  one visitor's analysis could surface in another visitor's session.
+
 ## Tech Stack
 
 - Python 3.11+
@@ -74,7 +104,9 @@ Adding a capability = write an `Analyzer`, add one line to the registry.
 ```
 tumar-ai/
 ├── app.py                  # Entry point: page config + sidebar navigation
-├── components.py           # Reusable UI building blocks
+├── components.py           # Design-system primitives (cards, meters, chips, states)
+├── report_view.py          # The one shared Trust Report layout
+├── report_store.py         # Session-scoped report history (survives re-runs)
 ├── views/                  # UI layer — one file per page
 │   ├── home.py             # Landing page: Quick Check (Trust Engine) + feature cards
 │   ├── scam_analyzer.py    # Scam Analyzer page
@@ -103,6 +135,8 @@ tumar-ai/
 │   ├── test_breach_checker.py
 │   ├── test_heuristics.py
 │   ├── test_i18n.py
+│   ├── test_report_store.py
+│   ├── test_report_view.py
 │   ├── test_trust_engine.py
 │   ├── test_trust_report.py
 │   └── test_url_scanner.py

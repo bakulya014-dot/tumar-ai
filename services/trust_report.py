@@ -49,11 +49,35 @@ class Evidence(BaseModel):
     `kind` tells the user WHO found it (deterministic scanner, AI, or
     an external database) — a core trust-UX principle: never blur the
     line between a pattern match and an AI judgement.
+
+    Code vocabulary is shared platform-wide so one renderer can
+    present any module's evidence: "url_*" for per-link findings,
+    "red_flag" for AI-named techniques, "breach" for database hits,
+    and a signal family ("urgency", "otp", "credential", "financial",
+    "manipulation") for matched wording.
     """
 
     kind: Literal["heuristic", "ai", "external"]
     code: str  # short machine code, e.g. "urgency", "red_flag", "breach"
     detail: str = ""  # verbatim data: the phrase, URL, or breach name
+
+
+class Metric(BaseModel):
+    """One named 0–100 measurement behind a verdict.
+
+    Modules expose their own breakdowns (credential-theft risk,
+    urgency pressure, and later deepfake likelihood or payment risk)
+    without the UI needing module-specific code: the renderer draws
+    whatever metrics a report carries.
+
+    `label_key` is a full dotted i18n key, so any consumer localizes
+    it with t(key). `higher_is_worse` carries the SEMANTICS, never a
+    color — the data layer must not know about CSS.
+    """
+
+    label_key: str
+    value: int = Field(ge=0, le=100)
+    higher_is_worse: bool = True
 
 
 class TrustReport(BaseModel):
@@ -69,6 +93,7 @@ class TrustReport(BaseModel):
     verdict: Verdict
     trust_score: int = Field(ge=0, le=100)  # 100 = fully trustworthy
     confidence: int = Field(ge=0, le=100)
+    metrics: list[Metric] = Field(default_factory=list)
     evidence: list[Evidence] = Field(default_factory=list)
     explanation: str = ""  # free text (AI modules)
     explanation_key: str = ""  # translation key (deterministic modules)
@@ -128,6 +153,20 @@ def from_scam_report(report: ScamReport, message: str) -> TrustReport:
         verdict=_SCAM_VERDICTS[report.ai.verdict],
         trust_score=100 - report.ai.risk_score,
         confidence=report.ai.confidence,
+        metrics=[
+            Metric(
+                label_key="scam.credential_risk_label",
+                value=report.ai.credential_theft_risk,
+            ),
+            Metric(
+                label_key="scam.financial_risk_label",
+                value=report.ai.financial_scam_risk,
+            ),
+            Metric(
+                label_key="scam.metric_urgency",
+                value=heuristics.urgency_score,
+            ),
+        ],
         evidence=evidence,
         explanation=report.ai.explanation,
         recommended_actions=list(report.ai.recommended_actions),

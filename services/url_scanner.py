@@ -117,8 +117,11 @@ def build_report(
     Public (not underscored) so offline tests can exercise the whole
     report assembly without a network call.
     """
+    # "url_" prefix matches the scam analyzer's vocabulary for link
+    # findings, so one shared renderer presents both identically.
     evidence = [
-        Evidence(kind="heuristic", code=code, detail=url) for code in reasons
+        Evidence(kind="heuristic", code=f"url_{code}", detail=url)
+        for code in reasons
     ]
     evidence.extend(
         Evidence(kind="ai", code="red_flag", detail=flag)

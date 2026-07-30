@@ -1,55 +1,27 @@
 """Email Breach Checker page — has this email appeared in known leaks?
 
-UI only: collect the email, call the breach service, render the
-result with the Aura design system. All lookup logic lives in
-services/breach_checker.py.
+UI only: collect the email, call the breach service, remember the
+result, and render it through the shared report view. All lookup logic
+lives in services/breach_checker.py.
+
+This page renders the same Trust Report as every other module: before,
+it spoke its own visual language (colored banners, no trust score), so
+the same email produced a different-looking answer here than through
+the home page's Quick Check. In a product about trust, one input must
+always produce one answer.
 """
 
 import streamlit as st
 
 import components
+import report_store
 from components import page_header
 from i18n import t
-from services.breach_checker import (
-    BreachCheckError,
-    EmailBreachResult,
-    check_email,
-    is_valid_email,
-)
+from report_view import render_trust_report
+from services.breach_checker import BreachCheckError, check_email, is_valid_email
+from services.trust_report import from_breach_result
 
-
-def _render_result(result: EmailBreachResult) -> None:
-    """Show the lookup outcome in plain language."""
-    if not result.breached:
-        st.success(t("breach.safe_banner", email=result.email))
-        st.caption(t("breach.safe_caption"))
-        st.subheader(t("breach.safe_tips_title"))
-    else:
-        banner = st.error if result.risk_level == "high" else st.warning
-        banner(
-            t(
-                "breach.breached_banner",
-                email=result.email,
-                count=result.breach_count,
-            )
-        )
-
-        st.subheader(t("breach.breaches_title"))
-        if result.breach_count <= 8:
-            components.chip_row(result.breaches, "danger")
-        else:
-            components.chip_row(result.breaches[:6], "danger")
-            with st.expander(t("breach.expander_label", count=result.breach_count)):
-                st.write(", ".join(result.breaches))
-
-        st.subheader(t("breach.meaning_title"))
-        st.write(t("breach.meaning_text"))
-
-        st.subheader(t("breach.actions_title"))
-
-    for number, key in enumerate(result.recommendations, start=1):
-        st.markdown(f"{number}. {t(f'breach.{key}')}")
-
+SOURCE = "breach_checker"
 
 page_header(t("breach.title"), t("breach.subtitle"))
 
@@ -57,6 +29,7 @@ st.caption(t("breach.privacy_note"))
 
 email = st.text_input(
     t("breach.input_label"),
+    key="breach_email",
     placeholder=t("breach.input_placeholder"),
     max_chars=254,
     help=t("breach.input_help"),
@@ -76,6 +49,18 @@ if check_clicked:
             try:
                 result = check_email(cleaned)
             except BreachCheckError as error:
-                st.error(f"😕 {t(f'errors.{error.code}')}")
+                components.error_view(f"😕 {t(f'errors.{error.code}')}")
             else:
-                _render_result(result)
+                report_store.remember(
+                    st.session_state, from_breach_result(result)
+                )
+
+# Rendered from the store so the result survives later re-runs.
+remembered = report_store.latest(st.session_state, SOURCE)
+if remembered:
+    st.caption(t("breach.checked_label", email=remembered.subject_preview))
+    render_trust_report(remembered)
+else:
+    components.empty_state(
+        "📧", t("breach.empty_title"), t("breach.empty_text")
+    )

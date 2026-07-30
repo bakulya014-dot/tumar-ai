@@ -89,6 +89,66 @@ def coming_soon(feature_name: str) -> None:
     st.info(t("common.coming_soon", feature=feature_name))
 
 
+def section_header(title: str, caption: str = "") -> None:
+    """One consistent section heading across every page."""
+    st.subheader(title)
+    if caption:
+        st.caption(caption)
+
+
+def status_badge(label: str, variant: str = "neutral") -> None:
+    """A single status pill — platform status, module state, verdicts."""
+    suffix = "" if variant == "neutral" else f" t-chip--{variant}"
+    st.markdown(
+        f'<div class="t-chips"><span class="t-chip{suffix}">'
+        f"{html.escape(label)}</span></div>",
+        unsafe_allow_html=True,
+    )
+
+
+def stat(value: str, label: str, variant: str = "brand") -> None:
+    """A dashboard stat tile (styles.css .t-stat)."""
+    modifier = "" if variant == "brand" else f" t-stat--{variant}"
+    st.markdown(
+        f'<div class="t-stat{modifier}"><span class="t-stat-value">'
+        f'{html.escape(value)}</span><span class="t-stat-label">'
+        f"{html.escape(label)}</span></div>",
+        unsafe_allow_html=True,
+    )
+
+
+def empty_state(icon: str, title: str, text: str) -> None:
+    """Shown where content will appear once the user acts.
+
+    An empty area leaves users wondering whether something is broken;
+    a named empty state tells them what will show up and why.
+    """
+    st.markdown(
+        f'<div class="t-empty"><div class="t-empty-icon" aria-hidden="true">'
+        f'{html.escape(icon)}</div><div class="t-empty-title">'
+        f'{html.escape(title)}</div><div class="t-empty-text">'
+        f"{html.escape(text)}</div></div>",
+        unsafe_allow_html=True,
+    )
+
+
+def error_view(message: str, hint: str = "") -> None:
+    """The one way this product reports a failure."""
+    st.error(message)
+    if hint:
+        st.caption(hint)
+
+
+def metric_variant(value: int, higher_is_worse: bool = True) -> str:
+    """Map a 0–100 value to a meter color, respecting its semantics."""
+    level = value if higher_is_worse else 100 - value
+    if level >= 66:
+        return "danger"
+    if level >= 26:
+        return "warn"
+    return "ok"
+
+
 def render_hero(title: str, subtitle: str) -> None:
     """Home hero: the pulsing tumar amulet and a gradient headline."""
     st.markdown(

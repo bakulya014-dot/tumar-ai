@@ -430,6 +430,39 @@ p, li, label { line-height: 1.65; }
 .t-stat--danger .t-stat-value { color: var(--t-danger); }
 .t-stat-label { color: var(--t-ink-muted); font-size: 0.95rem; }
 
+/* ---------- Empty state ---------- */
+
+.t-empty {
+  text-align: center;
+  padding: 2.2rem 1.4rem;
+  border-radius: var(--t-radius);
+  border: 1px dashed var(--t-glass-border);
+  background: var(--t-glass);
+  margin: 0.4rem 0 0.8rem;
+}
+.t-empty-icon { font-size: 1.9rem; line-height: 1; margin-bottom: 0.6rem; }
+.t-empty-title { font-weight: 600; margin-bottom: 0.3rem; }
+.t-empty-text {
+  color: var(--t-ink-muted);
+  font-size: 0.92rem;
+  max-width: 46ch;
+  margin: 0 auto;
+}
+
+/* ---------- Report footer (trust signals) ---------- */
+
+.t-foot {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem 1.1rem;
+  align-items: center;
+  margin-top: 0.9rem;
+  padding-top: 0.8rem;
+  border-top: 1px solid var(--t-border);
+  color: var(--t-ink-muted);
+  font-size: 0.84rem;
+}
+
 /* ---------- Responsive ---------- */
 
 @media (max-width: 640px) {
