@@ -44,6 +44,7 @@ if requested_language in LANGUAGES and "language" not in st.session_state:
 pages = [
     st.Page("views/home.py", title=t("nav.home"), icon="🏠", default=True),
     st.Page("views/scam_analyzer.py", title=t("nav.scam"), icon="🔍"),
+    st.Page("views/url_scanner.py", title=t("nav.url"), icon="🔗"),
     st.Page("views/breach_checker.py", title=t("nav.breach"), icon="📧"),
     st.Page("views/password_checker.py", title=t("nav.password"), icon="🔑"),
     st.Page("views/about.py", title=t("nav.about"), icon="ℹ️"),

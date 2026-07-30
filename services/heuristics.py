@@ -166,14 +166,19 @@ def _scan_urls(message: str) -> list[SuspiciousURL]:
         if url in seen:
             continue
         seen.add(url)
-        reasons = _url_reasons(url)
+        reasons = url_reasons(url)
         if reasons:
             findings.append(SuspiciousURL(url=url, reasons=reasons))
     return findings
 
 
-def _url_reasons(url: str) -> list[str]:
-    """Return reason codes describing why this URL looks suspicious."""
+def url_reasons(url: str) -> list[str]:
+    """Return reason codes describing why this URL looks suspicious.
+
+    Public API: the scam analyzer uses it for links found inside
+    messages, and the URL scanner uses it when the URL itself is the
+    subject. One set of checks, one place to improve them.
+    """
     normalized = url if "://" in url else f"http://{url}"
     parsed = urlparse(normalized.lower())
     host = parsed.hostname or ""

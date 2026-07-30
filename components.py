@@ -22,6 +22,11 @@ _APP_DIR = Path(__file__).parent
 # 2π × r(54) — kept in sync with the gauge SVG radius below.
 _GAUGE_CIRCUMFERENCE = 339.3
 
+# Platform verdict code -> CSS variant of the Aura components (the
+# stylesheet predates the TrustReport schema, so its class names still
+# follow the scam analyzer's wording).
+TRUST_CSS_VARIANTS = {"safe": "safe", "caution": "suspicious", "danger": "dangerous"}
+
 
 @st.cache_data(show_spinner=False)
 def _styles() -> str:
@@ -37,6 +42,20 @@ def load_styles() -> None:
         "<span></span><span></span><span></span></div>",
         unsafe_allow_html=True,
     )
+
+
+def get_gemini_api_key() -> str:
+    """Read the Gemini API key from Streamlit's secrets storage.
+
+    Shared by every AI-powered page so secret handling lives in one
+    place; services never read secrets themselves — the key is always
+    passed in by the UI layer.
+    """
+    try:
+        return st.secrets.get("GEMINI_API_KEY", "")
+    except FileNotFoundError:
+        # No secrets file at all — treat it the same as a missing key.
+        return ""
 
 
 def page_header(title: str, subtitle: str) -> None:

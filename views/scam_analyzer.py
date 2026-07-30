@@ -16,15 +16,6 @@ from services.scam_analysis import ScamAnalysisError, ScamReport, analyze_messag
 MAX_MESSAGE_LENGTH = 5000
 
 
-def _get_api_key() -> str:
-    """Read the Gemini API key from Streamlit's secrets storage."""
-    try:
-        return st.secrets.get("GEMINI_API_KEY", "")
-    except FileNotFoundError:
-        # No secrets file at all — treat it the same as a missing key.
-        return ""
-
-
 def _fill_example() -> None:
     """Button callback: put a sample scam message into the input box."""
     st.session_state["scam_message"] = t("scam.example_message")
@@ -125,7 +116,7 @@ def _render_report(report: ScamReport) -> None:
 
 page_header(t("scam.title"), t("scam.subtitle"))
 
-api_key = _get_api_key()
+api_key = components.get_gemini_api_key()
 if not api_key:
     st.error(t("scam.not_configured"))
     st.stop()

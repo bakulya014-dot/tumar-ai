@@ -29,9 +29,37 @@ plain language, accessible to everyone.
 | Feature | Status |
 | --- | --- |
 | AI Scam Message Analyzer (AI + deterministic scanner) | ✅ Available (beta) |
+| URL Scanner (address-only trust verdict, AI + heuristics) | ✅ Available (beta) |
 | Email Breach Checker | ✅ Available (beta) |
+| Quick Check (auto-routing via the Trust Engine) | ✅ Available (beta) |
 | Multilingual interface (English / Русский / Қазақша) | ✅ Available |
 | Password Health Checker | 📋 Planned |
+
+## Architecture: the Trust Engine
+
+Every capability is an **Analyzer** behind one interface, and every consumer
+talks to the platform the same way:
+
+```python
+report = TrustEngine().analyze(
+    TrustSubject(content="http://suspicious.link"),
+    AnalysisContext(api_key=key),
+)
+```
+
+- `TrustSubject` is an envelope (`content: str | bytes`, `mime_type`,
+  `declared_kind`, `language`, `filename`) — so binary inputs such as PDFs,
+  screenshots, or audio need no engine change, only a new analyzer.
+- `AnalysisContext` carries everything analyzers need beyond the subject.
+  New needs become new *optional* fields; analyzer signatures never change.
+- Analyzers are registered **most-specific first** in `default_analyzers()`.
+  The first `can_handle()` win takes the subject; `declared_kind` skips
+  detection when the caller already knows what it holds.
+- Every analyzer returns the same `TrustReport`, so any consumer can render
+  any module's verdict with no module-specific code.
+
+Adding a capability = write an `Analyzer`, add one line to the registry.
+`TrustEngine` itself is never edited (Open/Closed Principle).
 
 ## Tech Stack
 
@@ -48,19 +76,25 @@ tumar-ai/
 ├── app.py                  # Entry point: page config + sidebar navigation
 ├── components.py           # Reusable UI building blocks
 ├── views/                  # UI layer — one file per page
-│   ├── home.py             # Landing page with feature cards
+│   ├── home.py             # Landing page: Quick Check (Trust Engine) + feature cards
 │   ├── scam_analyzer.py    # Scam Analyzer page
+│   ├── url_scanner.py      # URL Scanner page
 │   ├── breach_checker.py   # Email Breach Checker page
 │   ├── password_checker.py # Password Health (UI ready, check pending)
 │   └── about.py            # Mission, name story, product principles
 ├── services/               # Business logic — UI-independent
 │   ├── common.py           # Shared error base (code-based errors)
-│   ├── scam_analysis.py    # Gemini call + response validation
+│   ├── trust_engine.py     # Core orchestration: TrustSubject → Analyzer → TrustReport
+│   ├── gemini_client.py    # Shared Gemini client: model fallback + error codes
+│   ├── scam_analysis.py    # Scam analysis orchestration + response schema
+│   ├── url_scanner.py      # URL trust scan (native TrustReport module)
 │   ├── heuristics.py       # Deterministic scanner (urgency, URLs, OTP…)
-│   └── breach_checker.py   # Breach lookup + risk assessment
+│   ├── breach_checker.py   # Breach lookup + risk assessment
+│   └── trust_report.py     # Unified TrustReport schema — the platform's shared result language
 ├── prompts/                # Versioned AI prompts
 │   ├── scam_analyzer_v1.md
-│   └── scam_analyzer_v2.md
+│   ├── scam_analyzer_v2.md
+│   └── url_scanner_v1.md
 ├── i18n/                   # UI translations (EN / RU / KK)
 │   ├── en.json
 │   ├── ru.json
@@ -68,7 +102,10 @@ tumar-ai/
 ├── tests/                  # Offline logic tests (no network needed)
 │   ├── test_breach_checker.py
 │   ├── test_heuristics.py
-│   └── test_i18n.py
+│   ├── test_i18n.py
+│   ├── test_trust_engine.py
+│   ├── test_trust_report.py
+│   └── test_url_scanner.py
 ├── assets/
 │   ├── logo.svg            # Brand logo (tumar amulet + wordmark)
 │   └── styles.css          # "Aura" design system: theme, motion, components

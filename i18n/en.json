@@ -7,6 +7,7 @@
   "nav": {
     "home": "Home",
     "scam": "Scam Analyzer",
+    "url": "URL Scanner",
     "breach": "Email Breach Checker",
     "password": "Password Health",
     "about": "About"
@@ -14,10 +15,23 @@
   "home": {
     "subtitle": "Your digital tumar — a personal AI amulet against online scams.",
     "intro": "Online scams get smarter every year — fake bank messages, phishing links, leaked passwords. **Tumar.AI** checks the danger for you and explains it in plain language. No security degree required.",
+    "quick_title": "⚡ Quick check",
+    "quick_intro": "Paste anything — a suspicious message, a link, or your email address. Tumar.AI detects what it is and runs the right check.",
+    "quick_input_label": "Message, link, or email",
+    "quick_input_placeholder": "Paste a message, URL, or email address…",
+    "quick_input_help": "Analyzed in memory and never stored.",
+    "quick_button": "⚡ Check it",
+    "quick_spinner": "Tumar.AI is running the best check…",
+    "quick_empty": "The box is empty — paste something first.",
+    "quick_detected": "Detected: **{kind}**",
+    "quick_full_tool": "Open the full tool for more detail",
     "tools_title": "What can I do here?",
     "scam_card_title": "Scam Analyzer",
     "scam_card_text": "Paste a suspicious message and AI will rate how dangerous it is, spot the manipulation tricks, and tell you exactly what to do.",
     "scam_card_link": "Analyze a message",
+    "url_card_title": "URL Scanner",
+    "url_card_text": "Paste a link before you click it — AI checks the address for phishing tricks and brand imitation.",
+    "url_card_link": "Check a link",
     "breach_card_title": "Email Breach Checker",
     "breach_card_text": "Find out whether your email address appears in known data breaches — and what to do if it does.",
     "breach_card_link": "Check my email",
@@ -83,6 +97,38 @@
     "signal_manipulation": "Psychological manipulation",
     "no_signals": "Our deterministic scanner found no suspicious patterns — the verdict above is based on AI analysis."
   },
+  "trust": {
+    "verdict": {
+      "safe": "Looks safe",
+      "caution": "Be careful",
+      "danger": "Dangerous"
+    },
+    "score_label": "Trust score",
+    "confidence": "Confidence",
+    "kind": {
+      "url": "Link (URL)",
+      "email": "Email address",
+      "message": "Message text"
+    }
+  },
+  "url": {
+    "title": "🔗 URL Scanner",
+    "subtitle": "Check a link before you click: paste any URL and get a trust verdict.",
+    "input_label": "Link to check",
+    "input_placeholder": "https://example.com/login",
+    "input_help": "The link is judged by its address only — we never open the page. Nothing is stored.",
+    "check_button": "🔗 Check link",
+    "example_button": "✨ Try an example",
+    "example_url": "http://kaspi-bonus-security.xyz/login",
+    "empty_warning": "The link box is empty — paste a URL first.",
+    "spinner": "Tumar.AI is inspecting the link…",
+    "address_only_note": "ℹ️ The verdict is based on the address only — the page itself was not opened.",
+    "red_flags_title": "🚩 Red flags detected",
+    "explanation_title": "💬 What is going on?",
+    "actions_title": "✅ What you should do",
+    "breakdown_title": "🧪 Deterministic scanner findings",
+    "no_signals": "Our deterministic scanner found no suspicious patterns in the address — the verdict above is based on AI analysis."
+  },
   "breach": {
     "title": "📧 Email Breach Checker",
     "subtitle": "Check whether your email address appears in known public data breaches.",
@@ -117,7 +163,10 @@
     "rec_periodic_check": "Re-check your email here every few months — new breaches surface all the time.",
     "rec_change_passwords": "Change the password on every account that uses this email.",
     "rec_no_reuse": "Never reuse the same password across different sites.",
-    "rec_watch_phishing": "Watch out for phishing emails and unexpected password-reset messages — attackers know this address exists."
+    "rec_watch_phishing": "Watch out for phishing emails and unexpected password-reset messages — attackers know this address exists.",
+    "explanation_none": "This address was not found in any known public data breach. That is good news, but not a guarantee — keep your guard up.",
+    "explanation_medium": "This address appears in known data breaches. Data linked to it — possibly including passwords — has been exposed.",
+    "explanation_high": "This address appears in several known data breaches. Treat every account that uses it as at risk."
   },
   "password": {
     "title": "🔑 Password Health",
@@ -145,6 +194,8 @@
   },
   "errors": {
     "invalid_email": "That does not look like a valid email address. Please check it and try again.",
+    "invalid_url": "That does not look like a valid link. Please check it and try again — for example, https://example.com.",
+    "unsupported_input": "Tumar.AI cannot analyze this type of input yet.",
     "timeout": "The service is taking too long to respond. Please try again in a moment.",
     "unreachable": "Could not reach the service. Check your internet connection and try again.",
     "rate_limited": "Too many requests in a short time. Please wait a moment and try again.",

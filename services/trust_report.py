@@ -1,0 +1,180 @@
+"""Unified Trust Report — the shared result language of the platform.
+
+Every module (scam analyzer, breach checker, and each future scanner)
+keeps its own detailed result type, but the platform speaks one
+language: the TrustReport. One schema means the UI can render any
+module's verdict with the same components, history can store results
+from different modules side by side, and a future API can return them
+to external callers unchanged.
+
+Design decisions:
+- Pydantic, not a dataclass: reports will cross process boundaries —
+  kept in history, returned over an API — so they need validation and
+  loss-free JSON serialization built in.
+- trust_score points UP: 100 = fully trustworthy, 0 = do not trust.
+  Individual modules think in risk (higher = worse); the platform
+  speaks in trust so every screen reads the same way.
+- Two kinds of text: AI modules produce free text already in the
+  user's language (explanation / recommended_actions); deterministic
+  modules produce translation keys (explanation_key /
+  recommended_action_keys) that the UI resolves. A report fills one
+  of each pair and leaves the other empty. Keys are FULL dotted i18n
+  keys ("breach.rec_enable_mfa"), so any consumer can render any
+  report with t(key) alone — no per-module knowledge required.
+- Previews are safe by construction: emails are masked and messages
+  truncated before they enter a report, so a report can always be
+  displayed or stored without re-checking for sensitive content.
+"""
+
+from datetime import datetime, timezone
+from typing import Literal
+from uuid import uuid4
+
+from pydantic import BaseModel, Field
+
+from services.breach_checker import EmailBreachResult
+from services.scam_analysis import ScamReport
+
+SubjectType = Literal["message", "email", "url"]
+Verdict = Literal["safe", "caution", "danger"]
+
+# Longest subject preview we keep; enough to recognize the item in a
+# history list without storing the full (possibly sensitive) content.
+PREVIEW_LIMIT = 80
+
+
+class Evidence(BaseModel):
+    """One reason behind a verdict, with its origin.
+
+    `kind` tells the user WHO found it (deterministic scanner, AI, or
+    an external database) — a core trust-UX principle: never blur the
+    line between a pattern match and an AI judgement.
+    """
+
+    kind: Literal["heuristic", "ai", "external"]
+    code: str  # short machine code, e.g. "urgency", "red_flag", "breach"
+    detail: str = ""  # verbatim data: the phrase, URL, or breach name
+
+
+class TrustReport(BaseModel):
+    """One standardized verdict about one subject."""
+
+    report_id: str = Field(default_factory=lambda: uuid4().hex)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    source: str  # module id, e.g. "scam_analyzer"
+    subject_type: SubjectType
+    subject_preview: str  # masked/truncated — always safe to show
+    verdict: Verdict
+    trust_score: int = Field(ge=0, le=100)  # 100 = fully trustworthy
+    confidence: int = Field(ge=0, le=100)
+    evidence: list[Evidence] = Field(default_factory=list)
+    explanation: str = ""  # free text (AI modules)
+    explanation_key: str = ""  # translation key (deterministic modules)
+    recommended_actions: list[str] = Field(default_factory=list)
+    recommended_action_keys: list[str] = Field(default_factory=list)
+
+
+# --- Adapters: module results -> TrustReport ---
+
+_SCAM_VERDICTS: dict[str, Verdict] = {
+    "Safe": "safe",
+    "Suspicious": "caution",
+    "Dangerous": "danger",
+}
+
+_BREACH_VERDICTS: dict[str, Verdict] = {
+    "none": "safe",
+    "medium": "caution",
+    "high": "danger",
+}
+
+# Absence from known breaches is good news, not proof of safety — the
+# platform never claims more certainty than it has, so a clean email
+# scores 85, not 100.
+_BREACH_SCORES = {"none": 85, "medium": 40, "high": 15}
+
+# A breach lookup is a deterministic database match, so confidence is
+# high — but not 100: breach databases always lag behind reality.
+_BREACH_CONFIDENCE = 95
+
+
+def from_scam_report(report: ScamReport, message: str) -> TrustReport:
+    """Convert a scam analysis (heuristics + AI) into a TrustReport."""
+    evidence: list[Evidence] = []
+    heuristics = report.heuristics
+    for code, matches in (
+        ("urgency", heuristics.urgency_matches),
+        ("otp", heuristics.otp_matches),
+        ("credential", heuristics.credential_indicators),
+        ("financial", heuristics.financial_indicators),
+        ("manipulation", heuristics.manipulation_indicators),
+    ):
+        for phrase in matches:
+            evidence.append(Evidence(kind="heuristic", code=code, detail=phrase))
+    for finding in heuristics.suspicious_urls:
+        for reason in finding.reasons:
+            evidence.append(
+                Evidence(kind="heuristic", code=f"url_{reason}", detail=finding.url)
+            )
+    for flag in report.ai.red_flags:
+        evidence.append(Evidence(kind="ai", code="red_flag", detail=flag))
+
+    return TrustReport(
+        source="scam_analyzer",
+        subject_type="message",
+        subject_preview=preview_text(message),
+        verdict=_SCAM_VERDICTS[report.ai.verdict],
+        trust_score=100 - report.ai.risk_score,
+        confidence=report.ai.confidence,
+        evidence=evidence,
+        explanation=report.ai.explanation,
+        recommended_actions=list(report.ai.recommended_actions),
+    )
+
+
+def from_breach_result(result: EmailBreachResult) -> TrustReport:
+    """Convert an email breach lookup into a TrustReport."""
+    return TrustReport(
+        source="breach_checker",
+        subject_type="email",
+        subject_preview=mask_email(result.email),
+        verdict=_BREACH_VERDICTS[result.risk_level],
+        trust_score=_BREACH_SCORES[result.risk_level],
+        confidence=_BREACH_CONFIDENCE,
+        evidence=[
+            Evidence(kind="external", code="breach", detail=name)
+            for name in result.breaches
+        ],
+        explanation_key=f"breach.explanation_{result.risk_level}",
+        recommended_action_keys=[
+            f"breach.{code}" for code in result.recommendations
+        ],
+    )
+
+
+# --- Preview helpers ---
+
+
+def preview_text(text: str) -> str:
+    """Collapse whitespace and truncate to one recognizable line."""
+    flattened = " ".join(text.split())
+    if len(flattened) <= PREVIEW_LIMIT:
+        return flattened
+    return flattened[: PREVIEW_LIMIT - 1] + "…"
+
+
+def mask_email(email: str) -> str:
+    """Mask the local part: 'bakytzhan@gmail.com' -> 'b*******n@gmail.com'.
+
+    The domain stays visible (it is what makes the entry recognizable);
+    the identifying part is hidden so the report itself never carries
+    the full address.
+    """
+    local, _, domain = email.partition("@")
+    if len(local) <= 2:
+        masked = local[:1] + "*"
+    else:
+        masked = local[0] + "*" * (len(local) - 2) + local[-1]
+    return f"{masked}@{domain}"

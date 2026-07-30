@@ -2,8 +2,8 @@
 
 Orchestrates one analysis: runs the deterministic scanner first
 (services/heuristics.py), then sends the message plus the scanner
-findings to Google Gemini, validates the AI's structured answer, and
-returns both layers as one ScamReport.
+findings to Google Gemini via the shared client
+(services/gemini_client.py), and returns both layers as one ScamReport.
 
 This module knows nothing about Streamlit — it can be reused unchanged
 by a future API server, bot, or browser extension. Errors carry short
@@ -15,31 +15,15 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Literal
 
-from google import genai
-from google.genai import errors as genai_errors
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 
 from services.common import ServiceError
+from services.gemini_client import GeminiError, generate_structured
 from services.heuristics import HeuristicReport, scan_message
-
-# Models to try, in order. Availability, quotas, and retirement are
-# tracked per model on Google's side, so if the primary model is
-# overloaded or unavailable for this account we fall back to the next.
-MODEL_CANDIDATES: tuple[str, ...] = (
-    "gemini-3.5-flash",
-    "gemini-3.1-flash-lite",
-)
 
 # System prompt lives in a versioned file, not in code, so we can
 # iterate on prompt wording without touching the service logic.
 PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "scam_analyzer_v2.md"
-
-# Low temperature = focused, consistent answers (0 = deterministic,
-# 2 = very creative). A security verdict should not be creative.
-TEMPERATURE = 0.2
-
-# Give up on requests that take longer than this (milliseconds).
-REQUEST_TIMEOUT_MS = 30_000
 
 
 class ScamAnalysis(BaseModel):
@@ -91,52 +75,20 @@ def analyze_message(message: str, api_key: str) -> ScamReport:
     Raises:
         ScamAnalysisError: With a short error code on any failure.
     """
-    if not api_key:
-        raise ScamAnalysisError("missing_key")
-
     heuristics = scan_message(message)
 
-    client = genai.Client(
-        api_key=api_key,
-        http_options=genai.types.HttpOptions(timeout=REQUEST_TIMEOUT_MS),
-    )
-
-    response = None
-    last_error: genai_errors.APIError | None = None
-    for model in MODEL_CANDIDATES:
-        try:
-            response = client.models.generate_content(
-                model=model,
-                contents=_build_contents(message, heuristics),
-                config=genai.types.GenerateContentConfig(
-                    system_instruction=_load_system_prompt(),
-                    response_mime_type="application/json",
-                    response_schema=ScamAnalysis,
-                    temperature=TEMPERATURE,
-                ),
-            )
-            break
-        except genai_errors.APIError as exc:
-            if _is_retriable(exc):
-                last_error = exc
-                continue  # A different model may still succeed.
-            raise ScamAnalysisError(_api_error_code(exc)) from exc
-        except Exception as exc:  # Network failures, timeouts, DNS errors…
-            raise ScamAnalysisError("unreachable") from exc
-
-    if response is None:
-        code = _api_error_code(last_error) if last_error else "unavailable"
-        raise ScamAnalysisError(code) from last_error
-
-    # The SDK parses the JSON into our model when it can; fall back to
-    # validating the raw text ourselves, and reject anything malformed.
-    parsed = response.parsed
-    if isinstance(parsed, ScamAnalysis):
-        return ScamReport(ai=parsed, heuristics=heuristics)
     try:
-        analysis = ScamAnalysis.model_validate_json(response.text or "")
-    except ValidationError as exc:
-        raise ScamAnalysisError("unexpected_answer") from exc
+        analysis = generate_structured(
+            api_key=api_key,
+            system_prompt=_load_system_prompt(),
+            contents=_build_contents(message, heuristics),
+            schema=ScamAnalysis,
+        )
+    except GeminiError as exc:
+        # Same codes, module-specific error type — the UI contract
+        # (catch ScamAnalysisError, translate errors.<code>) holds.
+        raise ScamAnalysisError(exc.code) from exc
+
     return ScamReport(ai=analysis, heuristics=heuristics)
 
 
@@ -166,32 +118,3 @@ def _build_contents(message: str, heuristics: HeuristicReport) -> str:
         f"<<<MESSAGE\n{message}\nMESSAGE>>>\n\n"
         f"AUTOMATED SCANNER FINDINGS:\n{summary}"
     )
-
-
-def _is_retriable(exc: genai_errors.APIError) -> bool:
-    """True when a different model might succeed.
-
-    404 = model retired/unavailable for this account, 429 = per-model
-    rate limit, 5xx = overloaded or down. Credential errors are NOT
-    retriable — no model will accept a bad key.
-    """
-    code = getattr(exc, "code", None)
-    return code in (404, 429) or (code is not None and code >= 500)
-
-
-def _api_error_code(exc: genai_errors.APIError) -> str:
-    """Map an API error to a short code the UI can localize.
-
-    Never leak internal details (keys, URLs, stack traces) to users.
-    """
-    code = getattr(exc, "code", None)
-    # Gemini reports a bad key as HTTP 400, so also match on the message.
-    if code in (401, 403) or "api key" in str(exc).lower():
-        return "credentials"
-    if code == 404:
-        return "model_unavailable"
-    if code == 429:
-        return "rate_limited"
-    if code is not None and code >= 500:
-        return "service_down"
-    return "ai_error"
