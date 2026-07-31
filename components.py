@@ -27,6 +27,9 @@ _GAUGE_CIRCUMFERENCE = 339.3
 # follow the scam analyzer's wording).
 TRUST_CSS_VARIANTS = {"safe": "safe", "caution": "suspicious", "danger": "dangerous"}
 
+# Platform verdict code -> chip variant, for compact verdict pills.
+TRUST_CHIP_VARIANTS = {"safe": "ok", "caution": "warn", "danger": "danger"}
+
 
 @st.cache_data(show_spinner=False)
 def _styles() -> str:
@@ -71,17 +74,46 @@ def feature_card(
     description: str,
     page_path: str,
     link_label: str,
+    badge: str = "",
 ) -> None:
     """Render one glass feature card with a link to its page.
 
     The container key becomes a stable `st-key-tcard_*` CSS class
     that assets/styles.css targets for the glass + hover styling.
+
+    `badge` marks a module that is not finished yet. A card that looks
+    identical to a working one, but leads to a placeholder, is a small
+    broken promise — so unbuilt modules say so on the card itself.
     """
     slug = page_path.rsplit("/", 1)[-1].removesuffix(".py")
     with st.container(border=True, key=f"tcard_{slug}"):
         st.subheader(f"{icon} {title}")
+        if badge:
+            status_badge(badge, "gold")
         st.write(description)
         st.page_link(page_path, label=link_label, icon="➡️")
+
+
+def recent_row(
+    verdict_label: str,
+    variant: str,
+    preview: str,
+    kind_label: str,
+    time_label: str,
+) -> None:
+    """One line of recent activity: verdict, what was checked, when.
+
+    `preview` is already masked and truncated by the TrustReport
+    schema, so this row can never widen what the report exposed.
+    """
+    st.markdown(
+        f'<div class="t-recent"><span class="t-chip t-chip--{variant}">'
+        f"{html.escape(verdict_label)}</span>"
+        f'<span class="t-recent-main">{html.escape(preview)}</span>'
+        f'<span class="t-recent-kind">{html.escape(kind_label)}</span>'
+        f'<span class="t-recent-time">{html.escape(time_label)}</span></div>',
+        unsafe_allow_html=True,
+    )
 
 
 def coming_soon(feature_name: str) -> None:

@@ -16,6 +16,8 @@ plain dict.
 from collections.abc import MutableMapping
 from typing import Any
 
+from pydantic import BaseModel
+
 from services.trust_report import TrustReport
 
 # Where the history list lives inside the session state mapping.
@@ -55,3 +57,32 @@ def history(state: MutableMapping[str, Any]) -> list[TrustReport]:
 def clear(state: MutableMapping[str, Any]) -> None:
     """Forget everything — the user's escape hatch for privacy."""
     state.pop(HISTORY_KEY, None)
+
+
+class Summary(BaseModel):
+    """Counts behind the dashboard tiles.
+
+    Session-scoped by definition: nothing is stored between visits, so
+    these numbers describe this session only. The dashboard says so
+    rather than implying an all-time total it cannot honestly claim.
+    """
+
+    checks: int = 0
+    threats: int = 0  # verdict "danger" — the ones that mattered
+    average_trust: int = 0
+
+
+def summarize(reports: list[TrustReport]) -> Summary:
+    """Aggregate reports into dashboard figures.
+
+    A pure function over a list, so the dashboard's numbers can be
+    tested without Streamlit and reused later by the REST API.
+    """
+    if not reports:
+        return Summary()
+    scores = [report.trust_score for report in reports]
+    return Summary(
+        checks=len(reports),
+        threats=sum(1 for report in reports if report.verdict == "danger"),
+        average_trust=round(sum(scores) / len(scores)),
+    )

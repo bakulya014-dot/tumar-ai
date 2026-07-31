@@ -55,6 +55,27 @@ p, li, label { line-height: 1.65; }
 
 [data-testid="stCaptionContainer"] { color: var(--t-ink-muted) !important; }
 
+/* The page is set to "wide" so the dashboard can use real columns.
+   These two rules keep that from hurting readability: the container
+   stops at a comfortable width, and prose lines are capped near the
+   65–75 character range regardless of how wide the window gets.
+   Cards, columns, and meters are free to use the full width. */
+
+/* !important because Streamlit's own generated rule for this container
+   has equal specificity and is injected after ours. */
+[data-testid="stMainBlockContainer"] {
+  max-width: 1080px !important;
+  margin: 0 auto !important;
+}
+
+/* 62ch, not 74ch: the ch unit measures the "0" glyph, which is wider
+   than Inter's average character, so 62ch lands near 75 real
+   characters per line — the top of the comfortable reading range. */
+[data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"] p,
+[data-testid="stMainBlockContainer"] [data-testid="stMarkdownContainer"] li {
+  max-width: 62ch;
+}
+
 /* ---------- App chrome ---------- */
 
 [data-testid="stHeader"] { background: transparent !important; }
@@ -449,6 +470,34 @@ p, li, label { line-height: 1.65; }
   margin: 0 auto;
 }
 
+/* ---------- Recent activity row ---------- */
+
+.t-recent {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.7rem 0.9rem;
+  border-radius: 10px;
+  border: 1px solid var(--t-border);
+  background: var(--t-glass);
+  margin-bottom: 0.45rem;
+}
+.t-recent-main {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.92rem;
+}
+.t-recent-kind { color: var(--t-ink-muted); font-size: 0.82rem; }
+.t-recent-time {
+  color: var(--t-ink-muted);
+  font-size: 0.82rem;
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
 /* ---------- Report footer (trust signals) ---------- */
 
 .t-foot {
@@ -470,6 +519,11 @@ p, li, label { line-height: 1.65; }
   .t-verdict-info { align-items: center; }
   .t-gauge { width: 112px; height: 112px; }
   [data-testid="stMainBlockContainer"] { padding-top: 1.4rem; }
+  /* Timestamps are the least important part of a recent row, and the
+     first thing to sacrifice when the row cannot fit. */
+  .t-recent-time { display: none; }
+  .t-stat { flex-direction: column; align-items: flex-start; gap: 0.2rem; }
+  .t-stat-value { font-size: 1.9rem; }
 }
 
 /* ---------- Reduced motion (accessibility) ---------- */

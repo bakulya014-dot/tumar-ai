@@ -74,6 +74,29 @@ def test_clear_forgets_everything() -> None:
     print("test_clear_forgets_everything PASSED")
 
 
+def test_summarize_counts_dashboard_figures() -> None:
+    reports = [
+        _report("scam_analyzer", 5),  # danger
+        _report("url_scanner", 90),
+        _report("breach_checker", 55),
+    ]
+    reports[0].verdict = "danger"
+    reports[1].verdict = "safe"
+    summary = report_store.summarize(reports)
+    assert summary.checks == 3
+    assert summary.threats == 1  # only the "danger" verdict counts
+    assert summary.average_trust == 50  # (5 + 90 + 55) / 3
+    print("test_summarize_counts_dashboard_figures PASSED")
+
+
+def test_summarize_of_nothing_is_all_zeroes() -> None:
+    # The dashboard hides the tiles in this case, but the function must
+    # not divide by zero if a future consumer calls it anyway.
+    summary = report_store.summarize([])
+    assert (summary.checks, summary.threats, summary.average_trust) == (0, 0, 0)
+    print("test_summarize_of_nothing_is_all_zeroes PASSED")
+
+
 def test_no_shared_state_between_sessions() -> None:
     # Two dicts stand in for two visitors: one user's analysis must
     # never be visible in another user's session.
@@ -90,5 +113,7 @@ if __name__ == "__main__":
     test_empty_state_has_no_latest()
     test_history_is_bounded()
     test_clear_forgets_everything()
+    test_summarize_counts_dashboard_figures()
+    test_summarize_of_nothing_is_all_zeroes()
     test_no_shared_state_between_sessions()
     print("ALL REPORT STORE TESTS PASSED")

@@ -32,6 +32,7 @@ plain language, accessible to everyone.
 | URL Scanner (address-only trust verdict, AI + heuristics) | ✅ Available (beta) |
 | Email Breach Checker | ✅ Available (beta) |
 | Quick Check (auto-routing via the Trust Engine) | ✅ Available (beta) |
+| Dashboard (session figures, recent analyses, platform status) | ✅ Available (beta) |
 | Multilingual interface (English / Русский / Қазақша) | ✅ Available |
 | Password Health Checker | 📋 Planned |
 
@@ -91,6 +92,23 @@ privacy note.
   explicitly; a security product must never hold user data in globals where
   one visitor's analysis could surface in another visitor's session.
 
+### Layout and navigation
+
+- Sidebar pages are **grouped into sections** (Overview / Analyze / Monitor /
+  Platform) via `st.navigation`'s mapping form. A flat list stops being
+  scannable at around eight entries, and the roadmap adds many more modules;
+  a new module joins a section without the menu needing a redesign.
+- The page is `layout="wide"` so the dashboard can use real columns, with
+  `styles.css` capping the container at 1080px and prose lines at `62ch`
+  (≈75 characters — the `ch` unit measures the wide `0` glyph, so this is
+  calibrated, not guessed). Cards, columns, and meters use the full width.
+- Unbuilt modules carry a **Planned** badge on their card. A card identical
+  to a working one that leads to a placeholder is a small broken promise.
+- Dashboard figures come from `report_store.summarize()`, a pure function
+  over a list of reports — testable without Streamlit and reusable by the
+  REST API later. The numbers are labeled as session-scoped, because that is
+  all they honestly are.
+
 ## Tech Stack
 
 - Python 3.11+
@@ -108,7 +126,7 @@ tumar-ai/
 ├── report_view.py          # The one shared Trust Report layout
 ├── report_store.py         # Session-scoped report history (survives re-runs)
 ├── views/                  # UI layer — one file per page
-│   ├── home.py             # Landing page: Quick Check (Trust Engine) + feature cards
+│   ├── home.py             # Dashboard: Quick Check, session figures, recent analyses
 │   ├── scam_analyzer.py    # Scam Analyzer page
 │   ├── url_scanner.py      # URL Scanner page
 │   ├── breach_checker.py   # Email Breach Checker page

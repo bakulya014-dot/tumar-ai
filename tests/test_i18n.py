@@ -60,6 +60,30 @@ def test_placeholder_parity() -> None:
     print("test_placeholder_parity PASSED")
 
 
+def test_every_literal_key_used_in_code_exists() -> None:
+    """Catch t("some.key") calls with no matching translation.
+
+    t() falls back to the key itself, so a typo or a forgotten string
+    does not crash — it renders "home.stats_title" on screen for the
+    user to see. This test is the safety net for every page, including
+    ones added later. Keys built at runtime (t(f"trust.verdict.{...}"))
+    are covered by tests/test_report_view.py instead.
+    """
+    root = Path(__file__).resolve().parent.parent
+    sources = [root / "app.py", root / "components.py", root / "report_view.py"]
+    sources += sorted((root / "views").glob("*.py"))
+
+    available = set(_load("en"))
+    missing: list[str] = []
+    for path in sources:
+        text = path.read_text(encoding="utf-8")
+        for key in re.findall(r"\bt\(\s*\"([\w.]+)\"", text):
+            if key not in available:
+                missing.append(f"{path.name}: {key}")
+    assert not missing, f"keys used in code but not in en.json: {missing}"
+    print("test_every_literal_key_used_in_code_exists PASSED")
+
+
 def test_no_empty_translations() -> None:
     for language in LANGUAGES:
         for key, text in _load(language).items():
@@ -72,5 +96,6 @@ def test_no_empty_translations() -> None:
 if __name__ == "__main__":
     test_key_parity()
     test_placeholder_parity()
+    test_every_literal_key_used_in_code_exists()
     test_no_empty_translations()
     print("ALL I18N TESTS PASSED")

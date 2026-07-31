@@ -23,7 +23,10 @@ APP_DIR = Path(__file__).parent
 st.set_page_config(
     page_title="Tumar.AI",
     page_icon="🛡️",
-    layout="centered",
+    # Wide, so the dashboard can lay out real columns. styles.css caps
+    # the container at a readable width and caps prose lines, so wide
+    # buys dashboard room without producing 130-character text lines.
+    layout="wide",
     initial_sidebar_state="expanded",
 )
 
@@ -41,14 +44,27 @@ if requested_language in LANGUAGES and "language" not in st.session_state:
 
 # Each st.Page links one file in views/ to one entry in the sidebar
 # menu. Titles go through t() so the menu follows the chosen language.
-pages = [
-    st.Page("views/home.py", title=t("nav.home"), icon="🏠", default=True),
-    st.Page("views/scam_analyzer.py", title=t("nav.scam"), icon="🔍"),
-    st.Page("views/url_scanner.py", title=t("nav.url"), icon="🔗"),
-    st.Page("views/breach_checker.py", title=t("nav.breach"), icon="📧"),
-    st.Page("views/password_checker.py", title=t("nav.password"), icon="🔑"),
-    st.Page("views/about.py", title=t("nav.about"), icon="ℹ️"),
-]
+#
+# Pages are grouped into sections rather than listed flat: the roadmap
+# adds many more modules, and a flat list stops being scannable at
+# around eight entries. New modules join an existing section — or add
+# one — without the menu needing a redesign.
+pages = {
+    t("nav.section_overview"): [
+        st.Page("views/home.py", title=t("nav.home"), icon="🏠", default=True),
+    ],
+    t("nav.section_analyze"): [
+        st.Page("views/scam_analyzer.py", title=t("nav.scam"), icon="🔍"),
+        st.Page("views/url_scanner.py", title=t("nav.url"), icon="🔗"),
+    ],
+    t("nav.section_monitor"): [
+        st.Page("views/breach_checker.py", title=t("nav.breach"), icon="📧"),
+        st.Page("views/password_checker.py", title=t("nav.password"), icon="🔑"),
+    ],
+    t("nav.section_platform"): [
+        st.Page("views/about.py", title=t("nav.about"), icon="ℹ️"),
+    ],
+}
 
 selected_page = st.navigation(pages)
 
