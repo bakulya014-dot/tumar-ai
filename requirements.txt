@@ -1,4 +1,8 @@
-streamlit
-google-genai
-pydantic
-requests
+# Pinned exactly. An unpinned dependency means a release published
+# tomorrow can change how a security verdict is produced, with no
+# commit of ours to point at. Bump these deliberately, and let the
+# test suite and the evaluation harness confirm the bump.
+streamlit==1.59.2
+google-genai==2.12.1
+pydantic==2.13.4
+requests==2.34.2

@@ -10,6 +10,10 @@ venv/
 .env
 .streamlit/secrets.toml
 
+# Evaluation runs — one machine at one moment. The corpus is what
+# belongs in history, not the output of a particular run.
+evals/results/
+
 # IDE / OS
 .idea/
 .vscode/

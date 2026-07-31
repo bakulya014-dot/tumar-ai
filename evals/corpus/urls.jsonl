@@ -1,0 +1,20 @@
+{"id": "url-phish-kaspi-lookalike", "label": "malicious", "tags": ["brand", "tld"], "url": "http://kaspi-bonus-security.xyz/login"}
+{"id": "url-phish-halyk-subdomain", "label": "malicious", "tags": ["subdomain"], "url": "http://halykbank.kz.secure-login.top/enter"}
+{"id": "url-phish-egov-lookalike", "label": "malicious", "tags": ["brand", "government"], "url": "http://egov-vyplaty.online/verify"}
+{"id": "url-phish-typo-kaspi", "label": "malicious", "tags": ["typosquat"], "url": "https://kapsi.kz/login"}
+{"id": "url-phish-raw-ip", "label": "malicious", "tags": ["ip"], "url": "http://192.168.44.10/bank/login.php"}
+{"id": "url-phish-shortener", "label": "malicious", "tags": ["shortener"], "url": "http://bit.ly/3xKz9Qp"}
+{"id": "url-phish-punycode", "label": "malicious", "tags": ["punycode"], "url": "http://xn--80ak6aa92e.com/account"}
+{"id": "url-phish-trust-bait", "label": "malicious", "tags": ["trust-bait", "hyphens"], "url": "http://secure-account-verify-login.click/session"}
+{"id": "url-phish-paypal-lookalike", "label": "malicious", "tags": ["brand"], "url": "http://paypal-resolution-center.icu/case"}
+{"id": "url-phish-olx-payment", "label": "malicious", "tags": ["brand", "marketplace"], "url": "http://olx-dostavka-oplata.site/card"}
+{"id": "url-legit-kaspi", "label": "legitimate", "tags": ["bank", "hard-negative"], "url": "https://kaspi.kz"}
+{"id": "url-legit-halyk", "label": "legitimate", "tags": ["bank", "hard-negative"], "url": "https://halykbank.kz/ru/private"}
+{"id": "url-legit-egov", "label": "legitimate", "tags": ["government", "hard-negative"], "url": "https://egov.kz/cms/ru"}
+{"id": "url-legit-google", "label": "legitimate", "tags": ["global"], "url": "https://www.google.com/search"}
+{"id": "url-legit-microsoft-sub", "label": "legitimate", "tags": ["subdomain", "hard-negative"], "url": "https://login.microsoftonline.com"}
+{"id": "url-legit-apple-support", "label": "legitimate", "tags": ["brand-word", "hard-negative"], "url": "https://support.apple.com/en-us"}
+{"id": "url-legit-github", "label": "legitimate", "tags": ["global"], "url": "https://github.com/anthropics"}
+{"id": "url-legit-wikipedia", "label": "legitimate", "tags": ["global"], "url": "https://en.wikipedia.org/wiki/Phishing"}
+{"id": "url-legit-hyphen-domain", "label": "legitimate", "tags": ["hyphens", "hard-negative"], "url": "https://open-data-portal.org/datasets"}
+{"id": "url-legit-jusan", "label": "legitimate", "tags": ["bank", "hard-negative"], "url": "https://jusan.kz"}

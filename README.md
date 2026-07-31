@@ -132,6 +132,32 @@ These are enforced in code and pinned by tests, not just described here:
   The UI says exactly this, rather than the broader "never stored" it used to
   claim before session history existed.
 
+## Measuring detection quality
+
+A security product has to be able to answer how good it is. `evals/`
+holds a labelled corpus and a harness that measures it:
+
+```bash
+python run_tests.py            # all offline suites, one exit code
+python evals/runner.py         # offline evaluation — free, runs in CI
+python evals/runner.py --ai    # also scores the AI layer (costs tokens)
+```
+
+Half the corpus is deliberately legitimate, including hard negatives —
+real one-time-code messages, genuine bank notices, work emails that say
+"urgent". Those are the cases that expose false positives; a corpus of
+scams alone would score a detector that flags everything at 100%.
+
+The harness reports recall on scams, false-positive rate on legitimate
+input, accuracy per language, and a **confidence calibration table**
+comparing the confidence the AI claims against the accuracy it
+delivers. A positive gap means the interface is showing users more
+certainty than the verdict has earned. See `evals/README.md`.
+
+CI runs the test suites and the offline evaluation on every push. The
+AI evaluation is run deliberately before prompt or model changes ship —
+it costs money and varies between runs, so it does not belong in CI.
+
 ## Tech Stack
 
 - Python 3.11+
@@ -145,6 +171,7 @@ These are enforced in code and pinned by tests, not just described here:
 ```
 tumar-ai/
 ├── app.py                  # Entry point: page config + sidebar navigation
+├── run_tests.py            # Runs every offline suite, one exit code
 ├── components.py           # Design-system primitives (cards, meters, chips, states)
 ├── report_view.py          # The one shared Trust Report layout
 ├── report_store.py         # Session-scoped report history (survives re-runs)
@@ -173,6 +200,11 @@ tumar-ai/
 │   ├── en.json
 │   ├── ru.json
 │   └── kk.json
+├── evals/                  # Detection-quality measurement
+│   ├── runner.py           # Harness: recall, false positives, calibration
+│   ├── corpus/             # Labelled messages and URLs (EN / RU / KK)
+│   └── README.md           # How to run it and how to read the results
+├── .github/workflows/ci.yml # Tests + offline evaluation on every push
 ├── tests/                  # Offline logic tests (no network needed)
 │   ├── test_breach_checker.py
 │   ├── test_heuristics.py

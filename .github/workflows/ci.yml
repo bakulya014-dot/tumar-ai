@@ -1,0 +1,45 @@
+name: CI
+
+# Every push and pull request runs the offline test suites and the
+# offline half of the evaluation harness. Neither needs an API key, so
+# the check is free, fast, and cannot be skipped by forgetting to run
+# it locally.
+#
+# The AI half of the harness is deliberately NOT run here: it calls a
+# paid API and its results vary between runs, which would make CI both
+# expensive and flaky. It is run on demand before prompt or model
+# changes ship — see evals/README.md.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Check every source file parses
+        run: python -m compileall -q app.py components.py report_view.py report_store.py services views evals tests
+
+      - name: Run offline test suites
+        run: python run_tests.py
+
+      - name: Run offline evaluation (scanner and URL heuristics)
+        run: python evals/runner.py
