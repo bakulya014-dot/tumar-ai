@@ -35,7 +35,7 @@ from pydantic import BaseModel, Field
 from services.breach_checker import EmailBreachResult
 from services.scam_analysis import ScamReport
 
-SubjectType = Literal["message", "email", "url"]
+SubjectType = Literal["message", "email", "url", "password"]
 Verdict = Literal["safe", "caution", "danger"]
 
 # Longest subject preview we keep; enough to recognize the item in a

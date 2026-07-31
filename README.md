@@ -33,8 +33,8 @@ plain language, accessible to everyone.
 | Email Breach Checker | ✅ Available (beta) |
 | Quick Check (auto-routing via the Trust Engine) | ✅ Available (beta) |
 | Dashboard (session figures, recent analyses, platform status) | ✅ Available (beta) |
+| Password Health Checker (k-anonymity breach lookup + strength) | ✅ Available (beta) |
 | Multilingual interface (English / Русский / Қазақша) | ✅ Available |
-| Password Health Checker | 📋 Planned |
 
 ## Architecture: the Trust Engine
 
@@ -109,6 +109,29 @@ privacy note.
   REST API later. The numbers are labeled as session-scoped, because that is
   all they honestly are.
 
+## Privacy and safety guarantees
+
+These are enforced in code and pinned by tests, not just described here:
+
+- **Passwords are never transmitted.** The Password Health check hashes the
+  password and sends only the **first five characters** of that hash to Have I
+  Been Pwned's range API (k-anonymity). The service replies with every hash
+  suffix sharing that prefix and the match happens locally, so it cannot learn
+  which password was checked.
+- **Passwords are never auto-detected.** `PasswordAnalyzer.can_handle()`
+  always returns `False`, so the Trust Engine can only reach it when a caller
+  states the kind outright. The fallback analyzer sends text to the AI
+  provider; a routing guess that went wrong would send a user's password to a
+  third party, so guessing is not allowed at all.
+- **Reports carry no secrets.** A password report's `subject_preview` is a
+  fixed row of dots — not the password, and not even its length. Email
+  previews are masked (`b*******n@gmail.com`). This holds by construction, so
+  session history and any future API response inherit it.
+- **Nothing is written to disk.** Results live in the browser session and are
+  gone when it ends; the dashboard offers a control to clear them sooner.
+  The UI says exactly this, rather than the broader "never stored" it used to
+  claim before session history existed.
+
 ## Tech Stack
 
 - Python 3.11+
@@ -138,6 +161,7 @@ tumar-ai/
 │   ├── gemini_client.py    # Shared Gemini client: model fallback + error codes
 │   ├── scam_analysis.py    # Scam analysis orchestration + response schema
 │   ├── url_scanner.py      # URL trust scan (native TrustReport module)
+│   ├── password_check.py   # k-anonymity breach lookup + offline strength
 │   ├── heuristics.py       # Deterministic scanner (urgency, URLs, OTP…)
 │   ├── breach_checker.py   # Breach lookup + risk assessment
 │   └── trust_report.py     # Unified TrustReport schema — the platform's shared result language
@@ -153,6 +177,7 @@ tumar-ai/
 │   ├── test_breach_checker.py
 │   ├── test_heuristics.py
 │   ├── test_i18n.py
+│   ├── test_password_check.py
 │   ├── test_report_store.py
 │   ├── test_report_view.py
 │   ├── test_trust_engine.py

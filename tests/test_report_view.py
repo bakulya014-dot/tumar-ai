@@ -135,6 +135,38 @@ def test_adapter_metric_label_keys_exist() -> None:
     print("test_adapter_metric_label_keys_exist PASSED")
 
 
+def test_no_evidence_code_is_silently_dropped() -> None:
+    """Every evidence code a module emits must reach the user.
+
+    Dropping evidence is this product's worst failure mode: the
+    verdict still appears, but the reasons behind it quietly vanish
+    and nothing errors. Codes now resolve by convention, and every
+    code the shipped modules can produce must have a translation.
+    """
+    from report_view import signal_label_key
+    from services.password_check import assess_strength, build_report
+
+    # An unknown code resolves rather than disappearing.
+    assert signal_label_key("brand_new_code") == "trust.signal.brand_new_code"
+
+    # Every code the password module can emit is translated.
+    samples = ("password", "abcd", "onlyletters", "shhhhhbeQuiet", "login1234now")
+    codes: set[str] = set()
+    for sample in samples:
+        codes.update(assess_strength(sample).codes)
+    codes.update(
+        item.code
+        for item in build_report(assess_strength("abcd"), breach_count=7).evidence
+    )
+    assert codes, "the password module should produce evidence codes"
+    # The breach checker's external code is labeled the same way.
+    codes.add("breach")
+    _assert_resolvable(
+        [signal_label_key(code) for code in sorted(codes)], "evidence labels"
+    )
+    print("test_no_evidence_code_is_silently_dropped PASSED")
+
+
 def test_metric_semantics_are_data_not_color() -> None:
     # The data layer must not carry CSS: it states meaning, and the
     # renderer decides how to paint it.
@@ -156,5 +188,6 @@ if __name__ == "__main__":
     test_every_url_reason_code_has_a_translation()
     test_url_reason_codes_list_is_complete()
     test_adapter_metric_label_keys_exist()
+    test_no_evidence_code_is_silently_dropped()
     test_metric_semantics_are_data_not_color()
     print("ALL REPORT VIEW TESTS PASSED")

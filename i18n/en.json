@@ -23,7 +23,8 @@
     "quick_intro": "Paste anything — a suspicious message, a link, or your email address. Tumar.AI detects what it is and runs the right check.",
     "quick_input_label": "Message, link, or email",
     "quick_input_placeholder": "Paste a message, URL, or email address…",
-    "quick_input_help": "Analyzed in memory and never stored.",
+    "quick_input_help": "Analyzed in memory and never written to disk.",
+    "quick_no_passwords": "🔑 Not for passwords — use Password Health, which checks them without sending them anywhere.",
     "quick_button": "⚡ Check it",
     "quick_spinner": "Tumar.AI is running the best check…",
     "quick_empty": "The box is empty — paste something first.",
@@ -40,7 +41,7 @@
     "breach_card_text": "Find out whether your email address appears in known data breaches — and what to do if it does.",
     "breach_card_link": "Check my email",
     "password_card_title": "Password Health",
-    "password_card_text": "Check whether a password has already leaked to the internet — without your password ever leaving your device unprotected.",
+    "password_card_text": "Check whether a password already appears in breach data — without sending the password to anyone.",
     "password_card_link": "Test a password",
     "how_title": "How it works",
     "how_step1": "**1. Paste anything**  \nA message, a link, or an email address.",
@@ -138,11 +139,22 @@
     "no_evidence": "Our deterministic scanner found no suspicious patterns — the verdict above comes from AI analysis.",
     "analyzed_at": "Analyzed {time}",
     "method_label": "Method: {methods}",
-    "privacy_note": "🔒 Analyzed in memory — never stored",
+    "privacy_note": "🔒 Kept in this session only — never written to disk",
+    "signal": {
+      "pw_common": "One of the most commonly used passwords",
+      "pw_too_short": "Fewer than 8 characters",
+      "pw_short": "Shorter than 12 characters",
+      "pw_single_class": "Only one kind of character",
+      "pw_repeated": "Contains a repeated character run",
+      "pw_sequential": "Contains a keyboard or alphabet run",
+      "pw_breached": "Times seen in breach data",
+      "breach": "Breaches this address appeared in"
+    },
     "kind": {
       "url": "Link (URL)",
       "email": "Email address",
-      "message": "Message text"
+      "message": "Message text",
+      "password": "Password"
     }
   },
   "url": {
@@ -209,11 +221,27 @@
   },
   "password": {
     "title": "🔑 Password Health",
-    "subtitle": "Check whether a password appears in public breach databases.",
-    "what_title": "What you will get:",
-    "bullets": "- Whether the password has appeared in known data leaks\n- How many times it has been seen by attackers\n- Simple advice on choosing a stronger password",
-    "privacy": "🔒 **Privacy first:** your password is never sent anywhere in full. We use a technique that shares only a tiny anonymous fingerprint of it — the full details will be explained right here when the feature ships.",
-    "feature_name": "The password health check"
+    "subtitle": "Check whether a password already appears in public breach data.",
+    "privacy": "🔒 **How this stays private:** your password is never sent to the breach database, and never to our AI engine. We hash it and send only the **first five characters** of that hash; the database replies with hundreds of possible matches and the comparison happens on our side. It cannot tell which password you checked. Nothing is written to disk, and the result below records no part of your password.",
+    "input_label": "Password to check",
+    "input_placeholder": "Type or paste a password",
+    "input_help": "Checked against the Have I Been Pwned corpus using k-anonymity — only a five-character hash prefix is sent.",
+    "check_button": "🔑 Check this password",
+    "empty_warning": "Enter a password first.",
+    "spinner": "Checking breach data…",
+    "method_note": "ℹ️ Checked against public breach records using k-anonymity. Strength is assessed on this server, offline.",
+    "empty_title": "No password checked yet",
+    "empty_text": "Enter a password above and your trust report will appear here. It will never show the password itself.",
+    "metric_strength": "Strength",
+    "explanation_breached": "This password appears in known breach data, which means attackers already have it on their lists. Its length or cleverness no longer matters — automated attacks try leaked passwords first.",
+    "explanation_weak": "This password was not found in known breach data, but it is easy to guess. Short or predictable passwords fall to automated guessing long before anyone has to leak them.",
+    "explanation_clean": "This password was not found in known breach data and is solidly built. That is good news, not a guarantee — it only covers breaches that have become public.",
+    "rec_change_now": "Change this password everywhere you use it, starting with email and banking.",
+    "rec_unique": "Give every account its own password, so one leak cannot open the rest.",
+    "rec_manager": "Use a password manager — it remembers long unique passwords so you don't have to.",
+    "rec_mfa": "Turn on two-factor authentication; it protects an account even when the password is known.",
+    "rec_lengthen": "Make it longer — four unrelated words beat a short password with symbols in it.",
+    "rec_keep_unique": "Keep it unique to one account, and re-check it here now and then."
   },
   "about": {
     "title": "ℹ️ About Tumar.AI",
@@ -226,15 +254,13 @@
     "stack_title": "Under the hood",
     "stack_table": "| Layer | Technology |\n| --- | --- |\n| Language | Python |\n| UI framework | Streamlit |\n| AI engine | Google Gemini |",
     "principles_title": "Our principles",
-    "principles_text": "- **Privacy by design** — Tumar.AI does not store anything you type: no database, no logs.\n- **Your password stays yours** — it is never sent anywhere in full (see the Password Health page).\n- **Honesty** — Tumar.AI is a decision aid, not a guarantee. When in doubt, contact your bank or service provider directly through official channels."
-  },
-  "common": {
-    "coming_soon": "🚧 **{feature}** is under active development — coming soon."
+    "principles_text": "- **Privacy by design** — nothing you check is written to disk: no database, no logs. Results stay in your browser session and disappear when it ends.\n- **Your password stays yours** — it is never sent to the breach database or to our AI engine; only a five-character hash prefix leaves this server (see the Password Health page).\n- **Honesty** — Tumar.AI is a decision aid, not a guarantee. Every verdict shows its confidence and how it was reached. When in doubt, contact your bank or service provider directly through official channels."
   },
   "errors": {
     "invalid_email": "That does not look like a valid email address. Please check it and try again.",
     "invalid_url": "That does not look like a valid link. Please check it and try again — for example, https://example.com.",
     "unsupported_input": "Tumar.AI cannot analyze this type of input yet.",
+    "empty_password": "Enter a password to check.",
     "timeout": "The service is taking too long to respond. Please try again in a moment.",
     "unreachable": "Could not reach the service. Check your internet connection and try again.",
     "rate_limited": "Too many requests in a short time. Please wait a moment and try again.",

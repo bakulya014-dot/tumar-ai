@@ -52,6 +52,11 @@ quick_input = st.text_area(
     help=t("home.quick_input_help"),
 )
 
+# Unrecognized text falls through to the AI scam analyzer, which sends
+# it to the AI provider. A password pasted here would go with it, so
+# the box says plainly where passwords belong instead.
+st.caption(t("home.quick_no_passwords"))
+
 if st.button(t("home.quick_button"), type="primary", use_container_width=True):
     cleaned = quick_input.strip()
     if not cleaned:
@@ -154,7 +159,6 @@ with tools_right:
         t("home.password_card_text"),
         "views/password_checker.py",
         t("home.password_card_link"),
-        badge=t("home.planned_badge"),
     )
 
 # --- Platform status: only what we actually know ---

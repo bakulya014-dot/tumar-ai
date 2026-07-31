@@ -2,7 +2,7 @@
 
 Two kinds of helpers live here:
 
-- Streamlit wrappers (page_header, feature_card, coming_soon).
+- Streamlit wrappers (page_header, feature_card, section_header).
 - "Aura" design-system components (hero, gauge, meters, chips,
   threat cards) that render custom HTML.
 
@@ -114,11 +114,6 @@ def recent_row(
         f'<span class="t-recent-time">{html.escape(time_label)}</span></div>',
         unsafe_allow_html=True,
     )
-
-
-def coming_soon(feature_name: str) -> None:
-    """Friendly placeholder for features that are not released yet."""
-    st.info(t("common.coming_soon", feature=feature_name))
 
 
 def section_header(title: str, caption: str = "") -> None:
@@ -266,15 +261,6 @@ def chip_row(labels: list[str], variant: str = "neutral") -> None:
         for label in labels
     )
     st.markdown(f'<div class="t-chips">{chips}</div>', unsafe_allow_html=True)
-
-
-def kv_chip(label: str, value: str, variant: str) -> None:
-    """One 'label → value chip' row, e.g. OTP requested → Yes."""
-    st.markdown(
-        f'<div class="t-kv"><span class="t-kv-label">{html.escape(label)}</span>'
-        f'<span class="t-chip t-chip--{variant}">{html.escape(value)}</span></div>',
-        unsafe_allow_html=True,
-    )
 
 
 def threat_card(url: str, reasons: str) -> None:

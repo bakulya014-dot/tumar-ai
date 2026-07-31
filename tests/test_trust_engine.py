@@ -58,6 +58,29 @@ def test_declared_kind_bypasses_detection() -> None:
     print("test_declared_kind_bypasses_detection PASSED")
 
 
+def test_passwords_are_never_auto_detected() -> None:
+    """A password must never be routed by guesswork.
+
+    The fallback analyzer sends text to the AI provider, so a wrong
+    guess here would mean shipping a user's password to a third party.
+    Password routing is therefore opt-in by name only.
+    """
+    password_like = (
+        "hunter2",
+        "Tr0ub4dor&3",
+        "correct horse battery staple",
+        "P@ssw0rd!2026",
+    )
+    for candidate in password_like:
+        kind = _kind_for(candidate)
+        assert kind != "password", candidate
+        assert kind == "message"  # falls through to the scam analyzer
+
+    # …but the Password Health page reaches it by declaring the kind.
+    assert _kind_for("hunter2", declared="password") == "password"
+    print("test_passwords_are_never_auto_detected PASSED")
+
+
 def test_unsupported_input_raises_coded_error() -> None:
     engine = TrustEngine()
     subject = TrustSubject(content=b"\x89PNG...", mime_type="image/png")
@@ -122,6 +145,7 @@ if __name__ == "__main__":
     test_detection_routes_by_content_shape()
     test_email_wins_over_url_by_registration_order()
     test_declared_kind_bypasses_detection()
+    test_passwords_are_never_auto_detected()
     test_unsupported_input_raises_coded_error()
     test_empty_text_is_not_claimed_by_anyone()
     test_open_closed_principle_new_analyzer_no_engine_change()

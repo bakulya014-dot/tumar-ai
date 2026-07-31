@@ -37,6 +37,7 @@ from pydantic import BaseModel
 
 from services.breach_checker import check_email, is_valid_email
 from services.common import ServiceError
+from services.password_check import check_password
 from services.scam_analysis import analyze_message
 from services.trust_report import (
     TrustReport,
@@ -149,13 +150,45 @@ class MessageAnalyzer(Analyzer):
         )
 
 
+class PasswordAnalyzer(Analyzer):
+    """Passwords → breach lookup. Reachable ONLY via declared_kind.
+
+    can_handle() always returns False, deliberately. A password is
+    indistinguishable from ordinary text, so any detection rule would
+    be a guess — and both possible mistakes are unacceptable:
+
+    - Guessing "password" for a real message would refuse to analyze
+      something the user needed checked.
+    - Guessing "message" for a real password would send that password
+      to a third-party AI provider, which this product promises never
+      to do.
+
+    So passwords are routed only when the caller states outright that
+    it holds one, which the Password Health page does explicitly.
+    """
+
+    kind = "password"
+
+    def can_handle(self, subject: TrustSubject) -> bool:
+        return False
+
+    def analyze(
+        self, subject: TrustSubject, context: AnalysisContext
+    ) -> TrustReport:
+        assert isinstance(subject.content, str)
+        return check_password(subject.content)
+
+
 def default_analyzers() -> tuple[Analyzer, ...]:
     """The platform registry, most-specific first.
 
     Adding a module to Tumar.AI = write an Analyzer, add one line
     here, in the right specificity slot. Nothing else changes.
+
+    PasswordAnalyzer sits last because order never reaches it: it opts
+    out of detection entirely and is addressed by name.
     """
-    return (EmailAnalyzer(), UrlAnalyzer(), MessageAnalyzer())
+    return (EmailAnalyzer(), UrlAnalyzer(), MessageAnalyzer(), PasswordAnalyzer())
 
 
 class TrustEngine:

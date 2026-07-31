@@ -30,9 +30,10 @@ import components
 from i18n import t
 from services.trust_report import Evidence, TrustReport
 
-# Heuristic signal families -> existing i18n label keys. Codes come
-# from the shared Evidence vocabulary, so this map is platform-wide
-# rather than per-module.
+# Heuristic signal families -> existing i18n label keys. These five
+# predate the shared vocabulary and keep their original keys; every
+# other code resolves by convention (see signal_label_key), so a new
+# module's evidence appears without touching this file.
 _SIGNAL_LABELS = {
     "urgency": "scam.signal_urgency",
     "credential": "scam.signal_credential",
@@ -40,6 +41,17 @@ _SIGNAL_LABELS = {
     "manipulation": "scam.signal_manipulation",
     "otp": "scam.otp_label",
 }
+
+
+def signal_label_key(code: str) -> str:
+    """The i18n key that labels one heuristic evidence code.
+
+    Unknown codes resolve to "trust.signal.<code>" rather than being
+    dropped. Silently discarding evidence would be the worst possible
+    failure mode for this product: the verdict would still appear, but
+    the reasons behind it would quietly go missing.
+    """
+    return _SIGNAL_LABELS.get(code, f"trust.signal.{code}")
 
 # Evidence origin -> the label shown to the user. Naming the method is
 # a trust signal: a pattern match and an AI judgement are not the same
@@ -134,19 +146,12 @@ def _render_evidence(report: TrustReport, expanded: bool) -> None:
             st.markdown(f"**{t('trust.evidence_ai')}**")
             components.chip_row(flags, "danger")
 
-        signals = _group_signals(report.evidence)
-        if signals:
-            st.markdown(f"**{t('trust.evidence_scanner')}**")
-            for label_key, details in signals.items():
-                st.caption(t(label_key))
-                components.chip_row(details, "warn")
-
-        external = [
-            item.detail for item in report.evidence if item.kind == "external"
-        ]
-        if external:
-            st.markdown(f"**{t('trust.evidence_external')}**")
-            components.chip_row(external, "danger")
+        _render_group(
+            "trust.evidence_scanner", _group_by_code(report.evidence, "heuristic"), "warn"
+        )
+        _render_group(
+            "trust.evidence_external", _group_by_code(report.evidence, "external"), "danger"
+        )
 
 
 def _group_url_reasons(links: list[Evidence]) -> "OrderedDict[str, list[str]]":
@@ -157,16 +162,46 @@ def _group_url_reasons(links: list[Evidence]) -> "OrderedDict[str, list[str]]":
     return grouped
 
 
-def _group_signals(evidence: list[Evidence]) -> "OrderedDict[str, list[str]]":
-    """Matched wording, grouped by signal family and labeled."""
+def _group_by_code(
+    evidence: list[Evidence], kind: str
+) -> "OrderedDict[str, list[str]]":
+    """Findings of one origin, grouped by code and labeled.
+
+    Every finding is kept — an unrecognized code gets a conventional
+    label key instead of disappearing. Link findings are excluded
+    because they are drawn as their own cards above.
+    """
     grouped: OrderedDict[str, list[str]] = OrderedDict()
     for item in evidence:
-        if item.kind != "heuristic" or item.code.startswith("url_"):
+        if item.kind != kind or item.code.startswith("url_"):
             continue
-        label_key = _SIGNAL_LABELS.get(item.code)
-        if label_key:
-            grouped.setdefault(label_key, []).append(item.detail)
+        grouped.setdefault(signal_label_key(item.code), []).append(item.detail)
     return grouped
+
+
+def _render_group(
+    header_key: str, grouped: "OrderedDict[str, list[str]]", variant: str
+) -> None:
+    """Draw one origin's findings under a heading.
+
+    Some findings quote what was matched (a scam phrase, a breach
+    name) and read as "label: these values". Others are the finding
+    itself (a password is too short) and read as a single statement.
+    The first kind gets a label plus chips, the second becomes a chip.
+    """
+    if not grouped:
+        return
+    st.markdown(f"**{t(header_key)}**")
+    bare: list[str] = []
+    for label_key, details in grouped.items():
+        quoted = [detail for detail in details if detail]
+        if quoted:
+            st.caption(t(label_key))
+            components.chip_row(quoted, variant)
+        else:
+            bare.append(t(label_key))
+    if bare:
+        components.chip_row(bare, variant)
 
 
 def _render_footer(report: TrustReport) -> None:
