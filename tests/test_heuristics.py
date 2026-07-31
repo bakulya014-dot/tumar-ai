@@ -28,7 +28,11 @@ def test_english_scam_signals() -> None:
         "confirm at http://kaspi-verify.xyz/login"
     )
     assert report.urgency_score >= 60
-    assert report.otp_requested
+    # The message mentions a code but does not ask the reader to hand
+    # it over — what makes this dangerous is the links, and the strong
+    # signals must reflect that rather than the word "code".
+    assert report.otp_signal in ("entry", "delivery")
+    assert "url" in report.strong_signals
     urls = {finding.url: finding.reasons for finding in report.suspicious_urls}
     assert any("shortener" in reasons for reasons in urls.values())
     assert any("brand_lookalike" in reasons for reasons in urls.values())
@@ -52,6 +56,7 @@ def test_kazakh_scam_signals() -> None:
         "ШҰҒЫЛ! Картаңыз бұғатталды. Растау коды керек — дереу жіберіңіз."
     )
     assert report.urgency_score >= 60
+    # Kazakh separates the noun from the verb; proximity catches it.
     assert report.otp_requested
     print("test_kazakh_scam_signals PASSED")
 

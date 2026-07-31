@@ -184,7 +184,9 @@ def test_offline_evaluation_runs_over_the_real_corpus() -> None:
     urls = evaluate_urls(load_urls())
     assert scanner["scam_cases"] > 0 and scanner["legitimate_cases"] > 0
     assert 0 <= scanner["signal_rate_on_scams"] <= 100
-    assert 0 <= urls["false_positive_rate"] <= 100
+    assert 0 <= scanner["risk_rate_on_scams"] <= 100
+    for rule in ("any_finding_rule", "weighted_rule"):
+        assert 0 <= urls[rule]["false_positive_rate"] <= 100
     print("test_offline_evaluation_runs_over_the_real_corpus PASSED")
 
 

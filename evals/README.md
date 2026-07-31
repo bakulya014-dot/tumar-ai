@@ -62,6 +62,29 @@ dangerous direction: it means the interface is showing users more
 certainty than the verdict has earned. Confidence shown in the product
 should be defensible against this table.
 
+## Measured baselines
+
+Recorded on the 61-message / 40-URL corpus, same cases both runs, paced
+so no case was dropped to a rate limit.
+
+| Metric | Before | After |
+| --- | --- | --- |
+| AI accuracy | 88.5% | 100% |
+| Precision | 82.5% | 100% |
+| Recall on scams | 100% | 100% |
+| False-positive rate | 25.0% | 0% |
+| URL detection | 90% | 100% |
+| URL false positives | 40% | 0% (weighted rule) |
+
+Paired comparison: 7 cases wrong → right, 0 right → wrong, McNemar
+exact two-sided p = 0.0156.
+
+**Read this with suspicion.** The same person wrote the corpus and the
+fixes, so this is not independent evaluation. 100% means the corpus has
+stopped discriminating — a suite everything passes measures nothing,
+and calibration in particular cannot be assessed against a ceiling. The
+next contribution to this project should be cases that break it.
+
 ## Results
 
 Each run writes a timestamped JSON file to `evals/results/`, so runs

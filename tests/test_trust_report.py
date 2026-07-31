@@ -37,8 +37,9 @@ def _sample_scam_report() -> ScamReport:
     heuristics = HeuristicReport(
         urgency_score=35,
         urgency_matches=["urgent"],
-        otp_requested=True,
-        otp_matches=["verification code"],
+        otp_signal="disclosure",
+        otp_matches=["reply with the code"],
+        security_advice=False,
         credential_indicators=[],
         financial_indicators=[],
         manipulation_indicators=[],
@@ -55,7 +56,10 @@ def test_scam_adapter_maps_verdict_and_score() -> None:
     assert report.subject_type == "message"
     assert report.verdict == "danger"  # "Dangerous" -> platform code
     assert report.trust_score == 10  # risk 90 -> trust 100 - 90
-    assert report.confidence == 85
+    # Confidence is no longer the model's self-report: it is derived
+    # from evidence, and it always says why.
+    assert report.confidence != 85
+    assert report.confidence_reason_keys
     assert report.explanation  # AI free text present…
     assert report.explanation_key == ""  # …so no translation key
     print("test_scam_adapter_maps_verdict_and_score PASSED")
@@ -79,7 +83,7 @@ def test_scam_adapter_collects_all_evidence_layers() -> None:
     assert kinds == {"heuristic", "ai"}
     codes = [item.code for item in report.evidence]
     assert "urgency" in codes
-    assert "otp" in codes
+    assert "otp_disclosure" in codes
     assert "url_brand_lookalike" in codes
     assert codes.count("red_flag") == 2
     print("test_scam_adapter_collects_all_evidence_layers PASSED")

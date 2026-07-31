@@ -33,6 +33,8 @@ from uuid import uuid4
 from pydantic import BaseModel, Field
 
 from services.breach_checker import EmailBreachResult
+from services.confidence import estimate as estimate_confidence
+from services.heuristics import is_strong_url_signal
 from services.scam_analysis import ScamReport
 
 SubjectType = Literal["message", "email", "url", "password"]
@@ -60,6 +62,11 @@ class Evidence(BaseModel):
     kind: Literal["heuristic", "ai", "external"]
     code: str  # short machine code, e.g. "urgency", "red_flag", "breach"
     detail: str = ""  # verbatim data: the phrase, URL, or breach name
+    # Whether this finding justifies suspicion alone, or only in
+    # company. Users deserve to know which signals actually carried the
+    # verdict rather than seeing a flat list where a hyphen in a domain
+    # looks as damning as a request for a one-time code.
+    weight: Literal["strong", "weak"] = "weak"
 
 
 class Metric(BaseModel):
@@ -99,6 +106,10 @@ class TrustReport(BaseModel):
     explanation_key: str = ""  # translation key (deterministic modules)
     recommended_actions: list[str] = Field(default_factory=list)
     recommended_action_keys: list[str] = Field(default_factory=list)
+    # Why the confidence is what it is — agreement between layers, a
+    # contradiction, too little text to judge. Translation keys, so any
+    # consumer can render them.
+    confidence_reason_keys: list[str] = Field(default_factory=list)
 
 
 # --- Adapters: module results -> TrustReport ---
@@ -129,30 +140,61 @@ def from_scam_report(report: ScamReport, message: str) -> TrustReport:
     """Convert a scam analysis (heuristics + AI) into a TrustReport."""
     evidence: list[Evidence] = []
     heuristics = report.heuristics
-    for code, matches in (
-        ("urgency", heuristics.urgency_matches),
-        ("otp", heuristics.otp_matches),
-        ("credential", heuristics.credential_indicators),
-        ("financial", heuristics.financial_indicators),
-        ("manipulation", heuristics.manipulation_indicators),
+
+    # A code being delivered to you is not evidence of anything; only
+    # being asked to hand it over, or to type it somewhere, is.
+    otp_code = {
+        "disclosure": "otp_disclosure",
+        "entry": "otp_entry",
+    }.get(heuristics.otp_signal, "")
+
+    for code, matches, weight in (
+        ("urgency", heuristics.urgency_matches, "weak"),
+        (otp_code, heuristics.otp_matches if otp_code else [], "strong"),
+        ("credential", heuristics.credential_indicators, "strong"),
+        ("financial", heuristics.financial_indicators, "weak"),
+        ("manipulation", heuristics.manipulation_indicators, "weak"),
     ):
         for phrase in matches:
-            evidence.append(Evidence(kind="heuristic", code=code, detail=phrase))
+            evidence.append(
+                Evidence(
+                    kind="heuristic",
+                    code=code,
+                    detail=phrase,
+                    weight="weak" if code == "otp_entry" else weight,
+                )
+            )
     for finding in heuristics.suspicious_urls:
         for reason in finding.reasons:
             evidence.append(
-                Evidence(kind="heuristic", code=f"url_{reason}", detail=finding.url)
+                Evidence(
+                    kind="heuristic",
+                    code=f"url_{reason}",
+                    detail=finding.url,
+                    weight="strong" if is_strong_url_signal(reason) else "weak",
+                )
             )
     for flag in report.ai.red_flags:
-        evidence.append(Evidence(kind="ai", code="red_flag", detail=flag))
+        evidence.append(
+            Evidence(kind="ai", code="red_flag", detail=flag, weight="weak")
+        )
+
+    verdict = _SCAM_VERDICTS[report.ai.verdict]
+    confidence = estimate_confidence(
+        ai_confidence=report.ai.confidence,
+        verdict=verdict,
+        heuristics=heuristics,
+        text_length=len(message.strip()),
+    )
 
     return TrustReport(
         source="scam_analyzer",
         subject_type="message",
         subject_preview=preview_text(message),
-        verdict=_SCAM_VERDICTS[report.ai.verdict],
+        verdict=verdict,
         trust_score=100 - report.ai.risk_score,
-        confidence=report.ai.confidence,
+        confidence=confidence.value,
+        confidence_reason_keys=confidence.reason_keys,
         metrics=[
             Metric(
                 label_key="scam.credential_risk_label",

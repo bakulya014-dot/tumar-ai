@@ -29,8 +29,9 @@ def _render(report: TrustReport) -> None:
     """Shared report layout, plus this module's own safety warning."""
     render_trust_report(report)
     # One-time codes are the single most damaging thing a victim can
-    # hand over, so this module escalates it above the evidence list.
-    if any(item.code == "otp" for item in report.evidence):
+    # hand over, so this module escalates it above the evidence list —
+    # but only when the message asks for one, not when it delivers one.
+    if any(item.code == "otp_disclosure" for item in report.evidence):
         st.warning(t("scam.otp_warning"))
 
 

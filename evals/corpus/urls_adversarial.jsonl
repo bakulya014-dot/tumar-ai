@@ -1,0 +1,20 @@
+{"id": "advurl-homoglyph-kaspi", "label": "malicious", "tags": ["homoglyph"], "url": "http://kаspi-bonus.kz/login"}
+{"id": "advurl-homoglyph-halyk", "label": "malicious", "tags": ["homoglyph"], "url": "https://hаlykbank.kz/enter"}
+{"id": "advurl-transpose-halyk", "label": "malicious", "tags": ["typosquat"], "url": "https://halykbnak.kz/login"}
+{"id": "advurl-transpose-google", "label": "malicious", "tags": ["typosquat"], "url": "https://googel.com/account"}
+{"id": "advurl-insert-google", "label": "malicious", "tags": ["typosquat"], "url": "https://gooogle.com/signin"}
+{"id": "advurl-deep-subdomain", "label": "malicious", "tags": ["subdomain"], "url": "http://kaspi.kz.login.secure-verify.top/session"}
+{"id": "advurl-shortener-tinyurl", "label": "malicious", "tags": ["shortener"], "url": "https://tinyurl.com/y8xk2wq"}
+{"id": "advurl-brand-in-path-only", "label": "malicious", "tags": ["brand", "tld"], "url": "http://secure-portal.click/kaspi/login"}
+{"id": "advurl-jusan-lookalike", "label": "malicious", "tags": ["brand"], "url": "http://jusan-online-cabinet.site/auth"}
+{"id": "advurl-egov-typo", "label": "malicious", "tags": ["typosquat", "government"], "url": "https://egov-kz.online/services"}
+{"id": "advurl-legit-google-accounts", "label": "legitimate", "tags": ["hard-negative", "trust-word", "subdomain"], "url": "https://accounts.google.com/signin"}
+{"id": "advurl-legit-jusan-secure", "label": "legitimate", "tags": ["hard-negative", "trust-word"], "url": "https://secure.jusan.kz/login"}
+{"id": "advurl-legit-microsoft-support", "label": "legitimate", "tags": ["hard-negative", "trust-word"], "url": "https://support.microsoft.com/en-us/windows"}
+{"id": "advurl-legit-kaspi-shop", "label": "legitimate", "tags": ["hard-negative"], "url": "https://kaspi.kz/shop/p/telefon"}
+{"id": "advurl-legit-olx", "label": "legitimate", "tags": ["hard-negative"], "url": "https://www.olx.kz/list"}
+{"id": "advurl-legit-post-kz", "label": "legitimate", "tags": ["hard-negative", "delivery"], "url": "https://post.kz/track"}
+{"id": "advurl-legit-two-hyphens", "label": "legitimate", "tags": ["hard-negative", "hyphens"], "url": "https://open-source-lab.org/projects"}
+{"id": "advurl-legit-three-hyphens", "label": "legitimate", "tags": ["hard-negative", "hyphens"], "url": "https://data-analysis-tools-kz.org/docs"}
+{"id": "advurl-legit-telegram", "label": "legitimate", "tags": ["hard-negative"], "url": "https://telegram.org/faq"}
+{"id": "advurl-legit-github-login-path", "label": "legitimate", "tags": ["hard-negative", "trust-word"], "url": "https://github.com/login"}

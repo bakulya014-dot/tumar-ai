@@ -23,7 +23,7 @@ from services.heuristics import HeuristicReport, scan_message
 
 # System prompt lives in a versioned file, not in code, so we can
 # iterate on prompt wording without touching the service logic.
-PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "scam_analyzer_v2.md"
+PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "scam_analyzer_v3.md"
 
 
 class ScamAnalysis(BaseModel):
@@ -101,8 +101,22 @@ def _build_contents(message: str, heuristics: HeuristicReport) -> str:
     lines: list[str] = []
     if heuristics.urgency_matches:
         lines.append(f"- Urgency phrases matched: {', '.join(heuristics.urgency_matches)}")
-    if heuristics.otp_matches:
-        lines.append(f"- OTP/verification-code phrases matched: {', '.join(heuristics.otp_matches)}")
+    # Report what the message DOES with a code, not merely that one was
+    # mentioned. Handing the model "OTP phrases matched" for a routine
+    # code delivery was the largest single source of false positives.
+    _OTP_DESCRIPTIONS = {
+        "disclosure": "Asks the reader to REVEAL a one-time code (strong scam signal)",
+        "entry": "Asks the reader to TYPE a code into the current screen (normal in two-factor setup)",
+        "delivery": "Delivers a one-time code to the reader (ordinary, not a scam signal by itself)",
+    }
+    if heuristics.otp_signal != "none":
+        description = _OTP_DESCRIPTIONS[heuristics.otp_signal]
+        lines.append(f"- One-time code: {description}. Matched: {', '.join(heuristics.otp_matches)}")
+    if heuristics.security_advice:
+        lines.append(
+            "- Contains security ADVICE (e.g. \"we will never ask for your code\") "
+            "— typical of genuine institutions warning their customers"
+        )
     if heuristics.credential_indicators:
         lines.append(f"- Credential-theft phrases matched: {', '.join(heuristics.credential_indicators)}")
     if heuristics.financial_indicators:

@@ -148,14 +148,27 @@
       "pw_repeated": "Contains a repeated character run",
       "pw_sequential": "Contains a keyboard or alphabet run",
       "pw_breached": "Times seen in breach data",
-      "breach": "Breaches this address appeared in"
+      "breach": "Breaches this address appeared in",
+      "otp_disclosure": "Asks you to reveal a one-time code",
+      "otp_entry": "Asks you to type in a code",
+      "url_homoglyph": "Web address mixes alphabets to imitate a real one"
     },
+    "signals_strong": "Signals that carried this verdict",
+    "signals_weak": "Weaker signals — common in ordinary messages too",
     "kind": {
       "url": "Link (URL)",
       "email": "Email address",
       "message": "Message text",
       "password": "Password"
     }
+  },
+  "confidence": {
+    "agreement": "Higher confidence: our scanner and the AI agree independently.",
+    "ai_only": "Lower confidence: the AI flagged this, but our scanner found no known pattern.",
+    "contradiction": "Lower confidence: our scanner found strong signals the AI did not treat as dangerous.",
+    "advice_conflict": "Lower confidence: this message reads like security advice, which is often flagged by mistake.",
+    "short_input": "Lower confidence: the message is very short, so there is little to judge.",
+    "routine": "Confidence reflects the AI's certainty on this message."
   },
   "url": {
     "title": "🔗 URL Scanner",

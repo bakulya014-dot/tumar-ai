@@ -39,7 +39,6 @@ _SIGNAL_LABELS = {
     "credential": "scam.signal_credential",
     "financial": "scam.signal_financial",
     "manipulation": "scam.signal_manipulation",
-    "otp": "scam.otp_label",
 }
 
 
@@ -110,6 +109,10 @@ def _render_metrics(report: TrustReport) -> None:
             "brand",
             t("scam.metric_confidence_help"),
         )
+        # Say why the confidence is what it is. A number nobody can
+        # interrogate is decoration; a number with a reason is evidence.
+        for key in report.confidence_reason_keys:
+            st.caption(t(key))
     for index, metric in enumerate(report.metrics, start=1):
         with cells[index % 2]:
             components.meter(
@@ -146,9 +149,20 @@ def _render_evidence(report: TrustReport, expanded: bool) -> None:
             st.markdown(f"**{t('trust.evidence_ai')}**")
             components.chip_row(flags, "danger")
 
-        _render_group(
-            "trust.evidence_scanner", _group_by_code(report.evidence, "heuristic"), "warn"
-        )
+        # Strong findings first and marked as such. A flat list made a
+        # hyphen in a domain look as damning as a request for a
+        # one-time code, which is not what the engine actually thinks.
+        strong = _group_by_code(report.evidence, "heuristic", "strong")
+        weak = _group_by_code(report.evidence, "heuristic", "weak")
+        if strong or weak:
+            st.markdown(f"**{t('trust.evidence_scanner')}**")
+            if strong:
+                st.caption(t("trust.signals_strong"))
+                _render_body(strong, "danger")
+            if weak:
+                st.caption(t("trust.signals_weak"))
+                _render_body(weak, "neutral")
+
         _render_group(
             "trust.evidence_external", _group_by_code(report.evidence, "external"), "danger"
         )
@@ -163,17 +177,20 @@ def _group_url_reasons(links: list[Evidence]) -> "OrderedDict[str, list[str]]":
 
 
 def _group_by_code(
-    evidence: list[Evidence], kind: str
+    evidence: list[Evidence], kind: str, weight: str = ""
 ) -> "OrderedDict[str, list[str]]":
     """Findings of one origin, grouped by code and labeled.
 
     Every finding is kept — an unrecognized code gets a conventional
     label key instead of disappearing. Link findings are excluded
-    because they are drawn as their own cards above.
+    because they are drawn as their own cards above. An empty `weight`
+    means "any".
     """
     grouped: OrderedDict[str, list[str]] = OrderedDict()
     for item in evidence:
         if item.kind != kind or item.code.startswith("url_"):
+            continue
+        if weight and item.weight != weight:
             continue
         grouped.setdefault(signal_label_key(item.code), []).append(item.detail)
     return grouped
@@ -182,16 +199,21 @@ def _group_by_code(
 def _render_group(
     header_key: str, grouped: "OrderedDict[str, list[str]]", variant: str
 ) -> None:
-    """Draw one origin's findings under a heading.
+    """Draw one origin's findings under a heading."""
+    if not grouped:
+        return
+    st.markdown(f"**{t(header_key)}**")
+    _render_body(grouped, variant)
+
+
+def _render_body(grouped: "OrderedDict[str, list[str]]", variant: str) -> None:
+    """Draw grouped findings.
 
     Some findings quote what was matched (a scam phrase, a breach
     name) and read as "label: these values". Others are the finding
     itself (a password is too short) and read as a single statement.
     The first kind gets a label plus chips, the second becomes a chip.
     """
-    if not grouped:
-        return
-    st.markdown(f"**{t(header_key)}**")
     bare: list[str] = []
     for label_key, details in grouped.items():
         quoted = [detail for detail in details if detail]
