@@ -132,6 +132,26 @@ These are enforced in code and pinned by tests, not just described here:
   The UI says exactly this, rather than the broader "never stored" it used to
   claim before session history existed.
 
+## REST API
+
+The same Trust Engine, over HTTP — the engine, analyzers and report
+schema are used unchanged, which is what the shared schema was for:
+
+```bash
+pip install -r requirements-api.txt
+export GEMINI_API_KEY=...  TUMAR_API_KEYS=your-key
+uvicorn api.main:app --port 8000
+```
+
+`POST /v1/analyze` returns the same `TrustReport` the app renders.
+`GET /v1/analyzers` lists capabilities from the live registry;
+`GET /v1/health` reports whether the deployment is usable at all.
+
+Fails closed (no keys configured means no analysis), rate limited per
+key, size limited before any AI call, and errors return a short code
+with no provider details or stack traces. Passwords are deliberately
+not analyzable over HTTP — see `api/README.md` for why.
+
 ## Measuring detection quality
 
 A security product has to be able to answer how good it is. `evals/`
@@ -200,6 +220,12 @@ tumar-ai/
 │   ├── en.json
 │   ├── ru.json
 │   └── kk.json
+├── api/                    # REST API over the Trust Engine
+│   ├── main.py             # Endpoints, error mapping, request logging
+│   ├── security.py         # API-key auth + rate limiting
+│   ├── schemas.py          # Request/response shapes
+│   ├── settings.py         # Environment configuration (fails closed)
+│   └── README.md           # Running it, and its deliberate limits
 ├── evals/                  # Detection-quality measurement
 │   ├── runner.py           # Harness: recall, false positives, calibration
 │   ├── corpus/             # Labelled messages and URLs (EN / RU / KK)

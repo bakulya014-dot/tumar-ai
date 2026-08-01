@@ -1,0 +1,15 @@
+# Dependencies for the REST API deployment.
+#
+# Separate from requirements.txt on purpose: the API does not need
+# Streamlit, and the Streamlit app does not need a web framework.
+# Shipping each surface only what it runs keeps deployments small and
+# the attack surface honest. Core libraries are repeated rather than
+# chained so that either file can be read on its own.
+fastapi==0.141.1
+uvicorn==0.51.0
+google-genai==2.12.1
+pydantic==2.13.4
+requests==2.34.2
+
+# Test client for tests/test_api.py.
+httpx==0.28.1
