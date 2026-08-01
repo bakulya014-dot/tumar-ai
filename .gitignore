@@ -14,6 +14,12 @@ venv/
 # belongs in history, not the output of a particular run.
 evals/results/
 
+# Key and usage database. Keys are stored hashed, but this file still
+# holds customer identities and their traffic, and it has no business
+# in version control.
+*.db
+*.db-journal
+
 # IDE / OS
 .idea/
 .vscode/

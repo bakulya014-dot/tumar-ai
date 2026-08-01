@@ -147,10 +147,22 @@ uvicorn api.main:app --port 8000
 `GET /v1/analyzers` lists capabilities from the live registry;
 `GET /v1/health` reports whether the deployment is usable at all.
 
-Fails closed (no keys configured means no analysis), rate limited per
-key, size limited before any AI call, and errors return a short code
-with no provider details or stack traces. Passwords are deliberately
-not analyzable over HTTP — see `api/README.md` for why.
+Fails closed, rate limited per key, size limited before any AI call,
+and errors return a short code with no provider details or stack
+traces. Passwords are deliberately not analyzable over HTTP — see
+`api/README.md` for why.
+
+Customer keys are issued, rotated and revoked from the command line,
+stored hashed, and metered against a monthly quota:
+
+```bash
+python -m api.keys issue --owner "Acme Bank" --quota 10000
+python -m api.keys usage --days 30
+```
+
+Only successful calls count toward a quota, and the usage table has no
+column for content — privacy enforced by the schema rather than by
+care at each call site.
 
 ## Measuring detection quality
 
@@ -223,6 +235,8 @@ tumar-ai/
 ├── api/                    # REST API over the Trust Engine
 │   ├── main.py             # Endpoints, error mapping, request logging
 │   ├── security.py         # API-key auth + rate limiting
+│   ├── keystore.py         # Issued keys (hashed) + usage metering (SQLite)
+│   ├── keys.py             # Admin CLI: issue / list / rotate / revoke / usage
 │   ├── schemas.py          # Request/response shapes
 │   ├── settings.py         # Environment configuration (fails closed)
 │   └── README.md           # Running it, and its deliberate limits

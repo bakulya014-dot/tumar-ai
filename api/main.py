@@ -18,6 +18,7 @@ import os
 import sys
 import time
 import uuid
+from dataclasses import dataclass
 from pathlib import Path
 
 from fastapi import Depends, FastAPI, Header, Request
@@ -29,6 +30,7 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
+from api import keystore  # noqa: E402
 from api import settings as settings_module  # noqa: E402
 from api.schemas import (  # noqa: E402
     AnalyzeRequest,
@@ -60,6 +62,7 @@ _STATUS_BY_CODE = {
     "invalid_url": 400,
     "invalid_email": 400,
     "empty_password": 400,
+    "quota_exceeded": 429,
     # We can fix these; the caller cannot, and must not see why.
     "missing_key": 503,
     "credentials": 503,
@@ -75,7 +78,9 @@ _STATUS_BY_CODE = {
 
 _GENERIC_MESSAGES = {
     400: "The request could not be analyzed as submitted.",
-    429: "Too many requests. Please retry later.",
+    401: "A valid API key is required.",
+    413: "The submitted content is too large.",
+    429: "Too many requests, or the monthly quota is spent.",
     503: "The analysis service is temporarily unavailable.",
     504: "The analysis service did not respond in time.",
     502: "The analysis service returned an unexpected result.",
@@ -158,23 +163,48 @@ async def observability(request: Request, call_next):
     return response
 
 
-async def authenticate(
+@dataclass(frozen=True)
+class Caller:
+    """Who is making this request, as far as we can establish."""
+
+    fingerprint: str  # safe to log; never the key itself
+    key: keystore.ApiKey | None  # a real issued key, when there is one
+    authenticated: bool
+
+
+def authenticate(
     request: Request,
     authorization: str | None = Header(default=None),
     x_api_key: str | None = Header(default=None, alias="X-API-Key"),
-) -> str:
-    """Authenticate and rate-limit one caller.
+) -> Caller:
+    """Identify the caller from an issued key, or a bootstrap key.
 
-    Returns the caller's log fingerprint. Raises nothing — failures are
-    surfaced by the endpoint, so every rejection carries a request id.
+    Issued keys are checked first: they are the ones that carry an
+    owner, a quota and a metering trail. The environment keys remain as
+    a development convenience and are recorded as anonymous traffic.
+
+    Nothing is raised here — failures are returned by the endpoint, so
+    every rejection carries a request id a customer can quote.
     """
     provided = ""
     if authorization and authorization.lower().startswith("bearer "):
         provided = authorization[7:].strip()
     elif x_api_key:
         provided = x_api_key.strip()
-    request.state.api_key = provided
-    return key_fingerprint(provided)
+
+    fingerprint = key_fingerprint(provided)
+    if not provided:
+        return Caller(fingerprint, None, authenticated=False)
+
+    record = keystore.verify(provided, settings.database_path)
+    if record is not None:
+        return Caller(fingerprint, record, authenticated=True)
+
+    # Bootstrap keys from the environment, for development.
+    if verify_key(provided, settings.api_keys):
+        return Caller(fingerprint, None, authenticated=True)
+
+    return Caller(fingerprint, None, authenticated=False)
 
 
 @app.get("/v1/health", response_model=HealthResponse, tags=["service"])
@@ -218,32 +248,62 @@ async def analyzers() -> AnalyzersResponse:
     },
     tags=["analysis"],
 )
-async def analyze(
+def analyze(
     payload: AnalyzeRequest,
     request: Request,
-    caller: str = Depends(authenticate),
+    caller: Caller = Depends(authenticate),
 ):
-    """Analyze one subject and return its Trust Report."""
+    """Analyze one subject and return its Trust Report.
+
+    Defined with `def`, not `async def`, on purpose. The work inside is
+    blocking — an HTTP call to the AI provider and a local database
+    write — and FastAPI runs a synchronous endpoint in a worker thread.
+    Declaring it async would have run that blocking work on the event
+    loop, where one slow provider response stalls every other request
+    on the process.
+    """
     request_id = request.state.request_id
+    started = time.monotonic()
+
+    def finish(status: int, code: str, kind: str = "", verdict: str = ""):
+        """Record the call, then answer. Metering happens either way:
+        a customer's failed requests are exactly what support needs."""
+        keystore.record_usage(
+            key_id=caller.key.id if caller.key else None,
+            endpoint="/v1/analyze",
+            status=status,
+            kind=kind,
+            verdict=verdict,
+            duration_ms=int((time.monotonic() - started) * 1000),
+            path=settings.database_path,
+        )
+        return _error(request_id, status, code)
 
     if not settings.configured:
-        # Fail closed rather than serving an open, unmetered endpoint.
-        return _error(request_id, 503, "not_configured")
+        # Fail closed rather than serving an endpoint that cannot work.
+        return finish(503, "not_configured")
 
-    if not verify_key(request.state.api_key, settings.api_keys):
-        logger.warning("auth_failed request_id=%s caller=%s", request_id, caller)
-        return _error(request_id, 401, "unauthorized")
+    if not caller.authenticated:
+        logger.warning(
+            "auth_failed request_id=%s caller=%s", request_id, caller.fingerprint
+        )
+        return finish(401, "unauthorized")
 
-    allowed, reset_in = limiter.check(caller, time.time())
+    allowed, reset_in = limiter.check(caller.fingerprint, time.time())
     if not allowed:
-        response = _error(request_id, 429, "rate_limited")
+        response = finish(429, "rate_limited")
         response.headers["Retry-After"] = str(reset_in)
         return response
 
+    if caller.key and keystore.over_quota(caller.key, path=settings.database_path):
+        logger.warning(
+            "quota_exceeded request_id=%s key_id=%s", request_id, caller.key.id
+        )
+        return finish(429, "quota_exceeded")
+
     if len(payload.content) > settings.max_content_length:
-        # Checked before any AI call: an oversized body should cost us
-        # nothing.
-        return _error(request_id, 413, "content_too_large")
+        # Checked before any AI call: an oversized body costs us nothing.
+        return finish(413, "content_too_large")
 
     subject = TrustSubject(
         content=payload.content,
@@ -252,7 +312,7 @@ async def analyze(
     )
     analyzer = engine.detect(subject)
     if analyzer is None:
-        return _error(request_id, 400, "unsupported_input")
+        return finish(400, "unsupported_input")
 
     try:
         report = engine.analyze(
@@ -263,16 +323,25 @@ async def analyze(
         logger.warning(
             "analysis_failed request_id=%s caller=%s kind=%s code=%s",
             request_id,
-            caller,
+            caller.fingerprint,
             analyzer.kind,
             error.code,
         )
-        return _error(request_id, status, error.code)
+        return finish(status, error.code, analyzer.kind)
 
+    keystore.record_usage(
+        key_id=caller.key.id if caller.key else None,
+        endpoint="/v1/analyze",
+        status=200,
+        kind=analyzer.kind,
+        verdict=report.verdict,
+        duration_ms=int((time.monotonic() - started) * 1000),
+        path=settings.database_path,
+    )
     logger.info(
         "analysis request_id=%s caller=%s kind=%s verdict=%s confidence=%d",
         request_id,
-        caller,
+        caller.fingerprint,
         analyzer.kind,
         report.verdict,
         report.confidence,

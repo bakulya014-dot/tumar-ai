@@ -20,9 +20,14 @@ def _split(value: str) -> tuple[str, ...]:
 class Settings:
     """Runtime configuration. Secrets are never logged or echoed back."""
 
-    # Keys allowed to call the API. Empty means the API is unconfigured
-    # and will refuse every analysis request.
+    # Bootstrap keys straight from the environment. Convenient for
+    # development and for a first deployment before any key has been
+    # issued; they carry no owner, no quota and no metering, so real
+    # customers belong in the key store instead.
     api_keys: tuple[str, ...] = ()
+
+    # Where issued keys and usage records live.
+    database_path: str = "tumar.db"
 
     # Key for the AI provider, passed through to the services layer.
     gemini_api_key: str = ""
@@ -43,14 +48,20 @@ class Settings:
 
     @property
     def configured(self) -> bool:
-        """True when the API has everything it needs to answer."""
-        return bool(self.api_keys) and bool(self.gemini_api_key)
+        """True when the API can reach the AI provider at all.
+
+        Whether any caller is authorized is a per-request question now
+        that keys live in a database, so it is answered there rather
+        than frozen at startup.
+        """
+        return bool(self.gemini_api_key)
 
 
 def load() -> Settings:
     """Build settings from environment variables."""
     return Settings(
         api_keys=_split(os.environ.get("TUMAR_API_KEYS", "")),
+        database_path=os.environ.get("TUMAR_DB_PATH", "tumar.db"),
         gemini_api_key=os.environ.get("GEMINI_API_KEY", ""),
         rate_limit=int(os.environ.get("TUMAR_RATE_LIMIT", "60")),
         rate_window_seconds=int(os.environ.get("TUMAR_RATE_WINDOW", "60")),

@@ -22,9 +22,16 @@ os.environ["TUMAR_API_KEYS"] = "test-key-one,test-key-two"
 os.environ["GEMINI_API_KEY"] = "stub-key"
 os.environ["TUMAR_RATE_LIMIT"] = "5"
 
+# A throwaway database, so these tests never touch a real one.
+import tempfile  # noqa: E402
+
+_DB_HANDLE = tempfile.NamedTemporaryFile(suffix=".db", delete=False)
+_DB_HANDLE.close()
+os.environ["TUMAR_DB_PATH"] = _DB_HANDLE.name
+
 from fastapi.testclient import TestClient  # noqa: E402
 
-from api import main  # noqa: E402
+from api import keystore, main  # noqa: E402
 from api.security import RateLimiter, key_fingerprint, verify_key  # noqa: E402
 from services.common import ServiceError  # noqa: E402
 from services.trust_engine import AnalysisContext, TrustSubject  # noqa: E402
@@ -245,6 +252,91 @@ def test_health_is_open_and_says_nothing_secret() -> None:
     print("test_health_is_open_and_says_nothing_secret PASSED")
 
 
+# --- Issued keys, quota and metering, over HTTP ---
+
+
+def test_an_issued_key_authenticates() -> None:
+    issued = keystore.issue("Acme Bank", "production", path=main.settings.database_path)
+    response = _client().post(
+        "/v1/analyze",
+        json={"content": "hello there"},
+        headers={"Authorization": f"Bearer {issued.secret}"},
+    )
+    assert response.status_code == 200
+    print("test_an_issued_key_authenticates PASSED")
+
+
+def test_a_revoked_key_stops_working_over_http() -> None:
+    issued = keystore.issue("Acme Bank", path=main.settings.database_path)
+    headers = {"Authorization": f"Bearer {issued.secret}"}
+    client = _client()
+    assert client.post("/v1/analyze", json={"content": "hi"}, headers=headers).status_code == 200
+    keystore.revoke(issued.record.id, main.settings.database_path)
+    assert client.post("/v1/analyze", json={"content": "hi"}, headers=headers).status_code == 401
+    print("test_a_revoked_key_stops_working_over_http PASSED")
+
+
+def test_calls_are_metered_against_the_issued_key() -> None:
+    issued = keystore.issue("Metered Co", path=main.settings.database_path)
+    client = _client()
+    for _ in range(3):
+        client.post(
+            "/v1/analyze",
+            json={"content": "hello there"},
+            headers={"Authorization": f"Bearer {issued.secret}"},
+        )
+    used = keystore.usage_this_month(
+        issued.record.id, path=main.settings.database_path
+    )
+    assert used == 3
+    print("test_calls_are_metered_against_the_issued_key PASSED")
+
+
+def test_spent_quota_is_refused_before_the_ai_is_called() -> None:
+    issued = keystore.issue(
+        "Small Plan", monthly_quota=2, path=main.settings.database_path
+    )
+    headers = {"Authorization": f"Bearer {issued.secret}"}
+    client = _client()
+    for _ in range(2):
+        assert client.post("/v1/analyze", json={"content": "hi"}, headers=headers).status_code == 200
+    blocked = client.post("/v1/analyze", json={"content": "hi"}, headers=headers)
+    assert blocked.status_code == 429
+    assert blocked.json()["error"]["code"] == "quota_exceeded"
+    # A refused call is not billable, so the count must not move.
+    assert keystore.usage_this_month(issued.record.id, path=main.settings.database_path) == 2
+    print("test_spent_quota_is_refused_before_the_ai_is_called PASSED")
+
+
+def test_failed_calls_are_recorded_but_not_billed() -> None:
+    issued = keystore.issue("Acme", path=main.settings.database_path)
+    client = _client(ServiceError("timeout"))
+    response = client.post(
+        "/v1/analyze",
+        json={"content": "hello there"},
+        headers={"Authorization": f"Bearer {issued.secret}"},
+    )
+    assert response.status_code == 504
+    # Visible to support…
+    summary = keystore.usage_summary(
+        issued.record.id, path=main.settings.database_path
+    )[0]
+    assert summary["calls"] == 1
+    # …but never charged to the customer.
+    assert keystore.usage_this_month(issued.record.id, path=main.settings.database_path) == 0
+    print("test_failed_calls_are_recorded_but_not_billed PASSED")
+
+
+def test_analyze_runs_off_the_event_loop() -> None:
+    # The endpoint does blocking work: an HTTP call to the AI provider
+    # and a database write. Declared async, that would stall every
+    # other request on the process while one provider call hangs.
+    import inspect
+
+    assert not inspect.iscoroutinefunction(main.analyze)
+    print("test_analyze_runs_off_the_event_loop PASSED")
+
+
 def test_analyzers_are_listed_from_the_live_registry() -> None:
     response = _client().get("/v1/analyzers")
     kinds = {item["kind"] for item in response.json()["analyzers"]}
@@ -270,5 +362,11 @@ if __name__ == "__main__":
     test_service_failures_map_to_useful_statuses()
     test_failures_never_leak_internals()
     test_health_is_open_and_says_nothing_secret()
+    test_an_issued_key_authenticates()
+    test_a_revoked_key_stops_working_over_http()
+    test_calls_are_metered_against_the_issued_key()
+    test_spent_quota_is_refused_before_the_ai_is_called()
+    test_failed_calls_are_recorded_but_not_billed()
+    test_analyze_runs_off_the_event_loop()
     test_analyzers_are_listed_from_the_live_registry()
     print("ALL API TESTS PASSED")

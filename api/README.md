@@ -19,13 +19,61 @@ Interactive documentation: `http://localhost:8000/docs`.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |
-| `TUMAR_API_KEYS` | — | Comma-separated keys. **Empty means the API refuses every analysis.** |
+| `TUMAR_DB_PATH` | `tumar.db` | Issued keys and usage records. |
+| `TUMAR_API_KEYS` | — | Bootstrap keys for development. Real customers get issued keys instead. |
 | `GEMINI_API_KEY` | — | AI provider key. Empty also means refuse. |
 | `TUMAR_RATE_LIMIT` | 60 | Requests per key per window. |
 | `TUMAR_RATE_WINDOW` | 60 | Window length in seconds. |
 | `TUMAR_MAX_CONTENT` | 5000 | Longest accepted input. |
 | `TUMAR_ALLOWED_ORIGINS` | none | Browser origins for CORS. Empty is correct for server-to-server. |
 | `TUMAR_LOG_LEVEL` | INFO | Logging verbosity. |
+
+## Key management
+
+Keys are issued from the command line, never over HTTP:
+
+```bash
+python -m api.keys issue --owner "Acme Bank" --label production --quota 10000
+python -m api.keys list
+python -m api.keys rotate --id 3     # replaces it; the old key dies now
+python -m api.keys revoke --id 3
+python -m api.keys usage --days 30
+python -m api.keys prune --days 90
+```
+
+Issuance is the most dangerous operation this system has — an endpoint
+that mints credentials is worth more to an attacker than any single
+key. It stays behind a shell until self-service is a product
+requirement, at which point it should be built as one.
+
+**Keys are stored hashed.** Only a SHA-256 digest is kept, plus a short
+prefix so a key is recognizable in a listing without being usable. The
+secret is printed once at issue time and cannot be recovered; if it is
+lost, rotate it. A leaked database is therefore not a set of working
+credentials.
+
+**Rotation revokes immediately.** That is the right default for a key
+that might be compromised. Where overlap is wanted for a planned
+migration, issue a second key first and revoke the old one when the
+client has moved.
+
+## Metering and quotas
+
+Every call is recorded: which key, when, which endpoint, the kind of
+subject, the verdict, the status and the duration. **There is no column
+for the content** — the privacy promise is enforced by the shape of the
+table rather than by remembering to be careful at each call site.
+
+`--quota` sets a monthly allowance; `0` means unlimited. Only
+successful analyses count toward it. Charging for a call that failed
+because our provider was down would be indefensible, and counting
+rejected requests would let one misconfigured client lock itself out.
+A key over its allowance receives `429` with code `quota_exceeded`,
+refused before any AI call is made.
+
+Usage rows are operational, not archival: `prune` drops old ones, since
+keeping per-request records forever grows without bound and widens the
+blast radius of a breach for no benefit once the month is billed.
 
 ## Endpoints
 
