@@ -48,6 +48,15 @@ class AnalyzeRequest(BaseModel):
         pattern="^[a-z]{2}$",
         description="Language for AI-written text in the report.",
     )
+    contribute: bool = Field(
+        default=False,
+        description=(
+            "Opt in to contributing this sample to our detection corpus. "
+            "Defaults to false. Personal identifiers are stripped before "
+            "storage, and anything you contribute can be listed and "
+            "deleted through /v1/contributions."
+        ),
+    )
 
 
 class AnalyzeResponse(BaseModel):
@@ -56,6 +65,41 @@ class AnalyzeResponse(BaseModel):
     request_id: str = Field(description="Correlates this call with our logs.")
     detected_kind: str = Field(description="Which analyzer handled the input.")
     report: TrustReport
+    contributed: bool = Field(
+        default=False,
+        description=(
+            "Whether a redacted copy of this sample was stored. False "
+            "even when requested if redaction could not make it safe to "
+            "keep — asking is not the same as it having happened."
+        ),
+    )
+
+
+class ContributionItem(BaseModel):
+    """One stored sample, exactly as we hold it."""
+
+    id: int
+    created_at: str
+    consent_version: str
+    kind: str
+    language: str
+    redacted_content: str
+    verdict: str
+
+
+class ContributionsResponse(BaseModel):
+    """Everything stored for the calling key."""
+
+    count: int
+    consent_version: str
+    contributions: list[ContributionItem]
+
+
+class WithdrawalResponse(BaseModel):
+    """Confirmation that contributed samples were deleted."""
+
+    deleted: int
+    message: str
 
 
 class AnalyzerInfo(BaseModel):

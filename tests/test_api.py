@@ -31,7 +31,7 @@ os.environ["TUMAR_DB_PATH"] = _DB_HANDLE.name
 
 from fastapi.testclient import TestClient  # noqa: E402
 
-from api import keystore, main  # noqa: E402
+from api import corpus_store, keystore, main  # noqa: E402
 from api.security import RateLimiter, key_fingerprint, verify_key  # noqa: E402
 from services.common import ServiceError  # noqa: E402
 from services.trust_engine import AnalysisContext, TrustSubject  # noqa: E402
@@ -337,6 +337,98 @@ def test_analyze_runs_off_the_event_loop() -> None:
     print("test_analyze_runs_off_the_event_loop PASSED")
 
 
+# --- Corpus contribution: opt-in, redacted, withdrawable ---
+
+
+def test_nothing_is_contributed_unless_asked() -> None:
+    """The default must be that we keep nothing."""
+    issued = keystore.issue("Quiet Co", path=main.settings.database_path)
+    response = _client().post(
+        "/v1/analyze",
+        json={"content": "URGENT! confirm your card at http://bad.xyz"},
+        headers={"Authorization": f"Bearer {issued.secret}"},
+    )
+    assert response.status_code == 200
+    assert response.json()["contributed"] is False
+    assert corpus_store.for_key(issued.record.id, main.settings.database_path) == []
+    print("test_nothing_is_contributed_unless_asked PASSED")
+
+
+def test_opting_in_stores_a_redacted_sample() -> None:
+    issued = keystore.issue("Sharing Co", path=main.settings.database_path)
+    response = _client().post(
+        "/v1/analyze",
+        json={
+            "content": "Card 4539578763621486 blocked, code 481920, "
+            "go to http://kaspi-verify.xyz",
+            "contribute": True,
+        },
+        headers={"Authorization": f"Bearer {issued.secret}"},
+    )
+    assert response.json()["contributed"] is True
+
+    stored = corpus_store.for_key(
+        issued.record.id, main.settings.database_path
+    )[0].redacted_content
+    assert "4539578763621486" not in stored
+    assert "481920" not in stored
+    assert "http://kaspi-verify.xyz" in stored  # the attack survives
+    print("test_opting_in_stores_a_redacted_sample PASSED")
+
+
+def test_a_contributor_can_read_back_exactly_what_we_hold() -> None:
+    issued = keystore.issue("Transparent Co", path=main.settings.database_path)
+    headers = {"Authorization": f"Bearer {issued.secret}"}
+    client = _client()
+    client.post(
+        "/v1/analyze",
+        json={"content": "URGENT! send the code now", "contribute": True},
+        headers=headers,
+    )
+    body = client.get("/v1/contributions", headers=headers).json()
+    assert body["count"] == 1
+    assert body["consent_version"] == corpus_store.CONSENT_VERSION
+    assert "redacted_content" in body["contributions"][0]
+    print("test_a_contributor_can_read_back_exactly_what_we_hold PASSED")
+
+
+def test_withdrawal_is_self_service_and_immediate() -> None:
+    issued = keystore.issue("Leaving Co", path=main.settings.database_path)
+    headers = {"Authorization": f"Bearer {issued.secret}"}
+    client = _client()
+    for _ in range(2):
+        client.post(
+            "/v1/analyze",
+            json={"content": "URGENT! send the code now", "contribute": True},
+            headers=headers,
+        )
+    deleted = client.delete("/v1/contributions", headers=headers).json()
+    assert deleted["deleted"] == 2
+    assert client.get("/v1/contributions", headers=headers).json()["count"] == 0
+    print("test_withdrawal_is_self_service_and_immediate PASSED")
+
+
+def test_contribution_endpoints_require_an_issued_key() -> None:
+    client = _client()
+    # A bootstrap key has no record, so there is nobody to attribute
+    # samples to and nobody who could withdraw them.
+    for method in (client.get, client.delete):
+        assert method("/v1/contributions", headers=AUTH).status_code == 401
+        assert method("/v1/contributions").status_code == 401
+    print("test_contribution_endpoints_require_an_issued_key PASSED")
+
+
+def test_bootstrap_keys_cannot_contribute() -> None:
+    response = _client().post(
+        "/v1/analyze",
+        json={"content": "URGENT! send the code", "contribute": True},
+        headers=AUTH,
+    )
+    assert response.status_code == 200
+    assert response.json()["contributed"] is False
+    print("test_bootstrap_keys_cannot_contribute PASSED")
+
+
 def test_analyzers_are_listed_from_the_live_registry() -> None:
     response = _client().get("/v1/analyzers")
     kinds = {item["kind"] for item in response.json()["analyzers"]}
@@ -368,5 +460,11 @@ if __name__ == "__main__":
     test_spent_quota_is_refused_before_the_ai_is_called()
     test_failed_calls_are_recorded_but_not_billed()
     test_analyze_runs_off_the_event_loop()
+    test_nothing_is_contributed_unless_asked()
+    test_opting_in_stores_a_redacted_sample()
+    test_a_contributor_can_read_back_exactly_what_we_hold()
+    test_withdrawal_is_self_service_and_immediate()
+    test_contribution_endpoints_require_an_issued_key()
+    test_bootstrap_keys_cannot_contribute()
     test_analyzers_are_listed_from_the_live_registry()
     print("ALL API TESTS PASSED")

@@ -75,6 +75,59 @@ Usage rows are operational, not archival: `prune` drops old ones, since
 keeping per-request records forever grows without bound and widens the
 blast radius of a breach for no benefit once the month is billed.
 
+## Contributing samples (opt-in)
+
+Everything else in this platform is built on not keeping what people
+send. This is the one path that keeps anything, and every restriction
+on it is enforced in code rather than promised here.
+
+```json
+{"content": "…", "contribute": true}
+```
+
+- **Opt-in per request.** `contribute` defaults to `false`. There is no
+  account setting that quietly turns it on for traffic sent before
+  anyone thought about it.
+- **Redacted before storage.** Emails, phone numbers, card numbers,
+  IBANs and one-time codes are stripped. URLs survive intact — a
+  scam's infrastructure is the most valuable part of a sample, and the
+  rule is to redact what identifies the *person* while keeping what
+  identifies the *attack*. A sample that still looks identifying after
+  redaction is dropped rather than stored.
+- **Asking is not the same as it happening.** The response returns
+  `contributed`, which is `false` if the sample was refused.
+- **Issued keys only.** A bootstrap key has no record, so nobody could
+  withdraw the sample later; contributions from one are refused.
+- **Consent is versioned.** Each row records the terms it was collected
+  under, so changing the terms cannot retroactively cover what came
+  before.
+
+```bash
+GET    /v1/contributions   # read back exactly what we hold, redacted
+DELETE /v1/contributions   # delete all of it, immediately
+```
+
+Withdrawal is self-service and really deletes the rows — a promise to
+delete that leaves the data in place is not a promise. Samples already
+exported into the reviewed corpus have left this store and are not
+covered, which the response says plainly rather than implying a reach
+we do not have.
+
+### From contributions to measurement
+
+```bash
+python -m api.corpus stats
+python -m api.corpus review --limit 20
+python -m api.corpus label --id 4 --as scam
+python -m api.corpus export --out evals/corpus/messages_contributed.jsonl
+```
+
+Exports arrive **unlabelled**. A human decides whether each sample is a
+scam, because a corpus labelled by the system it measures would only
+confirm what that system already believes and the evaluation would
+stop meaning anything. Once labelled, the file drops into
+`evals/corpus/` and the harness picks it up automatically.
+
 ## Endpoints
 
 `POST /v1/analyze` — analyze one subject.

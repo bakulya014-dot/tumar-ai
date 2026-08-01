@@ -30,16 +30,19 @@ ROOT = Path(__file__).resolve().parent.parent
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from api import keystore  # noqa: E402
+from api import corpus_store, keystore  # noqa: E402
 from api import settings as settings_module  # noqa: E402
 from api.schemas import (  # noqa: E402
     AnalyzeRequest,
     AnalyzersResponse,
     AnalyzeResponse,
     AnalyzerInfo,
+    ContributionItem,
+    ContributionsResponse,
     ErrorBody,
     ErrorResponse,
     HealthResponse,
+    WithdrawalResponse,
 )
 from api.security import RateLimiter, key_fingerprint, verify_key  # noqa: E402
 from services.common import ServiceError  # noqa: E402
@@ -329,6 +332,19 @@ def analyze(
         )
         return finish(status, error.code, analyzer.kind)
 
+    # Opt-in, per request, and only ever after the analysis succeeded.
+    contributed = False
+    if payload.contribute:
+        contributed = corpus_store.contribute(
+            key_id=caller.key.id if caller.key else None,
+            content=payload.content,
+            kind=analyzer.kind,
+            language=payload.language,
+            verdict=report.verdict,
+            confidence=report.confidence,
+            path=settings.database_path,
+        )
+
     keystore.record_usage(
         key_id=caller.key.id if caller.key else None,
         endpoint="/v1/analyze",
@@ -347,7 +363,79 @@ def analyze(
         report.confidence,
     )
     return AnalyzeResponse(
-        request_id=request_id, detected_kind=analyzer.kind, report=report
+        request_id=request_id,
+        detected_kind=analyzer.kind,
+        report=report,
+        contributed=contributed,
+    )
+
+
+@app.get(
+    "/v1/contributions",
+    response_model=ContributionsResponse,
+    responses={401: {"model": ErrorResponse}},
+    tags=["corpus"],
+)
+def list_contributions(request: Request, caller: Caller = Depends(authenticate)):
+    """Show everything stored for this key, as it is stored.
+
+    A customer should be able to read back exactly what we hold, in
+    the redacted form we hold it, rather than take our word for it.
+    """
+    if not caller.authenticated or caller.key is None:
+        return _error(request.state.request_id, 401, "unauthorized")
+
+    stored = corpus_store.for_key(caller.key.id, settings.database_path)
+    return ContributionsResponse(
+        count=len(stored),
+        consent_version=corpus_store.CONSENT_VERSION,
+        contributions=[
+            ContributionItem(
+                id=item.id,
+                created_at=item.created_at,
+                consent_version=item.consent_version,
+                kind=item.kind,
+                language=item.language,
+                redacted_content=item.redacted_content,
+                verdict=item.verdict,
+            )
+            for item in stored
+        ],
+    )
+
+
+@app.delete(
+    "/v1/contributions",
+    response_model=WithdrawalResponse,
+    responses={401: {"model": ErrorResponse}},
+    tags=["corpus"],
+)
+def withdraw_contributions(
+    request: Request, caller: Caller = Depends(authenticate)
+):
+    """Delete every sample contributed by this key.
+
+    Self-service and immediate: withdrawing consent should not require
+    opening a support ticket. The rows are deleted rather than
+    flagged — a promise to delete that leaves the data in place is not
+    a promise.
+    """
+    if not caller.authenticated or caller.key is None:
+        return _error(request.state.request_id, 401, "unauthorized")
+
+    deleted = corpus_store.withdraw(caller.key.id, settings.database_path)
+    logger.info(
+        "contributions_withdrawn request_id=%s key_id=%s deleted=%d",
+        request.state.request_id,
+        caller.key.id,
+        deleted,
+    )
+    return WithdrawalResponse(
+        deleted=deleted,
+        message=(
+            "Deleted. Samples already exported into our reviewed corpus "
+            "have left this store and are not covered by this deletion."
+        ),
     )
 
 

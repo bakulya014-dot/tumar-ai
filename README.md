@@ -164,6 +164,13 @@ Only successful calls count toward a quota, and the usage table has no
 column for content — privacy enforced by the schema rather than by
 care at each call site.
 
+Customers can opt in, per request, to contributing a sample to the
+detection corpus (`"contribute": true`). Personal identifiers are
+stripped before storage while URLs survive, contributions can be read
+back and deleted through `/v1/contributions`, and exports arrive
+unlabelled for a human to judge. That is how production traffic becomes
+measured improvement — see `api/README.md`.
+
 ## Measuring detection quality
 
 A security product has to be able to answer how good it is. `evals/`
@@ -222,6 +229,7 @@ tumar-ai/
 │   ├── url_scanner.py      # URL trust scan (native TrustReport module)
 │   ├── password_check.py   # k-anonymity breach lookup + offline strength
 │   ├── heuristics.py       # Deterministic scanner (urgency, URLs, OTP…)
+│   ├── redaction.py        # Strips personal identifiers, keeps attack signal
 │   ├── breach_checker.py   # Breach lookup + risk assessment
 │   └── trust_report.py     # Unified TrustReport schema — the platform's shared result language
 ├── prompts/                # Versioned AI prompts
@@ -237,6 +245,8 @@ tumar-ai/
 │   ├── security.py         # API-key auth + rate limiting
 │   ├── keystore.py         # Issued keys (hashed) + usage metering (SQLite)
 │   ├── keys.py             # Admin CLI: issue / list / rotate / revoke / usage
+│   ├── corpus_store.py     # Opt-in contributed samples (redacted, withdrawable)
+│   ├── corpus.py           # Corpus CLI: stats / review / label / export
 │   ├── schemas.py          # Request/response shapes
 │   ├── settings.py         # Environment configuration (fails closed)
 │   └── README.md           # Running it, and its deliberate limits
