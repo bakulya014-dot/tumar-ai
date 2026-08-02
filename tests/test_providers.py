@@ -36,13 +36,16 @@ class _Answer(BaseModel):
 
 
 class _Response:
-    def __init__(self, status_code: int, text: str = ""):
+    def __init__(self, status_code: int, text: str = "", body: dict | None = None):
         self.status_code = status_code
         self._text = text
+        self._body = body
 
     def json(self):
         if self.status_code != 200:
             raise ValueError("no body")
+        if self._body is not None:
+            return self._body
         return {"choices": [{"message": {"content": self._text}}]}
 
 
@@ -233,6 +236,78 @@ def test_json_wrapped_in_a_markdown_fence_is_recovered() -> None:
     print("test_json_wrapped_in_a_markdown_fence_is_recovered PASSED")
 
 
+def test_alternate_response_shapes_are_understood() -> None:
+    """The chat-completions shape is a convention, not a standard.
+
+    Hosts differ: some return content as a list of parts, some put a
+    reasoning trace beside an empty answer. Failing an integration on
+    a detail unrelated to what was asked would be a poor trade.
+    """
+    answer = '{"verdict":"danger","score":90}'
+    shapes = (
+        # Content as a list of parts.
+        {"choices": [{"message": {"content": [{"type": "text", "text": answer}]}}]},
+        # Empty answer, JSON in a reasoning trace.
+        {"choices": [{"message": {"content": "", "reasoning_content": answer}}]},
+        # Prose around the JSON.
+        {"choices": [{"message": {"content": f"Here you go:\n{answer}\nHope that helps."}}]},
+    )
+    for body in shapes:
+        _stub(_Recorder(_Response(200, body=body)))
+        try:
+            parsed = DeepSeekProvider("k", model="m").generate_structured(
+                "s", "c", _Answer
+            )
+            assert parsed.verdict == "danger", body
+        finally:
+            _restore()
+    print("test_alternate_response_shapes_are_understood PASSED")
+
+
+def test_token_usage_is_captured_when_reported() -> None:
+    body = {
+        "choices": [{"message": {"content": '{"verdict":"safe","score":5}'}}],
+        "usage": {"prompt_tokens": 412, "completion_tokens": 88},
+    }
+    _stub(_Recorder(_Response(200, body=body)))
+    try:
+        provider = DeepSeekProvider("k", model="m")
+        provider.generate_structured("s", "c", _Answer)
+        assert provider.last_usage["prompt_tokens"] == 412
+    finally:
+        _restore()
+    print("test_token_usage_is_captured_when_reported PASSED")
+
+
+def test_a_response_with_no_text_is_a_coded_failure() -> None:
+    _stub(_Recorder(_Response(200, body={"choices": [{"message": {}}]})))
+    try:
+        DeepSeekProvider("k", model="m").generate_structured("s", "c", _Answer)
+    except ProviderError as error:
+        assert error.code == "unexpected_answer"
+    else:
+        raise AssertionError("an empty response was accepted")
+    finally:
+        _restore()
+    print("test_a_response_with_no_text_is_a_coded_failure PASSED")
+
+
+def test_errors_never_carry_the_key_or_the_content() -> None:
+    """A failure must not leak what was sent or who sent it."""
+    _stub(_Recorder(_Response(401)))
+    try:
+        DeepSeekProvider("super-secret-key", model="m").generate_structured(
+            "system prompt", "a user's private message", _Answer
+        )
+    except ProviderError as error:
+        rendered = f"{error} {error.code}"
+        assert "super-secret-key" not in rendered
+        assert "private message" not in rendered
+    finally:
+        _restore()
+    print("test_errors_never_carry_the_key_or_the_content PASSED")
+
+
 def test_http_failures_map_to_platform_error_codes() -> None:
     for status, code in (
         (401, "credentials"),
@@ -298,6 +373,10 @@ if __name__ == "__main__":
     test_a_new_model_never_becomes_the_default_by_accident()
     test_an_image_is_sent_as_a_data_uri()
     test_json_wrapped_in_a_markdown_fence_is_recovered()
+    test_alternate_response_shapes_are_understood()
+    test_token_usage_is_captured_when_reported()
+    test_a_response_with_no_text_is_a_coded_failure()
+    test_errors_never_carry_the_key_or_the_content()
     test_http_failures_map_to_platform_error_codes()
     test_network_failure_and_garbage_are_coded_not_raw()
     test_the_model_id_is_configuration_not_code()

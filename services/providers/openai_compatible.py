@@ -42,6 +42,11 @@ class OpenAICompatibleProvider(AIProvider):
         self.model = model
         self._vision = vision
         self.timeout = timeout
+        # Token counts from the most recent call, when the endpoint
+        # reports them. Read by the evaluation harness so a provider
+        # comparison can weigh cost against quality; never logged, and
+        # never part of a user-facing report.
+        self.last_usage: dict | None = None
 
     def available(self) -> bool:
         return bool(self.api_key and self.base_url and self.model)
@@ -120,11 +125,47 @@ class OpenAICompatibleProvider(AIProvider):
 
         try:
             body = response.json()
-            text = body["choices"][0]["message"]["content"]
+            text = self._extract_text(body)
         except (ValueError, KeyError, IndexError, TypeError) as exc:
             raise ProviderError("unexpected_answer") from exc
 
+        usage = body.get("usage") if isinstance(body, dict) else None
+        self.last_usage = usage if isinstance(usage, dict) else None
+
         return self._validate(text, schema)
+
+    @staticmethod
+    def _extract_text(body: dict) -> str:
+        """Pull the answer out, tolerating shape differences.
+
+        The chat-completions shape is a convention, not a standard, and
+        hosts vary: some return the message content as a list of parts,
+        some put a reasoning trace alongside the answer. Reading a few
+        known shapes costs little and avoids a provider integration
+        that fails on a detail unrelated to what it was asked.
+        """
+        choice = body["choices"][0]
+        message = choice.get("message") or {}
+
+        content = message.get("content")
+        if isinstance(content, list):
+            # Content returned as parts: keep the text ones in order.
+            content = "".join(
+                part.get("text", "")
+                for part in content
+                if isinstance(part, dict) and part.get("type") in (None, "text")
+            )
+        if isinstance(content, str) and content.strip():
+            return content
+
+        # Some endpoints separate a reasoning trace from the answer; if
+        # the answer came back empty, the JSON may be in the trace.
+        for fallback in ("reasoning_content", "reasoning", "text"):
+            value = message.get(fallback) or choice.get(fallback)
+            if isinstance(value, str) and value.strip():
+                return value
+
+        raise KeyError("no textual content in the response")
 
     @staticmethod
     def _raise_for_status(status: int) -> None:

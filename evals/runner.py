@@ -45,6 +45,7 @@ from services.heuristics import (  # noqa: E402
     scan_message,
     url_reasons,
 )
+from services.providers import build as build_provider  # noqa: E402
 from services.scam_analysis import ScamAnalysisError, analyze_message  # noqa: E402
 from services.trust_report import from_scam_report  # noqa: E402
 
@@ -110,6 +111,12 @@ class AiResult:
     # confidence model has adjusted the model's self-report. This is
     # the number a user sees, so this is the number worth calibrating.
     shown_confidence: int = 0
+    # Cost of the call. Quality is the first question when choosing a
+    # provider, but it is not the only one: a model that is as accurate
+    # and half the price or twice the speed is a real improvement.
+    latency_ms: int = 0
+    prompt_tokens: int = 0
+    completion_tokens: int = 0
 
     @property
     def flagged(self) -> bool:
@@ -276,6 +283,7 @@ def run_ai(
     limit: int | None = None,
     delay: float = DEFAULT_DELAY_S,
     retries: int = RATE_LIMIT_RETRIES,
+    provider=None,
 ) -> tuple[list[AiResult], list[str]]:
     """Run the real analysis over the corpus. Costs tokens.
 
@@ -294,8 +302,11 @@ def run_ai(
     for index, case in enumerate(selected, start=1):
         print(f"  [{index}/{len(selected)}] {case.id}", flush=True)
         for attempt in range(retries):
+            started = time.monotonic()
             try:
-                report = analyze_message(case.text, api_key=api_key)
+                report = analyze_message(
+                    case.text, api_key=api_key, provider=provider
+                )
             except ScamAnalysisError as error:
                 retriable = error.code in ("rate_limited", "service_down")
                 if retriable and attempt < retries - 1:
@@ -305,6 +316,8 @@ def run_ai(
                     continue
                 failures.append(f"{case.id}: {error.code}")
                 break
+            latency_ms = int((time.monotonic() - started) * 1000)
+            usage = getattr(provider, "last_usage", None) or {}
             shown = from_scam_report(report, case.text)
             results.append(
                 AiResult(
@@ -315,6 +328,9 @@ def run_ai(
                     confidence=report.ai.confidence,
                     risk_score=report.ai.risk_score,
                     shown_confidence=shown.confidence,
+                    latency_ms=latency_ms,
+                    prompt_tokens=int(usage.get("prompt_tokens", 0) or 0),
+                    completion_tokens=int(usage.get("completion_tokens", 0) or 0),
                 )
             )
             break
@@ -337,8 +353,17 @@ def score(results: list[AiResult]) -> dict:
     false_alarms = [item for item in legit if item.flagged]
     hard_false_alarms = [item for item in legit if item.verdict == "Dangerous"]
     caught = len(scams) - len(missed)
+    latencies = sorted(item.latency_ms for item in results)
+    prompt_tokens = sum(item.prompt_tokens for item in results)
+    completion_tokens = sum(item.completion_tokens for item in results)
     return {
         "cases": len(results),
+        # Median, not mean: one retry after a rate limit would drag an
+        # average somewhere that describes no real request.
+        "median_latency_ms": latencies[len(latencies) // 2] if latencies else 0,
+        "prompt_tokens": prompt_tokens,
+        "completion_tokens": completion_tokens,
+        "total_tokens": prompt_tokens + completion_tokens,
         "accuracy": rate(sum(1 for item in results if item.correct), len(results)),
         # Of everything we flagged, how much deserved it. Precision is
         # what a user experiences as "this tool cries wolf".
@@ -463,6 +488,11 @@ def print_ai(
     print(f"  precision:                 {summary['precision']}%")
     print(f"  recall on scams:           {summary['recall_on_scams']}%")
     print(f"  false positive rate:       {summary['false_positive_rate']}%")
+    print(f"  median latency:            {summary['median_latency_ms']} ms")
+    if summary["total_tokens"]:
+        print(f"  tokens (prompt/answer):    {summary['prompt_tokens']}/{summary['completion_tokens']}")
+    else:
+        print("  tokens:                    not reported by this provider")
     if summary["missed_scams"]:
         print(f"  MISSED SCAMS:              {', '.join(summary['missed_scams'])}")
     if summary["false_alarms"]:
@@ -544,6 +574,14 @@ def main() -> int:
         default="",
         help="tag this run in the saved results (e.g. 'before', 'after')",
     )
+    parser.add_argument(
+        "--provider",
+        default="",
+        help=(
+            "which AI provider to measure (gemini, deepseek, openai, "
+            "claude). Default: the platform's existing Gemini path."
+        ),
+    )
     args = parser.parse_args()
 
     messages = load_messages()
@@ -563,12 +601,34 @@ def main() -> int:
     }
 
     if args.ai:
-        key = _api_key()
-        if not key:
+        chosen = None
+        if args.provider:
+            chosen = build_provider(args.provider)
+            if chosen is None:
+                print(f"\nUnknown provider: {args.provider}")
+                return 1
+            if not chosen.available():
+                # Named but unconfigured. Falling back to the default
+                # would produce a run labelled as one provider and
+                # measured on another.
+                print(
+                    f"\n{args.provider} is not configured — set its API key "
+                    "in the environment. Refusing to measure a different "
+                    "provider under this label."
+                )
+                return 1
+            payload["provider"] = args.provider
+
+        key = "" if chosen else _api_key()
+        if not chosen and not key:
             print("\nNo GEMINI_API_KEY found — set it in the environment or .streamlit/secrets.toml")
             return 1
-        print(f"\nRunning the AI layer over {args.limit or len(messages)} case(s)…")
-        results, failures = run_ai(messages, key, args.limit, args.delay)
+
+        label = args.provider or "gemini"
+        print(f"\nRunning the AI layer ({label}) over {args.limit or len(messages)} case(s)…")
+        results, failures = run_ai(
+            messages, key, args.limit, args.delay, provider=chosen
+        )
         if not results:
             print("Every AI call failed — nothing to score.")
             return 1

@@ -29,6 +29,26 @@ AI mode needs `GEMINI_API_KEY` in the environment or in
 `.streamlit/secrets.toml`. Run it before shipping a prompt or model
 change, and compare against the previous run in `evals/results/`.
 
+## Comparing providers
+
+Choosing a model is a measured decision, not a preference:
+
+```bash
+python evals/runner.py --ai --provider gemini   --label gemini
+python evals/runner.py --ai --provider deepseek --label deepseek
+python evals/compare.py gemini deepseek
+```
+
+The comparison reports accuracy, precision, recall, both kinds of
+error, calibration, per-language accuracy, median latency and token
+cost — plus McNemar's exact test on the paired cases. That test is the
+right one here: both runs saw the same corpus, so what matters is how
+many cases one got right that the other did not, and comparing
+headline accuracies on paired data would overstate confidence.
+
+A run refuses to start if the named provider has no key, rather than
+quietly measuring the default and labelling it as something else.
+
 ## The corpus
 
 `corpus/messages.jsonl` — labelled messages in English, Russian and
