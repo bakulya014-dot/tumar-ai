@@ -113,6 +113,31 @@ exported into the reviewed corpus have left this store and are not
 covered, which the response says plainly rather than implying a reach
 we do not have.
 
+### Contributions from the app
+
+The Streamlit app offers the same thing to ordinary users, with a
+consent flow suited to people rather than integrators:
+
+- The invitation appears **after** the result. Nobody is asked to agree
+  to anything in order to get their answer.
+- It shows **the redacted text itself** before they decide, not a
+  description of redaction. Describing it asks for trust; showing it
+  asks for nothing.
+- Only messages and links are ever offered. An email address is the
+  subject of its own check, not research material.
+
+App contributions are attributed to a random session id, not an
+account. That means they can be withdrawn while the session lasts and
+not afterwards, because nothing links them to the person who sent
+them. This is stated plainly in the interface rather than buried:
+keeping an identifier forever so that deletion stays possible would be
+the more invasive choice.
+
+The language recorded is the language of the **sample**, detected from
+the content — not the language of the interface. Someone reading the
+app in English can paste a Kazakh scam, and filing it as English would
+corrupt the per-language accuracy the harness reports.
+
 ### From contributions to measurement
 
 ```bash

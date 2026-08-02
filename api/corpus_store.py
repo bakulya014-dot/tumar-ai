@@ -33,6 +33,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 from api.keystore import connect
+from services.language import detect as detect_language
 from services.redaction import contains_identifier, redact
 
 # The terms each sample was collected under. Bump this when the terms
@@ -46,7 +47,8 @@ MAX_SAMPLE_CHARS = 2000
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS contributions (
     id               INTEGER PRIMARY KEY AUTOINCREMENT,
-    key_id           INTEGER NOT NULL REFERENCES api_keys(id),
+    key_id           INTEGER REFERENCES api_keys(id),
+    session_id       TEXT    NOT NULL DEFAULT '',
     created_at       TEXT    NOT NULL,
     consent_version  TEXT    NOT NULL,
     kind             TEXT    NOT NULL,
@@ -77,7 +79,54 @@ class Contribution:
 
 
 def _ensure(connection: sqlite3.Connection) -> None:
+    """Create the table, and migrate one made by an earlier version.
+
+    The first version of this table required an API key. The app has
+    no keys, so the column had to become optional and a session column
+    had to appear. SQLite cannot relax a NOT NULL in place, so the
+    table is rebuilt when the old shape is found — rather than telling
+    an operator to delete their database, which is how contributed
+    samples get lost.
+    """
     connection.executescript(_SCHEMA)
+    columns = {
+        row["name"]: row
+        for row in connection.execute("PRAGMA table_info(contributions)")
+    }
+    if "session_id" not in columns:
+        connection.execute(
+            "ALTER TABLE contributions ADD COLUMN session_id TEXT NOT NULL DEFAULT ''"
+        )
+        columns = {
+            row["name"]: row
+            for row in connection.execute("PRAGMA table_info(contributions)")
+        }
+    if columns["key_id"]["notnull"]:
+        connection.executescript(
+            """
+            ALTER TABLE contributions RENAME TO contributions_old;
+            """
+            + _SCHEMA
+            + """
+            INSERT INTO contributions (id, key_id, session_id, created_at,
+                consent_version, kind, language, redacted_content, verdict,
+                confidence, reviewed_label)
+            SELECT id, key_id, session_id, created_at, consent_version, kind,
+                language, redacted_content, verdict, confidence, reviewed_label
+            FROM contributions_old;
+            DROP TABLE contributions_old;
+            """
+        )
+
+
+def preview(content: str) -> str:
+    """Exactly what would be stored, so a person can see it first.
+
+    Consent is only informed if it is specific. Describing redaction in
+    a paragraph asks for trust; showing the redacted text asks for
+    nothing — the reader can check it themselves before deciding.
+    """
+    return redact(content.strip())[:MAX_SAMPLE_CHARS]
 
 
 def contribute(
@@ -88,20 +137,30 @@ def contribute(
     verdict: str = "",
     confidence: int = 0,
     path: Path | str | None = None,
+    session_id: str = "",
 ) -> bool:
     """Store one redacted sample. Returns whether it was kept.
 
     False is a normal outcome, not an error: a sample is refused when
-    it cannot be attributed to a key that could later withdraw it, or
-    when redaction could not make it safe to keep.
+    nobody is attached to it, or when redaction could not make it safe.
+
+    Attribution is either an issued API key or an app session. Both
+    give someone the ability to take it back; a sample with neither
+    belongs to no one and is refused.
     """
-    if key_id is None:
+    if key_id is None and not session_id:
         # Nobody could withdraw this later, so we will not hold it.
         return False
 
     cleaned = redact(content.strip())[:MAX_SAMPLE_CHARS]
     if not cleaned:
         return False
+
+    # The language of the SAMPLE, not of the interface that submitted
+    # it. Someone reading the app in English can paste a Russian scam,
+    # and filing that under English would corrupt the per-language
+    # accuracy the evaluation harness reports.
+    language = detect_language(content, fallback=language)
     if contains_identifier(cleaned):
         # Redaction did not fully succeed. Drop it — a sample is worth
         # far less than the risk of holding someone's identifiers.
@@ -110,11 +169,12 @@ def contribute(
     with connect(path) as connection:
         _ensure(connection)
         connection.execute(
-            "INSERT INTO contributions (key_id, created_at, consent_version, "
-            "kind, language, redacted_content, verdict, confidence) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "INSERT INTO contributions (key_id, session_id, created_at, "
+            "consent_version, kind, language, redacted_content, verdict, "
+            "confidence) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
                 key_id,
+                session_id,
                 datetime.now(timezone.utc).isoformat(timespec="seconds"),
                 CONSENT_VERSION,
                 kind,
@@ -125,6 +185,31 @@ def contribute(
             ),
         )
     return True
+
+
+def for_session(session_id: str, path: Path | str | None = None) -> list[Contribution]:
+    """Samples contributed from one app session."""
+    if not session_id:
+        return []
+    with connect(path) as connection:
+        _ensure(connection)
+        rows = connection.execute(
+            "SELECT * FROM contributions WHERE session_id = ? ORDER BY id DESC",
+            (session_id,),
+        ).fetchall()
+    return [_to_contribution(row) for row in rows]
+
+
+def withdraw_session(session_id: str, path: Path | str | None = None) -> int:
+    """Delete everything contributed from one app session."""
+    if not session_id:
+        return 0
+    with connect(path) as connection:
+        _ensure(connection)
+        cursor = connection.execute(
+            "DELETE FROM contributions WHERE session_id = ?", (session_id,)
+        )
+        return cursor.rowcount
 
 
 def for_key(key_id: int, path: Path | str | None = None) -> list[Contribution]:
@@ -140,19 +225,20 @@ def for_key(key_id: int, path: Path | str | None = None) -> list[Contribution]:
             "SELECT * FROM contributions WHERE key_id = ? ORDER BY id DESC",
             (key_id,),
         ).fetchall()
-    return [
-        Contribution(
-            id=row["id"],
-            created_at=row["created_at"],
-            consent_version=row["consent_version"],
-            kind=row["kind"],
-            language=row["language"],
-            redacted_content=row["redacted_content"],
-            verdict=row["verdict"],
-            reviewed_label=row["reviewed_label"],
-        )
-        for row in rows
-    ]
+    return [_to_contribution(row) for row in rows]
+
+
+def _to_contribution(row: sqlite3.Row) -> Contribution:
+    return Contribution(
+        id=row["id"],
+        created_at=row["created_at"],
+        consent_version=row["consent_version"],
+        kind=row["kind"],
+        language=row["language"],
+        redacted_content=row["redacted_content"],
+        verdict=row["verdict"],
+        reviewed_label=row["reviewed_label"],
+    )
 
 
 def withdraw(key_id: int, path: Path | str | None = None) -> int:
@@ -178,7 +264,11 @@ def stats(path: Path | str | None = None) -> dict:
         row = connection.execute(
             "SELECT COUNT(*) AS total, "
             "SUM(CASE WHEN reviewed_label = '' THEN 1 ELSE 0 END) AS unlabelled, "
-            "COUNT(DISTINCT key_id) AS contributors "
+            # Contributors arrive as either an API key or an app
+            # session; counting only keys reported zero for every
+            # sample the app collected.
+            "COUNT(DISTINCT COALESCE(NULLIF(session_id, ''), 'key:' || key_id)) "
+            "  AS contributors "
             "FROM contributions"
         ).fetchone()
         by_language = connection.execute(

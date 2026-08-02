@@ -146,11 +146,78 @@ def test_withdrawal_touches_only_the_asking_key() -> None:
 # --- Closing the loop into the evaluation corpus ---
 
 
+# --- App sessions: attribution without accounts ---
+
+
+def test_a_session_can_contribute_and_withdraw() -> None:
+    db = _db()
+    assert corpus_store.contribute(
+        None, "URGENT! send the code", "message", session_id="sess-abc", path=db
+    )
+    assert len(corpus_store.for_session("sess-abc", db)) == 1
+    assert corpus_store.withdraw_session("sess-abc", db) == 1
+    assert corpus_store.for_session("sess-abc", db) == []
+    print("test_a_session_can_contribute_and_withdraw PASSED")
+
+
+def test_sessions_cannot_see_or_delete_each_other() -> None:
+    db = _db()
+    corpus_store.contribute(None, "mine here", "message", session_id="a", path=db)
+    corpus_store.contribute(None, "theirs here", "message", session_id="b", path=db)
+    assert len(corpus_store.for_session("a", db)) == 1
+    corpus_store.withdraw_session("a", db)
+    assert len(corpus_store.for_session("b", db)) == 1
+    print("test_sessions_cannot_see_or_delete_each_other PASSED")
+
+
+def test_a_sample_with_no_key_and_no_session_is_still_refused() -> None:
+    db = _db()
+    assert corpus_store.contribute(None, "URGENT!", "message", path=db) is False
+    assert corpus_store.contribute(
+        None, "URGENT!", "message", session_id="", path=db
+    ) is False
+    print("test_a_sample_with_no_key_and_no_session_is_still_refused PASSED")
+
+
+def test_sample_language_beats_the_interface_language() -> None:
+    """A Russian scam pasted from an English UI is a Russian sample."""
+    db = _db()
+    corpus_store.contribute(
+        None,
+        "СРОЧНО! Карта заблокирована, назовите код оператору",
+        "message",
+        language="en",  # what the interface was set to
+        session_id="s",
+        path=db,
+    )
+    assert corpus_store.for_session("s", db)[0].language == "ru"
+    print("test_sample_language_beats_the_interface_language PASSED")
+
+
+def test_contributors_are_counted_across_keys_and_sessions() -> None:
+    db = _db()
+    corpus_store.contribute(_key(db), "a scam message", "message", path=db)
+    corpus_store.contribute(None, "another scam", "message", session_id="s1", path=db)
+    corpus_store.contribute(None, "a third scam", "message", session_id="s2", path=db)
+    assert corpus_store.stats(db)["contributors"] == 3
+    print("test_contributors_are_counted_across_keys_and_sessions PASSED")
+
+
+def test_preview_shows_exactly_what_would_be_stored() -> None:
+    """The consent flow shows this string; storage must match it."""
+    db = _db()
+    text = "Call +7 701 234 5678 and pay at http://bad.xyz, code 481920"
+    shown = corpus_store.preview(text)
+    corpus_store.contribute(None, text, "message", session_id="s", path=db)
+    assert corpus_store.for_session("s", db)[0].redacted_content == shown
+    print("test_preview_shows_exactly_what_would_be_stored PASSED")
+
+
 def test_export_matches_the_corpus_shape() -> None:
     db = _db()
     key_id = _key(db)
     corpus_store.contribute(
-        key_id, "URGENT! confirm your card", "message", "ru", "danger", path=db
+        key_id, "СРОЧНО! Подтвердите карту", "message", "ru", "danger", path=db
     )
     row = corpus_store.export(path=db)[0]
     assert set(row) >= {"id", "language", "label", "text", "tags"}
@@ -191,7 +258,9 @@ def test_stats_track_the_labelling_backlog() -> None:
     db = _db()
     key_id = _key(db)
     for _ in range(3):
-        corpus_store.contribute(key_id, "URGENT! act now", "message", "kk", path=db)
+        corpus_store.contribute(
+            key_id, "ШҰҒЫЛ! Дереу әрекет етіңіз", "message", "kk", path=db
+        )
     figures = corpus_store.stats(db)
     assert figures["total"] == 3
     assert figures["unlabelled"] == 3
@@ -210,6 +279,12 @@ if __name__ == "__main__":
     test_a_contributor_sees_only_their_own_samples()
     test_withdrawal_really_deletes()
     test_withdrawal_touches_only_the_asking_key()
+    test_a_session_can_contribute_and_withdraw()
+    test_sessions_cannot_see_or_delete_each_other()
+    test_a_sample_with_no_key_and_no_session_is_still_refused()
+    test_sample_language_beats_the_interface_language()
+    test_contributors_are_counted_across_keys_and_sessions()
+    test_preview_shows_exactly_what_would_be_stored()
     test_export_matches_the_corpus_shape()
     test_exports_are_unlabelled_until_a_human_decides()
     test_only_real_labels_are_accepted()

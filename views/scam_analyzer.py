@@ -11,6 +11,7 @@ import streamlit as st
 import components
 import report_store
 from components import page_header
+from contribution_ui import contribution_box
 from report_view import render_trust_report
 from services.scam_analysis import ScamAnalysisError, analyze_message
 from services.trust_report import TrustReport, from_scam_report
@@ -79,6 +80,7 @@ if analyze_clicked:
 remembered = report_store.latest(st.session_state, SOURCE)
 if remembered:
     _render(remembered)
+    contribution_box(message, remembered)
 else:
     components.empty_state(
         "🔍", t("scam.empty_title"), t("scam.empty_text")

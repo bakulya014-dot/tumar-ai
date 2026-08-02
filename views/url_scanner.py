@@ -10,6 +10,7 @@ import streamlit as st
 import components
 import report_store
 from components import page_header
+from contribution_ui import contribution_box
 from i18n import current_language, t
 from report_view import render_trust_report
 from services.url_scanner import UrlScanError, scan_url
@@ -66,5 +67,6 @@ remembered = report_store.latest(st.session_state, SOURCE)
 if remembered:
     render_trust_report(remembered)
     st.caption(t("url.address_only_note"))
+    contribution_box(url, remembered)
 else:
     components.empty_state("🔗", t("url.empty_title"), t("url.empty_text"))

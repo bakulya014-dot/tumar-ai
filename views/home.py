@@ -16,6 +16,7 @@ import streamlit as st
 import components
 import report_store
 from components import feature_card, render_hero, section_header
+from contribution_ui import contribution_box
 from i18n import current_language, t
 from report_view import render_trust_report
 from services.common import ServiceError
@@ -86,6 +87,7 @@ if latest:
     page = _TOOL_PAGES.get(latest.source)
     if page:
         st.page_link(page, label=t("home.quick_full_tool"), icon="➡️")
+    contribution_box(quick_input, latest)
 
 # --- This session so far ---
 

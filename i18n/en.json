@@ -162,6 +162,19 @@
       "password": "Password"
     }
   },
+  "contribute": {
+    "title": "🤝 Help improve scam detection (optional)",
+    "why": "Scams in Kazakh and Russian are poorly covered by global security tools. Sharing this example helps us catch the next one — it is never used for anything else, and never sold.",
+    "preview_title": "This is exactly what would be stored:",
+    "preview_note": "Phone numbers, card numbers, email addresses and one-time codes have been removed. Links are kept, because they are what identifies the scam.",
+    "withdraw_note": "You can remove it while this session lasts. Afterwards nothing links it to you, so it can no longer be found — which also means we cannot delete it on request.",
+    "button": "🤝 Contribute this example",
+    "stored": "✅ Thank you — the redacted example above was saved.",
+    "already": "✅ You contributed this example. Thank you.",
+    "withdraw_button": "🗑️ Remove what I contributed",
+    "withdrawn": "Removed {count} contributed example(s).",
+    "refused": "This example could not be stored safely, so it was discarded. Nothing was saved."
+  },
   "confidence": {
     "agreement": "Higher confidence: our scanner and the AI agree independently.",
     "ai_only": "Lower confidence: the AI flagged this, but our scanner found no known pattern.",

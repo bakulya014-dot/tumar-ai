@@ -214,6 +214,7 @@ tumar-ai/
 ├── components.py           # Design-system primitives (cards, meters, chips, states)
 ├── report_view.py          # The one shared Trust Report layout
 ├── report_store.py         # Session-scoped report history (survives re-runs)
+├── contribution_ui.py      # Opt-in "help improve detection" consent box
 ├── views/                  # UI layer — one file per page
 │   ├── home.py             # Dashboard: Quick Check, session figures, recent analyses
 │   ├── scam_analyzer.py    # Scam Analyzer page
@@ -230,6 +231,7 @@ tumar-ai/
 │   ├── password_check.py   # k-anonymity breach lookup + offline strength
 │   ├── heuristics.py       # Deterministic scanner (urgency, URLs, OTP…)
 │   ├── redaction.py        # Strips personal identifiers, keeps attack signal
+│   ├── language.py         # Which language a sample is in (not the UI's)
 │   ├── breach_checker.py   # Breach lookup + risk assessment
 │   └── trust_report.py     # Unified TrustReport schema — the platform's shared result language
 ├── prompts/                # Versioned AI prompts
