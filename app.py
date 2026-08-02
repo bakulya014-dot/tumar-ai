@@ -8,12 +8,43 @@ Run with:
     streamlit run app.py
 """
 
+import os
 from pathlib import Path
 
 import streamlit as st
 
 from components import load_styles
 from i18n import LANGUAGES, t
+
+# Provider keys are read from the environment, so that services stay
+# free of any secret-storage details and work identically under the
+# API, the CLI and the test suite. Streamlit keeps its secrets
+# elsewhere, so bridge them across once at startup.
+#
+# Only names are listed here — never a value, and nothing is logged.
+# Existing environment variables win, so a deployment can override the
+# secrets file without editing it.
+_PROVIDER_SECRETS = (
+    "GEMINI_API_KEY",
+    "DEEPSEEK_API_KEY",
+    "DEEPSEEK_BASE_URL",
+    "DEEPSEEK_MODEL",
+    "DEEPSEEK_VISION",
+    "OPENAI_API_KEY",
+    "ANTHROPIC_API_KEY",
+    "TUMAR_TEXT_PROVIDER",
+    "TUMAR_VISION_PROVIDER",
+)
+
+for _name in _PROVIDER_SECRETS:
+    if os.environ.get(_name):
+        continue
+    try:
+        _value = st.secrets.get(_name, "")
+    except FileNotFoundError:  # no secrets file on this installation
+        break
+    if _value:
+        os.environ[_name] = str(_value)
 
 # Folder that contains this file — lets us load assets reliably
 # no matter which folder the app was started from.
