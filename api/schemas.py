@@ -87,6 +87,45 @@ class ContributionItem(BaseModel):
     verdict: str
 
 
+class ContributionRequest(BaseModel):
+    """A sample that has already been analyzed, offered for the corpus.
+
+    Separate from /v1/analyze because the caller already has its
+    report: re-analyzing to store a sample would pay for a second AI
+    call to learn something we were just told.
+
+    `content` should arrive already redacted by the caller. It is
+    redacted again on arrival — the same function, so the second pass
+    changes nothing — because a server must not trust a client to have
+    cleaned data it is about to store.
+    """
+
+    content: str = Field(min_length=1)
+    kind: AnalyzableKind = Field(description="What the sample is.")
+    language: str = Field(default="en", pattern="^[a-z]{2}$")
+    verdict: str = Field(default="", description="What the engine concluded.")
+    confidence: int = Field(default=0, ge=0, le=100)
+    session_id: str = Field(
+        default="",
+        max_length=64,
+        description=(
+            "Attribution for an app session, so the contributor can "
+            "withdraw it later. Omit to attribute to the calling key."
+        ),
+    )
+
+
+class ContributionStoredResponse(BaseModel):
+    """Whether a sample was kept."""
+
+    stored: bool = Field(
+        description=(
+            "False when redaction could not make the sample safe to "
+            "keep. Offering is not the same as it having been stored."
+        )
+    )
+
+
 class ContributionsResponse(BaseModel):
     """Everything stored for the calling key."""
 

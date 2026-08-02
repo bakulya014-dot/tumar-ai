@@ -429,6 +429,86 @@ def test_bootstrap_keys_cannot_contribute() -> None:
     print("test_bootstrap_keys_cannot_contribute PASSED")
 
 
+def test_a_front_end_can_store_an_already_analyzed_sample() -> None:
+    # This is what lets an app on an ephemeral host keep nothing
+    # locally — and it must not cost a second analysis.
+    issued = keystore.issue("App Front End", path=main.settings.database_path)
+    response = _client().post(
+        "/v1/contributions",
+        json={
+            "content": "СРОЧНО! Назовите код оператору",
+            "kind": "message",
+            "language": "ru",
+            "verdict": "danger",
+            "confidence": 95,
+            "session_id": "browser-session-1",
+        },
+        headers={"Authorization": f"Bearer {issued.secret}"},
+    )
+    assert response.status_code == 200
+    assert response.json()["stored"] is True
+    stored = corpus_store.for_session("browser-session-1", main.settings.database_path)
+    assert len(stored) == 1
+    assert stored[0].language == "ru"
+    print("test_a_front_end_can_store_an_already_analyzed_sample PASSED")
+
+
+def test_stored_samples_are_redacted_even_if_the_caller_forgot() -> None:
+    """A server must not trust a client to have cleaned its data."""
+    issued = keystore.issue("Careless App", path=main.settings.database_path)
+    _client().post(
+        "/v1/contributions",
+        json={
+            "content": "call +7 701 234 5678, code 481920",
+            "kind": "message",
+            "session_id": "browser-session-2",
+        },
+        headers={"Authorization": f"Bearer {issued.secret}"},
+    )
+    stored = corpus_store.for_session(
+        "browser-session-2", main.settings.database_path
+    )[0].redacted_content
+    assert "481920" not in stored
+    assert "701 234 5678" not in stored
+    print("test_stored_samples_are_redacted_even_if_the_caller_forgot PASSED")
+
+
+def test_a_session_withdrawal_can_be_relayed_by_the_front_end() -> None:
+    issued = keystore.issue("Relay App", path=main.settings.database_path)
+    headers = {"Authorization": f"Bearer {issued.secret}"}
+    client = _client()
+    client.post(
+        "/v1/contributions",
+        json={
+            "content": "URGENT! send the code",
+            "kind": "message",
+            "session_id": "browser-session-3",
+        },
+        headers=headers,
+    )
+    response = client.request(
+        "DELETE",
+        "/v1/contributions",
+        params={"session_id": "browser-session-3"},
+        headers=headers,
+    )
+    assert response.json()["deleted"] == 1
+    assert corpus_store.for_session(
+        "browser-session-3", main.settings.database_path
+    ) == []
+    print("test_a_session_withdrawal_can_be_relayed_by_the_front_end PASSED")
+
+
+def test_storing_a_contribution_requires_an_issued_key() -> None:
+    response = _client().post(
+        "/v1/contributions",
+        json={"content": "URGENT!", "kind": "message"},
+        headers=AUTH,  # a bootstrap key, not an issued one
+    )
+    assert response.status_code == 401
+    print("test_storing_a_contribution_requires_an_issued_key PASSED")
+
+
 def test_analyzers_are_listed_from_the_live_registry() -> None:
     response = _client().get("/v1/analyzers")
     kinds = {item["kind"] for item in response.json()["analyzers"]}
@@ -466,5 +546,9 @@ if __name__ == "__main__":
     test_withdrawal_is_self_service_and_immediate()
     test_contribution_endpoints_require_an_issued_key()
     test_bootstrap_keys_cannot_contribute()
+    test_a_front_end_can_store_an_already_analyzed_sample()
+    test_stored_samples_are_redacted_even_if_the_caller_forgot()
+    test_a_session_withdrawal_can_be_relayed_by_the_front_end()
+    test_storing_a_contribution_requires_an_issued_key()
     test_analyzers_are_listed_from_the_live_registry()
     print("ALL API TESTS PASSED")

@@ -171,6 +171,40 @@ back and deleted through `/v1/contributions`, and exports arrive
 unlabelled for a human to judge. That is how production traffic becomes
 measured improvement — see `api/README.md`.
 
+## Deploying: where contributed samples live
+
+The app can run on a host that discards its filesystem when the
+container restarts — Streamlit Community Cloud does exactly that.
+Collecting consented samples into storage that will vanish is worse
+than not collecting them, so **the app does not offer to collect
+anything unless it knows they will survive.** Two supported shapes:
+
+**App on an ephemeral host** (Streamlit Community Cloud). Run the API
+somewhere with a disk, issue the app a key, and point the app at it.
+The app then keeps nothing locally:
+
+```bash
+python -m api.keys issue --owner "Streamlit app"   # on the API host
+```
+
+```toml
+# .streamlit/secrets.toml
+TUMAR_API_URL = "https://api.your-domain.com"
+TUMAR_APP_API_KEY = "tmr_live_..."
+```
+
+**App on a host with a persistent disk** (a VM, or a container with a
+mounted volume). Point `TUMAR_DB_PATH` at the volume and say so:
+
+```bash
+TUMAR_DB_PATH=/data/tumar.db
+TUMAR_DURABLE_STORAGE=1
+```
+
+With neither configured the app works normally and simply never asks
+for a contribution. That is the intended default: a missing invitation
+is a much smaller failure than consent we quietly discard.
+
 ## Measuring detection quality
 
 A security product has to be able to answer how good it is. `evals/`

@@ -38,7 +38,9 @@ from api.schemas import (  # noqa: E402
     AnalyzeResponse,
     AnalyzerInfo,
     ContributionItem,
+    ContributionRequest,
     ContributionsResponse,
+    ContributionStoredResponse,
     ErrorBody,
     ErrorResponse,
     HealthResponse,
@@ -370,6 +372,53 @@ def analyze(
     )
 
 
+@app.post(
+    "/v1/contributions",
+    response_model=ContributionStoredResponse,
+    responses={401: {"model": ErrorResponse}, 429: {"model": ErrorResponse}},
+    tags=["corpus"],
+)
+def store_contribution(
+    payload: ContributionRequest,
+    request: Request,
+    caller: Caller = Depends(authenticate),
+):
+    """Store an already-analyzed sample.
+
+    This is what lets a front end run on a host with no durable disk:
+    the app keeps nothing locally and hands consented samples to the
+    service that owns the database. It also keeps the app from paying
+    for a second analysis just to record one it already has.
+    """
+    request_id = request.state.request_id
+    if not caller.authenticated or caller.key is None:
+        return _error(request_id, 401, "unauthorized")
+
+    allowed, reset_in = limiter.check(caller.fingerprint, time.time())
+    if not allowed:
+        response = _error(request_id, 429, "rate_limited")
+        response.headers["Retry-After"] = str(reset_in)
+        return response
+
+    stored = corpus_store.contribute(
+        key_id=None if payload.session_id else caller.key.id,
+        content=payload.content,
+        kind=payload.kind,
+        language=payload.language,
+        verdict=payload.verdict,
+        confidence=payload.confidence,
+        session_id=payload.session_id,
+        path=settings.database_path,
+    )
+    logger.info(
+        "contribution request_id=%s key_id=%s stored=%s",
+        request_id,
+        caller.key.id,
+        stored,
+    )
+    return ContributionStoredResponse(stored=stored)
+
+
 @app.get(
     "/v1/contributions",
     response_model=ContributionsResponse,
@@ -411,19 +460,30 @@ def list_contributions(request: Request, caller: Caller = Depends(authenticate))
     tags=["corpus"],
 )
 def withdraw_contributions(
-    request: Request, caller: Caller = Depends(authenticate)
+    request: Request,
+    caller: Caller = Depends(authenticate),
+    session_id: str = "",
 ):
-    """Delete every sample contributed by this key.
+    """Delete contributed samples — this key's, or one app session's.
 
     Self-service and immediate: withdrawing consent should not require
     opening a support ticket. The rows are deleted rather than
     flagged — a promise to delete that leaves the data in place is not
     a promise.
+
+    `session_id` lets a front end pass on a withdrawal from one of its
+    users. Session ids are unguessable, so holding the app's key does
+    not reveal whose samples to remove.
     """
     if not caller.authenticated or caller.key is None:
         return _error(request.state.request_id, 401, "unauthorized")
 
-    deleted = corpus_store.withdraw(caller.key.id, settings.database_path)
+    if session_id:
+        deleted = corpus_store.withdraw_session(
+            session_id, settings.database_path
+        )
+    else:
+        deleted = corpus_store.withdraw(caller.key.id, settings.database_path)
     logger.info(
         "contributions_withdrawn request_id=%s key_id=%s deleted=%d",
         request.state.request_id,

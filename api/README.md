@@ -126,6 +126,15 @@ consent flow suited to people rather than integrators:
 - Only messages and links are ever offered. An email address is the
   subject of its own check, not research material.
 
+On a host with no durable disk the app sends samples here instead of
+writing them locally, via `POST /v1/contributions` — which takes an
+already-analyzed sample, so recording one does not pay for a second AI
+call. The app redacts before sending, so what leaves it is exactly
+what the user was shown; the server redacts again on arrival, because
+a server that trusts a client to have cleaned data is not protecting
+anyone. `DELETE /v1/contributions?session_id=…` relays a withdrawal
+from one of the app's users.
+
 App contributions are attributed to a random session id, not an
 account. That means they can be withdrawn while the session lasts and
 not afterwards, because nothing links them to the person who sent
