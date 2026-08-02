@@ -171,6 +171,51 @@ back and deleted through `/v1/contributions`, and exports arrive
 unlabelled for a human to judge. That is how production traffic becomes
 measured improvement — see `api/README.md`.
 
+## AI providers
+
+Providers are interchangeable and none of them decides anything. Each
+one turns text or an image into structured evidence and reasoning; the
+Trust Engine reads that evidence and produces the only TrustReport
+there is. Swapping a provider changes how evidence is gathered, never
+how a verdict is reached.
+
+| Provider | Text | Vision | Status |
+| --- | --- | --- | --- |
+| Gemini | ✅ | — | The measured default |
+| DeepSeek V4 Flash | ✅ | opt-in | Integrated; run the harness before switching |
+| OpenAI | ✅ | ✅ | Supported shape, untested here |
+| Claude | ✅ | ✅ | Supported shape, untested here |
+
+Keys are read **only** from the environment — see `.env.example`.
+
+```bash
+DEEPSEEK_API_KEY=...                       # required to use it at all
+DEEPSEEK_BASE_URL=https://model.inferx.net/endpoints/v1
+DEEPSEEK_MODEL=deepseek-v4-flash
+TUMAR_TEXT_PROVIDER=deepseek               # opt in to it answering text
+DEEPSEEK_VISION=1                          # only once it reads images
+```
+
+Two defaults are deliberate and worth knowing:
+
+- **A configured key does not change the default.** `TUMAR_TEXT_PROVIDER`
+  must be set explicitly, because swapping the model behind every
+  verdict is a decision to make against the evaluation harness — not
+  something that should happen because a key appeared in the
+  environment. Run `python evals/runner.py --ai` on both and compare.
+- **Vision stays off until confirmed.** Declaring a capability we have
+  not watched work would route screenshots to a model that may not read
+  them, and fail in front of a user.
+
+If a provider is missing, misconfigured or down, the platform keeps
+working: the deterministic scanner and the rest of the engine never
+depended on it.
+
+```bash
+# Live check, run only when the key is set; skips otherwise.
+venv\Scripts\python.exe tests\test_deepseek_integration.py
+```
+
 ## Deploying: where contributed samples live
 
 The app can run on a host that discards its filesystem when the
@@ -259,6 +304,14 @@ tumar-ai/
 ├── services/               # Business logic — UI-independent
 │   ├── common.py           # Shared error base (code-based errors)
 │   ├── trust_engine.py     # Core orchestration: TrustSubject → Analyzer → TrustReport
+│   ├── providers/          # Interchangeable AI providers behind one interface
+│   │   ├── base.py         # AIProvider: capabilities declared, never assumed
+│   │   ├── deepseek.py     # DeepSeek V4 Flash (OpenAI-compatible)
+│   │   ├── gemini.py       # Wraps the measured Gemini client
+│   │   ├── openai.py       # Supported shape, untested here
+│   │   ├── claude.py       # Supported shape, untested here
+│   │   └── openai_compatible.py  # Shared chat-completions transport
+│   ├── vision_analysis.py  # Screenshot → structured evidence (never a verdict)
 │   ├── gemini_client.py    # Shared Gemini client: model fallback + error codes
 │   ├── scam_analysis.py    # Scam analysis orchestration + response schema
 │   ├── url_scanner.py      # URL trust scan (native TrustReport module)

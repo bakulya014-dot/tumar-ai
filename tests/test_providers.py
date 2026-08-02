@@ -19,7 +19,7 @@ from pydantic import BaseModel
 from services.providers import (
     ClaudeProvider,
     GeminiProvider,
-    KimiProvider,
+    DeepSeekProvider,
     OpenAIProvider,
     ProviderError,
     ProviderUnsupported,
@@ -84,7 +84,7 @@ def _restore() -> None:
 def test_every_provider_implements_the_interface() -> None:
     for provider in (
         GeminiProvider("k"),
-        KimiProvider("k"),
+        DeepSeekProvider("k"),
         OpenAIProvider("k"),
         ClaudeProvider("k"),
     ):
@@ -97,14 +97,14 @@ def test_every_provider_implements_the_interface() -> None:
 
 def test_a_provider_without_a_key_is_unavailable() -> None:
     """Unconfigured must mean skipped, not broken at the point of use."""
-    assert not KimiProvider(api_key="").available()
+    assert not DeepSeekProvider(api_key="").available()
     assert not GeminiProvider("").available()
     assert not ClaudeProvider(api_key="").available()
     print("test_a_provider_without_a_key_is_unavailable PASSED")
 
 
 def test_a_text_only_provider_refuses_images() -> None:
-    provider = KimiProvider("k", vision=False)
+    provider = DeepSeekProvider("k", vision=False)
     try:
         provider.analyze_image(b"x", "image/png", "prompt", _Answer)
     except ProviderUnsupported:
@@ -124,7 +124,7 @@ def test_gemini_does_not_claim_vision() -> None:
 
 
 def test_registry_builds_by_name_and_ignores_strangers() -> None:
-    assert isinstance(build("kimi"), KimiProvider)
+    assert isinstance(build("deepseek"), DeepSeekProvider)
     assert isinstance(build("OpenAI"), OpenAIProvider)
     assert build("not-a-provider") is None
     print("test_registry_builds_by_name_and_ignores_strangers PASSED")
@@ -137,7 +137,7 @@ def test_no_vision_provider_configured_returns_none() -> None:
     saved = {
         name: os.environ.pop(name, None)
         for name in (
-            "KIMI_API_KEY",
+            "DEEPSEEK_API_KEY",
             "OPENAI_API_KEY",
             "ANTHROPIC_API_KEY",
             "TUMAR_VISION_PROVIDER",
@@ -152,16 +152,50 @@ def test_no_vision_provider_configured_returns_none() -> None:
     print("test_no_vision_provider_configured_returns_none PASSED")
 
 
-def test_a_configured_provider_is_found() -> None:
+def test_vision_stays_off_until_the_model_is_confirmed() -> None:
+    """A key alone must not imply the model can read images.
+
+    Claiming an unconfirmed capability would route screenshots to it
+    and fail where the user is standing. Enabling it is a deliberate
+    act, taken after watching it work.
+    """
     import os
 
-    os.environ["KIMI_API_KEY"] = "test-key"
+    os.environ["DEEPSEEK_API_KEY"] = "test-key"
+    os.environ.pop("DEEPSEEK_VISION", None)
     try:
+        assert vision_provider() is None
+        os.environ["DEEPSEEK_VISION"] = "1"
         found = vision_provider()
-        assert found is not None and found.name == "kimi"
+        assert found is not None and found.name == "deepseek"
     finally:
-        os.environ.pop("KIMI_API_KEY", None)
-    print("test_a_configured_provider_is_found PASSED")
+        os.environ.pop("DEEPSEEK_API_KEY", None)
+        os.environ.pop("DEEPSEEK_VISION", None)
+    print("test_vision_stays_off_until_the_model_is_confirmed PASSED")
+
+
+def test_a_new_model_never_becomes_the_default_by_accident() -> None:
+    """Swapping the model behind every verdict must be chosen, not inherited.
+
+    A key appearing in the environment is not consent to change what
+    the whole product's judgements are based on — that is a decision
+    to make against the evaluation harness.
+    """
+    import os
+
+    from services.providers import text_provider
+
+    os.environ["DEEPSEEK_API_KEY"] = "test-key"
+    os.environ.pop("TUMAR_TEXT_PROVIDER", None)
+    try:
+        assert text_provider() is None  # configured, but not chosen
+        os.environ["TUMAR_TEXT_PROVIDER"] = "deepseek"
+        chosen = text_provider()
+        assert chosen is not None and chosen.name == "deepseek"
+    finally:
+        os.environ.pop("DEEPSEEK_API_KEY", None)
+        os.environ.pop("TUMAR_TEXT_PROVIDER", None)
+    print("test_a_new_model_never_becomes_the_default_by_accident PASSED")
 
 
 # --- The transport ---
@@ -170,7 +204,9 @@ def test_a_configured_provider_is_found() -> None:
 def test_an_image_is_sent_as_a_data_uri() -> None:
     recorder = _stub(_Recorder(_Response(200, '{"verdict":"danger","score":90}')))
     try:
-        answer = KimiProvider("test-key", model="m").analyze_image(
+        # vision=True explicitly: the provider does not assume the
+        # capability, so a test of the image path must declare it.
+        answer = DeepSeekProvider("test-key", model="m", vision=True).analyze_image(
             b"\x89PNG-bytes", "image/png", "system", _Answer, "read it"
         )
         assert answer.verdict == "danger"
@@ -190,7 +226,7 @@ def test_json_wrapped_in_a_markdown_fence_is_recovered() -> None:
     fenced = '```json\n{"verdict":"safe","score":10}\n```'
     _stub(_Recorder(_Response(200, fenced)))
     try:
-        answer = KimiProvider("k", model="m").generate_structured("s", "c", _Answer)
+        answer = DeepSeekProvider("k", model="m").generate_structured("s", "c", _Answer)
         assert answer.verdict == "safe"
     finally:
         _restore()
@@ -207,7 +243,7 @@ def test_http_failures_map_to_platform_error_codes() -> None:
     ):
         _stub(_Recorder(_Response(status)))
         try:
-            KimiProvider("k", model="m").generate_structured("s", "c", _Answer)
+            DeepSeekProvider("k", model="m").generate_structured("s", "c", _Answer)
         except ProviderError as error:
             assert error.code == code, status
         else:
@@ -222,7 +258,7 @@ def test_network_failure_and_garbage_are_coded_not_raw() -> None:
 
     _stub(_Recorder(raises=real_requests.exceptions.Timeout("slow")))
     try:
-        KimiProvider("k", model="m").generate_structured("s", "c", _Answer)
+        DeepSeekProvider("k", model="m").generate_structured("s", "c", _Answer)
     except ProviderError as error:
         assert error.code == "timeout"
     finally:
@@ -230,7 +266,7 @@ def test_network_failure_and_garbage_are_coded_not_raw() -> None:
 
     _stub(_Recorder(_Response(200, "not json at all")))
     try:
-        KimiProvider("k", model="m").generate_structured("s", "c", _Answer)
+        DeepSeekProvider("k", model="m").generate_structured("s", "c", _Answer)
     except ProviderError as error:
         assert error.code == "unexpected_answer"
     finally:
@@ -239,15 +275,15 @@ def test_network_failure_and_garbage_are_coded_not_raw() -> None:
 
 
 def test_the_model_id_is_configuration_not_code() -> None:
-    # The exact Kimi model slug could not be verified here, so it must
+    # The exact DeepSeek model id could not be verified here, so it must
     # be changeable without touching source.
     import os
 
-    os.environ["KIMI_MODEL"] = "vendor/some-other-model"
+    os.environ["DEEPSEEK_MODEL"] = "vendor/some-other-model"
     try:
-        assert KimiProvider("k").model == "vendor/some-other-model"
+        assert DeepSeekProvider("k").model == "vendor/some-other-model"
     finally:
-        os.environ.pop("KIMI_MODEL", None)
+        os.environ.pop("DEEPSEEK_MODEL", None)
     print("test_the_model_id_is_configuration_not_code PASSED")
 
 
@@ -258,7 +294,8 @@ if __name__ == "__main__":
     test_gemini_does_not_claim_vision()
     test_registry_builds_by_name_and_ignores_strangers()
     test_no_vision_provider_configured_returns_none()
-    test_a_configured_provider_is_found()
+    test_vision_stays_off_until_the_model_is_confirmed()
+    test_a_new_model_never_becomes_the_default_by_accident()
     test_an_image_is_sent_as_a_data_uri()
     test_json_wrapped_in_a_markdown_fence_is_recovered()
     test_http_failures_map_to_platform_error_codes()

@@ -18,8 +18,13 @@ from typing import Literal
 from pydantic import BaseModel, Field
 
 from services.common import ServiceError
-from services.gemini_client import GeminiError, generate_structured
 from services.heuristics import HeuristicReport, scan_message
+from services.providers import (
+    AIProvider,
+    GeminiProvider,
+    ProviderError,
+    text_provider,
+)
 
 # System prompt lives in a versioned file, not in code, so we can
 # iterate on prompt wording without touching the service logic.
@@ -64,29 +69,43 @@ def _load_system_prompt() -> str:
         raise ScamAnalysisError("prompt_missing") from exc
 
 
-def analyze_message(message: str, api_key: str) -> ScamReport:
+def analyze_message(
+    message: str, api_key: str, provider: AIProvider | None = None
+) -> ScamReport:
     """Analyze a suspicious message and return a validated report.
+
+    The model supplies structured reasoning — techniques spotted, an
+    explanation, its own certainty. It does not decide anything: this
+    returns a ScamReport, and only the Trust Engine turns one of those
+    into a TrustReport.
+
+    Which model answers is a deliberate choice, never an accident of
+    configuration. An explicit `provider`, or TUMAR_TEXT_PROVIDER, is
+    required to move off the default; otherwise the Gemini path that
+    every measured evaluation ran through is used unchanged.
 
     Args:
         message: The raw text the user wants checked.
         api_key: Gemini API key, provided by the caller so this module
             stays free of any secret-storage details.
+        provider: Override the provider for this call.
 
     Raises:
         ScamAnalysisError: With a short error code on any failure.
     """
     heuristics = scan_message(message)
+    chosen = provider or text_provider() or GeminiProvider(api_key)
 
     try:
-        analysis = generate_structured(
-            api_key=api_key,
+        analysis = chosen.generate_structured(
             system_prompt=_load_system_prompt(),
             contents=_build_contents(message, heuristics),
             schema=ScamAnalysis,
         )
-    except GeminiError as exc:
+    except ProviderError as exc:
         # Same codes, module-specific error type — the UI contract
-        # (catch ScamAnalysisError, translate errors.<code>) holds.
+        # (catch ScamAnalysisError, translate errors.<code>) holds,
+        # whichever provider produced the failure.
         raise ScamAnalysisError(exc.code) from exc
 
     return ScamReport(ai=analysis, heuristics=heuristics)
