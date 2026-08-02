@@ -56,6 +56,7 @@ pages = {
     t("nav.section_analyze"): [
         st.Page("views/scam_analyzer.py", title=t("nav.scam"), icon="🔍"),
         st.Page("views/url_scanner.py", title=t("nav.url"), icon="🔗"),
+        st.Page("views/image_scanner.py", title=t("nav.image"), icon="🖼️"),
     ],
     t("nav.section_monitor"): [
         st.Page("views/breach_checker.py", title=t("nav.breach"), icon="📧"),

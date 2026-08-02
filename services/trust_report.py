@@ -36,8 +36,9 @@ from services.breach_checker import EmailBreachResult
 from services.confidence import estimate as estimate_confidence
 from services.heuristics import is_strong_url_signal
 from services.scam_analysis import ScamReport
+from services.vision_analysis import VisionFinding, to_analysis_text
 
-SubjectType = Literal["message", "email", "url", "password"]
+SubjectType = Literal["message", "email", "url", "password", "image"]
 Verdict = Literal["safe", "caution", "danger"]
 
 # Longest subject preview we keep; enough to recognize the item in a
@@ -212,6 +213,67 @@ def from_scam_report(report: ScamReport, message: str) -> TrustReport:
         evidence=evidence,
         explanation=report.ai.explanation,
         recommended_actions=list(report.ai.recommended_actions),
+    )
+
+
+def from_image_analysis(
+    report: ScamReport,
+    vision: "VisionFinding",
+    filename: str = "",
+) -> TrustReport:
+    """Build a report for a screenshot, from both layers.
+
+    The verdict still comes from the engine reading the text that was
+    extracted — the vision provider contributed facts, not a judgement.
+    Its observations are attached as evidence of their own so a user
+    can see what the image reader noticed and weigh it separately.
+
+    Nothing derived from the image bytes reaches the report: the
+    preview is the file name, never a thumbnail or a data URI, so a
+    report about a screenshot is as safe to store and return as any
+    other.
+    """
+    base = from_scam_report(report, to_analysis_text(vision))
+
+    evidence = list(base.evidence)
+    for indicator in vision.risk_indicators:
+        evidence.append(
+            Evidence(kind="ai", code="vision_indicator", detail=indicator, weight="weak")
+        )
+    for brand in vision.brands:
+        evidence.append(
+            Evidence(kind="ai", code="vision_brand", detail=brand, weight="weak")
+        )
+
+    # The vision layer read the image; the engine judged the text. When
+    # they disagree the confidence model has already said so, and this
+    # keeps the two contributions visible rather than blended.
+    confidence = estimate_confidence(
+        ai_confidence=report.ai.confidence,
+        verdict=base.verdict,
+        heuristics=report.heuristics,
+        text_length=len(vision.detected_text),
+        vision_flagged=bool(vision.risk_indicators or vision.otp_requests),
+        vision_legibility=vision.confidence,
+    )
+
+    return base.model_copy(
+        update={
+            "source": "image_scanner",
+            "subject_type": "image",
+            "subject_preview": preview_text(filename or "screenshot"),
+            "evidence": evidence,
+            "confidence": confidence.value,
+            "confidence_reason_keys": confidence.reason_keys,
+            "metrics": base.metrics
+            + [
+                Metric(
+                    label_key="image.metric_legibility",
+                    value=vision.confidence,
+                    higher_is_worse=False,
+                )
+            ],
+        }
     )
 
 

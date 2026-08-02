@@ -12,6 +12,7 @@
     "home": "Home",
     "scam": "Scam Analyzer",
     "url": "URL Scanner",
+    "image": "Screenshot Scanner",
     "breach": "Email Breach Checker",
     "password": "Password Health",
     "about": "About"
@@ -149,6 +150,8 @@
       "pw_sequential": "Contains a keyboard or alphabet run",
       "pw_breached": "Times seen in breach data",
       "breach": "Breaches this address appeared in",
+      "vision_indicator": "Noticed in the screenshot",
+      "vision_brand": "Brand shown in the screenshot",
       "otp_disclosure": "Asks you to reveal a one-time code",
       "otp_entry": "Asks you to type in a code",
       "url_homoglyph": "Web address mixes alphabets to imitate a real one"
@@ -175,13 +178,35 @@
     "withdrawn": "Removed {count} contributed example(s).",
     "refused": "This example could not be stored safely, so it was discarded. Nothing was saved."
   },
+  "image": {
+    "title": "🖼️ Screenshot Scanner",
+    "subtitle": "Upload a screenshot — a suspicious page, a receipt, a bank notification — and get a trust verdict.",
+    "allow_external": "Allow external AI providers",
+    "allow_external_help": "Reading a screenshot needs an AI provider outside Tumar.AI. Switch this off and no image is ever uploaded.",
+    "privacy_note": "🔒 The image is read and discarded. It is never stored, and never added to our detection corpus — only the text read out of it can be contributed, and only if you choose to.",
+    "disabled_by_user": "External AI providers are switched off, so screenshots cannot be read. Everything else in Tumar.AI works as usual.",
+    "no_provider": "No screenshot reader is configured on this installation. The other checks work as usual.",
+    "upload_label": "Screenshot to check",
+    "upload_help": "PNG, JPG or WEBP, up to 6 MB.",
+    "analyze_button": "🖼️ Analyze screenshot",
+    "spinner": "Reading the screenshot…",
+    "too_large": "That image is larger than 6 MB. Try a screenshot of just the part that matters.",
+    "unsupported": "That file type is not supported. Use PNG, JPG or WEBP.",
+    "method_note": "ℹ️ The text was read from your screenshot by an AI provider; the verdict was reached by Tumar.AI's own engine, the same one that checks pasted messages.",
+    "metric_legibility": "Image legibility",
+    "empty_title": "No screenshot checked yet",
+    "empty_text": "Upload a screenshot above and your trust report will appear here."
+  },
   "confidence": {
     "agreement": "Higher confidence: our scanner and the AI agree independently.",
     "ai_only": "Lower confidence: the AI flagged this, but our scanner found no known pattern.",
     "contradiction": "Lower confidence: our scanner found strong signals the AI did not treat as dangerous.",
     "advice_conflict": "Lower confidence: this message reads like security advice, which is often flagged by mistake.",
     "short_input": "Lower confidence: the message is very short, so there is little to judge.",
-    "routine": "Confidence reflects the AI's certainty on this message."
+    "routine": "Confidence reflects the AI's certainty on this message.",
+    "vision_agreement": "Higher confidence: the screenshot reader and our engine reached the same conclusion independently.",
+    "vision_conflict": "Lower confidence: the screenshot reader and our engine disagreed about this.",
+    "vision_unreadable": "The screenshot was hard to read, so its reader's opinion was not counted."
   },
   "url": {
     "title": "🔗 URL Scanner",
@@ -287,6 +312,12 @@
     "invalid_url": "That does not look like a valid link. Please check it and try again — for example, https://example.com.",
     "unsupported_input": "Tumar.AI cannot analyze this type of input yet.",
     "empty_password": "Enter a password to check.",
+    "empty_image": "That image appears to be empty.",
+    "image_too_large": "That image is too large. Try a smaller screenshot.",
+    "unsupported_image": "That image format is not supported. Use PNG, JPG or WEBP.",
+    "vision_unavailable": "Screenshot reading is not available on this installation.",
+    "nothing_detected": "No readable text was found in that screenshot.",
+    "unsupported_capability": "This provider cannot do that.",
     "timeout": "The service is taking too long to respond. Please try again in a moment.",
     "unreachable": "Could not reach the service. Check your internet connection and try again.",
     "rate_limited": "Too many requests in a short time. Please wait a moment and try again.",

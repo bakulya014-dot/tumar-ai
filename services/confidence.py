@@ -56,6 +56,22 @@ SHORT_TEXT_PENALTY = 15
 # say so rather than projecting certainty.
 ADVICE_CONFLICT_PENALTY = 12
 
+# A second model, reading the same subject independently, reached the
+# same conclusion. Worth less than agreement with the deterministic
+# scanner: two language models can be wrong in the same way, where a
+# pattern match and a model rarely are.
+VISION_AGREEMENT_BONUS = 6
+
+# The vision provider read danger the engine did not, or the reverse.
+# Independent disagreement is real information and it argues for less
+# certainty, not more.
+VISION_CONFLICT_PENALTY = 15
+
+# Below this, the vision provider is telling us it could not read the
+# image well. Its opinion then says more about the screenshot's
+# legibility than about the content, so it is not counted either way.
+VISION_MIN_LEGIBILITY = 50
+
 
 @dataclass(frozen=True)
 class ConfidenceEstimate:
@@ -70,6 +86,8 @@ def estimate(
     verdict: str,
     heuristics: HeuristicReport,
     text_length: int,
+    vision_flagged: bool | None = None,
+    vision_legibility: int = 0,
 ) -> ConfidenceEstimate:
     """Combine the AI's self-report with checkable evidence.
 
@@ -79,6 +97,12 @@ def estimate(
         verdict: the platform verdict ("safe" / "caution" / "danger").
         heuristics: the deterministic layer's findings.
         text_length: characters of input the verdict was based on.
+        vision_flagged: whether an independent vision provider saw
+            something dangerous. None when no provider was consulted,
+            which is the normal case and costs nothing.
+        vision_legibility: how well that provider says it could read
+            the image. A provider that could not read it has no
+            opinion worth counting.
     """
     score = min(ai_confidence, CEILING)
     reasons: list[str] = []
@@ -105,6 +129,20 @@ def estimate(
     if text_length < SHORT_TEXT_CHARS:
         score -= SHORT_TEXT_PENALTY
         reasons.append("confidence.short_input")
+
+    # A second, independent reading of the same subject.
+    if vision_flagged is not None and vision_legibility >= VISION_MIN_LEGIBILITY:
+        if vision_flagged == flagged:
+            score += VISION_AGREEMENT_BONUS
+            reasons.append("confidence.vision_agreement")
+        else:
+            score -= VISION_CONFLICT_PENALTY
+            reasons.append("confidence.vision_conflict")
+    elif vision_flagged is not None:
+        # Consulted, but it could not read the image. Say so, because
+        # the user is looking at a verdict drawn from a blurred
+        # screenshot and deserves to know that is what happened.
+        reasons.append("confidence.vision_unreadable")
 
     if not reasons:
         reasons.append("confidence.routine")
