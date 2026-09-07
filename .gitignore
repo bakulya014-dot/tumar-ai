@@ -24,3 +24,6 @@ evals/results/
 .idea/
 .vscode/
 .DS_Store
+
+# Local build output (deck builds, node_modules). Never commit.
+tmp/

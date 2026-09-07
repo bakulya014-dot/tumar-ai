@@ -1,0 +1,187 @@
+{"kind":"deck","id":"pr/5wqbp8","name":"Deck"}
+{"kind":"layout","layoutId":"/ppt/slideMasters/slideMaster1.xml","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"/ppt/slideLayouts/slideLayout1.xml","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/y90nupkv","slide":1,"title":"TUMAR.AI","textShapes":8}
+{"kind":"shape","id":"sh/vmdcj2xw","slide":1,"name":"Прямоугольник 12","bbox":[850,0,430,720]}
+{"kind":"textbox","id":"sh/k3yl0zql","slide":1,"name":"Прямоугольник 2","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,58,300,24]}
+{"kind":"textbox","id":"sh/7qp4be9c","slide":1,"name":"Прямоугольник 3","text":"The trust layer\nbefore the click.","textPreview":"The trust layer | before the click.","textChars":33,"textLines":2,"bbox":[72,156,650,120]}
+{"kind":"textbox","id":"sh/65g3298r","slide":1,"name":"Прямоугольник 4","text":"A multilingual cybersecurity assistant—built to help people everywhere make safer digital decisions in seconds.","textPreview":"A multilingual cybersecurity assistant—built to help people everywhere make safer digital decisions in seconds.","textChars":111,"textLines":1,"bbox":[76,318,620,58]}
+{"kind":"shape","id":"sh/ts7md4r2","slide":1,"name":"Прямоугольник: скругленные углы 5","bbox":[76,430,360,30]}
+{"kind":"textbox","id":"sh/sryl4zqx","slide":1,"name":"Прямоугольник 6","text":"Live MVP  ·  Kazakh  ·  Русский  ·  English","textPreview":"Live MVP  ·  Kazakh  ·  Русский  ·  English","textChars":43,"textLines":1,"bbox":[76,437,360,16]}
+{"kind":"textbox","id":"sh/fu94fe98","slide":1,"name":"Прямоугольник 7","text":"Mission: make trustworthy AI accessible to everyone.","textPreview":"Mission: make trustworthy AI accessible to everyone.","textChars":52,"textLines":1,"bbox":[76,530,620,28]}
+{"kind":"textbox","id":"sh/utg3698n","slide":1,"name":"Прямоугольник 8","text":"tumar-ai.streamlit.app","textPreview":"tumar-ai.streamlit.app","textChars":22,"textLines":1,"bbox":[76,615,350,20]}
+{"kind":"shape","id":"sh/wn6dc7eh","slide":1,"name":"Прямая соединительная линия 9","bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/hofulsf2","slide":1,"name":"Прямоугольник 10","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/ul4vaxgb","slide":1,"name":"Прямоугольник 11","text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"image","id":"im/bmxw3ido","slide":1,"name":"Рисунок 15","bbox":[920,88,275,275]}
+{"kind":"notes","id":"nt/y90nupkv","slide":1,"text":""}
+{"kind":"slide","id":"sl/hwbqtkby","slide":2,"title":"WHY THIS MARKET","textShapes":11}
+{"kind":"textbox","id":"sh/wjy9sry9","slide":2,"name":"Прямоугольник 13","text":"WHY THIS MARKET","textPreview":"WHY THIS MARKET","textChars":15,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/9072xkry","slide":2,"name":"Прямоугольник 1","text":"Cybercrime moved into the conversation layer.","textPreview":"Cybercrime moved into the conversation layer.","textChars":45,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/ozy1ofad","slide":2,"name":"Прямоугольник: скругленные углы 2","bbox":[72,250,360,250]}
+{"kind":"textbox","id":"sh/b29kza94","slide":2,"name":"Прямоугольник 3","text":"23:41","textPreview":"23:41","textChars":5,"textLines":1,"bbox":[104,284,180,40]}
+{"kind":"textbox","id":"sh/a10jqpsj","slide":2,"name":"Прямоугольник 4","text":"“Unusual login from Almaty.\nConfirm your identity now.”","textPreview":"“Unusual login from Almaty. | Confirm your identity now.”","textChars":55,"textLines":2,"bbox":[104,350,270,74]}
+{"kind":"textbox","id":"sh/x4r21kru","slide":2,"name":"Прямоугольник 5","text":"recognisable sender  ·  fear  ·  one tap","textPreview":"recognisable sender  ·  fear  ·  one tap","textChars":40,"textLines":1,"bbox":[104,454,270,24]}
+{"kind":"textbox","id":"sh/w3i1sfa9","slide":2,"name":"Прямоугольник 6","text":"The user has seconds.","textPreview":"The user has seconds.","textChars":21,"textLines":1,"bbox":[560,278,420,48]}
+{"kind":"textbox","id":"sh/r65knqtk","slide":2,"name":"Прямоугольник 7","text":"Antivirus protects the device.\nTumar.AI protects the decision.","textPreview":"Antivirus protects the device. | Tumar.AI protects the decision.","textChars":62,"textLines":2,"bbox":[562,360,480,70]}
+{"kind":"textbox","id":"sh/q5wjelsz","slide":2,"name":"Прямоугольник 8","text":"Beachhead: people in Kazakhstan receiving suspicious messages in Kazakh, Russian, or English.","textPreview":"Beachhead: people in Kazakhstan receiving suspicious messages in Kazakh, Russian, or English.","textChars":93,"textLines":1,"bbox":[562,480,500,46]}
+{"kind":"textbox","id":"sh/ove9o7yd","slide":2,"name":"Прямоугольник 9","text":"Verify any public fraud statistic before presenting.","textPreview":"Verify any public fraud statistic before presenting.","textChars":52,"textLines":1,"bbox":[72,588,500,18]}
+{"kind":"shape","id":"sh/9wnqhczy","slide":2,"name":"Прямая соединительная линия 10","bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/mtwrmxg7","slide":2,"name":"Прямоугольник 11","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/nu58f2hs","slide":2,"name":"Прямоугольник 12","text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/hwbqtkby","slide":2,"text":""}
+{"kind":"slide","id":"sl/ofy9wn61","slide":3,"title":"BEACHHEAD CUSTOMER","textShapes":14}
+{"kind":"textbox","id":"sh/e10f2twf","slide":3,"name":"Прямоугольник 19","text":"BEACHHEAD CUSTOMER","textPreview":"BEACHHEAD CUSTOMER","textChars":18,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/cza94vmx","slide":3,"name":"Прямоугольник 1","text":"Start with the people and institutions already carrying the pain.","textPreview":"Start with the people and institutions already carrying the pain.","textChars":65,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/d0jax03i","slide":3,"name":"Прямоугольник: скругленные углы 2","bbox":[72,260,1135,78]}
+{"kind":"textbox","id":"sh/298ryl4v","slide":3,"name":"Прямоугольник 3","text":"PRIMARY USER","textPreview":"PRIMARY USER","textChars":12,"textLines":1,"bbox":[98,278,170,18]}
+{"kind":"textbox","id":"sh/3ah8rqlg","slide":3,"name":"Прямоугольник 4","text":"Everyday smartphone user","textPreview":"Everyday smartphone user","textChars":24,"textLines":1,"bbox":[310,274,300,26]}
+{"kind":"textbox","id":"sh/obq90bml","slide":3,"name":"Прямоугольник 5","text":"Needs an answer before clicking or replying","textPreview":"Needs an answer before clicking or replying","textChars":43,"textLines":1,"bbox":[660,278,500,24]}
+{"kind":"shape","id":"sh/pcjqtg36","slide":3,"name":"Прямоугольник: скругленные углы 6","bbox":[72,365,1135,78]}
+{"kind":"textbox","id":"sh/m5cra54z","slide":3,"name":"Прямоугольник 7","text":"DISTRIBUTION PARTNER","textPreview":"DISTRIBUTION PARTNER","textChars":20,"textLines":1,"bbox":[98,383,170,18]}
+{"kind":"textbox","id":"sh/n6ls3alk","slide":3,"name":"Прямоугольник 8","text":"Bank or telecom operator","textPreview":"Bank or telecom operator","textChars":24,"textLines":1,"bbox":[310,379,300,26]}
+{"kind":"textbox","id":"sh/n2l4fq98","slide":3,"name":"Прямоугольник 9","text":"Already owns the trust relationship and support cost","textPreview":"Already owns the trust relationship and support cost","textChars":52,"textLines":1,"bbox":[660,383,500,24]}
+{"kind":"shape","id":"sh/m1c3mlsn","slide":3,"name":"Прямоугольник: скругленные углы 10","bbox":[72,470,1135,78]}
+{"kind":"textbox","id":"sh/943mhgre","slide":3,"name":"Прямоугольник 11","text":"EXPANSION BUYER","textPreview":"EXPANSION BUYER","textChars":15,"textLines":1,"bbox":[98,488,170,18]}
+{"kind":"textbox","id":"sh/83ulovat","slide":3,"name":"Прямоугольник 12","text":"Government, university, enterprise","textPreview":"Government, university, enterprise","textChars":34,"textLines":1,"bbox":[310,484,300,26]}
+{"kind":"textbox","id":"sh/v6l4jq94","slide":3,"name":"Прямоугольник 13","text":"Needs multilingual protection at volume","textPreview":"Needs multilingual protection at volume","textChars":39,"textLines":1,"bbox":[660,488,500,24]}
+{"kind":"shape","id":"sh/a5c3ql8z","slide":3,"name":"Прямоугольник: скругленные углы 14","bbox":[360,605,560,30]}
+{"kind":"textbox","id":"sh/x8nml0ra","slide":3,"name":"Прямоугольник 15","text":"Kazakhstan first  →  Central Asia next","textPreview":"Kazakhstan first  →  Central Asia next","textChars":38,"textLines":1,"bbox":[360,612,560,16]}
+{"kind":"shape","id":"sh/w7ulsvqp","slide":3,"name":"Прямая соединительная линия 16","bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/ja54na9g","slide":3,"name":"Прямоугольник 17","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/i9w3u58v","slide":3,"name":"Прямоугольник 18","text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/ofy9wn61","slide":3,"text":""}
+{"kind":"slide","id":"sl/jyx0ra1s","slide":4,"title":"PRACTICAL MVP TODAY","textShapes":14}
+{"kind":"textbox","id":"sh/oz29krqh","slide":4,"name":"Прямоугольник 20","text":"PRACTICAL MVP TODAY","textPreview":"PRACTICAL MVP TODAY","textChars":19,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/1cj2d8b6","slide":4,"name":"Прямоугольник 1","text":"Streamlit makes the product real, shareable, and testable now.","textPreview":"Streamlit makes the product real, shareable, and testable now.","textChars":62,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/0ba143al","slide":4,"name":"Прямоугольник: скругленные углы 2","bbox":[72,235,520,345]}
+{"kind":"shape","id":"sh/ql8jytsj","slide":4,"name":"Прямоугольник: скругленные углы 4","bbox":[680,255,100,100]}
+{"kind":"textbox","id":"sh/doj29oba","slide":4,"name":"Прямоугольник 5","text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[680,286,100,34]}
+{"kind":"textbox","id":"sh/sna103ap","slide":4,"name":"Прямоугольник 6","text":"User input","textPreview":"User input","textChars":10,"textLines":1,"bbox":[635,385,190,24]}
+{"kind":"textbox","id":"sh/3ihk3et8","slide":4,"name":"Прямоугольник 7","text":"Paste a message, link, or email","textPreview":"Paste a message, link, or email","textChars":31,"textLines":1,"bbox":[620,418,220,38]}
+{"kind":"shape","id":"sh/ih8ju9sn","slide":4,"name":"Прямоугольник: скругленные углы 8","bbox":[880,255,100,100]}
+{"kind":"textbox","id":"sh/kbm987y5","slide":4,"name":"Прямоугольник 9","text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[880,286,100,34]}
+{"kind":"textbox","id":"sh/5cva1cfq","slide":4,"name":"Прямоугольник 10","text":"Trust report","textPreview":"Trust report","textChars":12,"textLines":1,"bbox":[835,385,190,24]}
+{"kind":"textbox","id":"sh/i94r6xgz","slide":4,"name":"Прямоугольник 11","text":"Score + evidence + explanation","textPreview":"Score + evidence + explanation","textChars":30,"textLines":1,"bbox":[820,418,220,38]}
+{"kind":"shape","id":"sh/jadsz2xk","slide":4,"name":"Прямоугольник: скругленные углы 12","bbox":[1080,255,100,100]}
+{"kind":"textbox","id":"sh/w72947yt","slide":4,"name":"Прямоугольник 13","text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[1080,286,100,34]}
+{"kind":"textbox","id":"sh/x8vaxsfe","slide":4,"name":"Прямоугольник 14","text":"Next action","textPreview":"Next action","textChars":11,"textLines":1,"bbox":[1035,385,190,24]}
+{"kind":"textbox","id":"sh/a5kr2xg3","slide":4,"name":"Прямоугольник 15","text":"One safe decision","textPreview":"One safe decision","textChars":17,"textLines":1,"bbox":[1020,418,220,38]}
+{"kind":"textbox","id":"sh/v6tsv2xo","slide":4,"name":"Прямоугольник 16","text":"Streamlit Community Cloud gives the MVP a public URL, GitHub-based updates, and managed secrets; the next step is reliability and measurement.","textPreview":"Streamlit Community Cloud gives the MVP a public URL, GitHub-based updates, and managed secrets; the next step is reliability and measure...","textChars":142,"textLines":1,"bbox":[635,500,540,54]}
+{"kind":"shape","id":"sh/g36tgryd","slide":4,"name":"Прямая соединительная линия 17","bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/h4fa9wfy","slide":4,"name":"Прямоугольник 18","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/p0batw72","slide":4,"name":"Прямоугольник 19","text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"image","id":"im/83apgj29","slide":4,"name":"Рисунок 25","bbox":[90,293.09,484,223.82]}
+{"kind":"notes","id":"nt/jyx0ra1s","slide":4,"text":""}
+{"kind":"slide","id":"sl/i107q5of","slide":5,"title":"LIVE PROOF","textShapes":5}
+{"kind":"textbox","id":"sh/k7mxovud","slide":5,"name":"Прямоугольник 13","text":"LIVE PROOF","textPreview":"LIVE PROOF","textChars":10,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/dgbulwnm","slide":5,"name":"Прямоугольник 1","text":"The product explains the risk—and tells the user what to do next.","textPreview":"The product explains the risk—and tells the user what to do next.","textChars":65,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/cf2tcr61","slide":5,"name":"Прямоугольник: скругленные углы 2","bbox":[55,220,360,350]}
+{"kind":"shape","id":"sh/yhkbe1o7","slide":5,"name":"Прямоугольник: скругленные углы 4","bbox":[460,220,360,350]}
+{"kind":"shape","id":"sh/032tgr6d","slide":5,"name":"Прямоугольник: скругленные углы 6","bbox":[865,220,360,350]}
+{"kind":"shape","id":"sh/m5kbi1oj","slide":5,"name":"Прямоугольник: скругленные углы 8","bbox":[350,600,580,30]}
+{"kind":"textbox","id":"sh/w32dkbuh","slide":5,"name":"Прямоугольник 9","text":"Messages  ·  Links  ·  Screenshots  ·  Passwords  ·  Breaches","textPreview":"Messages  ·  Links  ·  Screenshots  ·  Passwords  ·  Breaches","textChars":61,"textLines":1,"bbox":[350,607,580,16]}
+{"kind":"shape","id":"sh/x4vedgvm","slide":5,"name":"Прямая соединительная линия 10","bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/ahkvi1cb","slide":5,"name":"Прямоугольник 11","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/v2twb6dw","slide":5,"name":"Прямоугольник 12","text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"image","id":"im/ilkvul4v","slide":5,"name":"Рисунок 20","bbox":[70,318.7,330,152.6]}
+{"kind":"image","id":"im/5ove5g3m","slide":5,"name":"Рисунок 22","bbox":[475,320.81,330,148.38]}
+{"kind":"image","id":"im/4nmdwbm1","slide":5,"name":"Рисунок 24","bbox":[880,285,330,220]}
+{"kind":"notes","id":"nt/i107q5of","slide":5,"text":""}
+{"kind":"slide","id":"sl/x8f69ofe","slide":6,"title":"GROUNDED INTELLIGENCE","textShapes":14}
+{"kind":"textbox","id":"sh/bq547yhw","slide":6,"name":"Прямоугольник 22","text":"GROUNDED INTELLIGENCE","textPreview":"GROUNDED INTELLIGENCE","textChars":21,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/yhg7epsj","slide":6,"name":"Прямоугольник 1","text":"AI explains. Security sources verify.","textPreview":"AI explains. Security sources verify.","textChars":37,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/zi98nu94","slide":6,"name":"Прямая соединительная линия 2","bbox":[280,360,85,0]}
+{"kind":"shape","id":"sh/87ipkzal","slide":6,"name":"Прямоугольник: скругленные углы 3","bbox":[90,280,190,160]}
+{"kind":"textbox","id":"sh/98rqt4r6","slide":6,"name":"Прямоугольник 4","text":"INPUT","textPreview":"INPUT","textChars":5,"textLines":1,"bbox":[112,307,150,20]}
+{"kind":"textbox","id":"sh/ml07i9sv","slide":6,"name":"Прямоугольник 5","text":"Message\nURL\nScreenshot","textPreview":"Message | URL | Screenshot","textChars":22,"textLines":3,"bbox":[112,348,150,70]}
+{"kind":"shape","id":"sh/7m98ru9g","slide":6,"name":"Прямая соединительная линия 6","bbox":[555,360,85,0]}
+{"kind":"shape","id":"sh/oryp8fah","slide":6,"name":"Прямоугольник: скругленные углы 7","bbox":[365,280,190,160]}
+{"kind":"textbox","id":"sh/pc76hkr2","slide":6,"name":"Прямоугольник 8","text":"SIGNALS","textPreview":"SIGNALS","textChars":7,"textLines":1,"bbox":[387,307,150,20]}
+{"kind":"textbox","id":"sh/h4bupgn6","slide":6,"name":"Прямоугольник 9","text":"Heuristics\nIntent\nLanguage","textPreview":"Heuristics | Intent | Language","textChars":26,"textLines":3,"bbox":[387,348,150,70]}
+{"kind":"shape","id":"sh/w32twb6l","slide":6,"name":"Прямая соединительная линия 10","bbox":[830,360,85,0]}
+{"kind":"shape","id":"sh/v2tcn650","slide":6,"name":"Прямоугольник: скругленные углы 11","bbox":[640,280,190,160]}
+{"kind":"textbox","id":"sh/u1kbu1ov","slide":6,"name":"Прямоугольник 12","text":"SOURCES","textPreview":"SOURCES","textChars":7,"textLines":1,"bbox":[662,307,150,20]}
+{"kind":"textbox","id":"sh/5svutgni","slide":6,"name":"Прямоугольник 13","text":"XposedOrNot\nPassword k-anonymity","textPreview":"XposedOrNot | Password k-anonymity","textChars":32,"textLines":2,"bbox":[662,348,150,70]}
+{"kind":"shape","id":"sh/47mt0b6x","slide":6,"name":"Прямоугольник: скругленные углы 14","bbox":[915,280,190,160]}
+{"kind":"textbox","id":"sh/j6dcr65c","slide":6,"name":"Прямоугольник 15","text":"OUTPUT","textPreview":"OUTPUT","textChars":6,"textLines":1,"bbox":[937,307,150,20]}
+{"kind":"textbox","id":"sh/i54bylor","slide":6,"name":"Прямоугольник 16","text":"Trust score\nEvidence\nAction","textPreview":"Trust score | Evidence | Action","textChars":27,"textLines":3,"bbox":[937,348,150,70]}
+{"kind":"textbox","id":"sh/twfux0ne","slide":6,"name":"Прямоугольник 17","text":"Why XposedOrNot?","textPreview":"Why XposedOrNot?","textChars":16,"textLines":1,"bbox":[90,520,220,24]}
+{"kind":"textbox","id":"sh/svmt4v6t","slide":6,"name":"Прямоугольник 18","text":"It gives Tumar.AI a real breach-exposure signal instead of asking a language model to guess whether an email has appeared in known leaks.","textPreview":"It gives Tumar.AI a real breach-exposure signal instead of asking a language model to guess whether an email has appeared in known leaks.","textChars":137,"textLines":1,"bbox":[330,520,790,48]}
+{"kind":"shape","id":"sh/cbe5g3ih","slide":6,"name":"Прямая соединительная линия 19","bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/dcnm98zm","slide":6,"name":"Прямоугольник 20","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/qpwnet0b","slide":6,"name":"Прямоугольник 21","text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/x8f69ofe","slide":6,"text":""}
+{"kind":"slide","id":"sl/gnmp4jqx","slide":7,"title":"SCALE PLAN","textShapes":14}
+{"kind":"textbox","id":"sh/jedkn654","slide":7,"name":"Прямоугольник 20","text":"SCALE PLAN","textPreview":"SCALE PLAN","textChars":10,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/cb2tkvap","slide":7,"name":"Прямоугольник 1","text":"Streamlit is the front door. PostgreSQL becomes the memory layer.","textPreview":"Streamlit is the front door. PostgreSQL becomes the memory layer.","textChars":65,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/dcbud0ra","slide":7,"name":"Прямоугольник: скругленные углы 2","bbox":[72,260,250,170]}
+{"kind":"textbox","id":"sh/ydkbm5sv","slide":7,"name":"Прямоугольник 3","text":"TODAY","textPreview":"TODAY","textChars":5,"textLines":1,"bbox":[98,290,150,20]}
+{"kind":"textbox","id":"sh/zedcfa9g","slide":7,"name":"Прямоугольник 4","text":"Streamlit MVP","textPreview":"Streamlit MVP","textChars":13,"textLines":1,"bbox":[98,332,190,28]}
+{"kind":"textbox","id":"sh/kzmdova1","slide":7,"name":"Прямоугольник 5","text":"Fast feedback\nPublic demo\nSession-scoped reports","textPreview":"Fast feedback | Public demo | Session-scoped reports","textChars":48,"textLines":3,"bbox":[98,375,180,48]}
+{"kind":"shape","id":"sh/l0vuh0rm","slide":7,"name":"Прямая соединительная линия 6","bbox":[322,345,108,0]}
+{"kind":"shape","id":"sh/eh0ba1sr","slide":7,"name":"Прямоугольник: скругленные углы 7","bbox":[430,260,250,170]}
+{"kind":"textbox","id":"sh/fi9c369c","slide":7,"name":"Прямоугольник 8","text":"NEXT","textPreview":"NEXT","textChars":4,"textLines":1,"bbox":[456,290,150,20]}
+{"kind":"textbox","id":"sh/baxkjqlk","slide":7,"name":"Прямоугольник 9","text":"REST API","textPreview":"REST API","textChars":8,"textLines":1,"bbox":[456,332,190,28]}
+{"kind":"textbox","id":"sh/a9ojq5kz","slide":7,"name":"Прямоугольник 10","text":"Auth\nRate limits\nObservability","textPreview":"Auth | Rate limits | Observability","textChars":30,"textLines":3,"bbox":[456,375,180,48]}
+{"kind":"shape","id":"sh/xcz2l03q","slide":7,"name":"Прямая соединительная линия 11","bbox":[680,345,108,0]}
+{"kind":"shape","id":"sh/cbq1sv25","slide":7,"name":"Прямоугольник: скругленные углы 12","bbox":[788,260,250,170]}
+{"kind":"textbox","id":"sh/n6x0fqlo","slide":7,"name":"Прямоугольник 13","text":"SCALE","textPreview":"SCALE","textChars":5,"textLines":1,"bbox":[814,290,150,20]}
+{"kind":"textbox","id":"sh/25ojml43","slide":7,"name":"Прямоугольник 14","text":"PostgreSQL","textPreview":"PostgreSQL","textChars":10,"textLines":1,"bbox":[814,332,190,28]}
+{"kind":"textbox","id":"sh/p8fih03e","slide":7,"name":"Прямоугольник 15","text":"Users + consent\nReports + events\nRedacted corpus metadata","textPreview":"Users + consent | Reports + events | Redacted corpus metadata","textChars":57,"textLines":3,"bbox":[814,375,190,48]}
+{"kind":"textbox","id":"sh/o761ov2t","slide":7,"name":"Прямоугольник 16","text":"PostgreSQL is not for storing raw passwords or indiscriminate message dumps. It is for controlled, auditable product data and consented, redacted learning signals.","textPreview":"PostgreSQL is not for storing raw passwords or indiscriminate message dumps. It is for controlled, auditable product data and consented, ...","textChars":163,"textLines":1,"bbox":[72,520,1000,48]}
+{"kind":"shape","id":"sh/f2d0b6lc","slide":7,"name":"Прямая соединительная линия 17","bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/eh4jil4r","slide":7,"name":"Прямоугольник 18","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/id4ju1oz","slide":7,"name":"Прямоугольник 19","text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/gnmp4jqx","slide":7,"text":""}
+{"kind":"slide","id":"sl/fu1gfa1s","slide":8,"title":"BUSINESS MODEL","textShapes":14}
+{"kind":"textbox","id":"sh/lgbepgvm","slide":8,"name":"Прямоугольник 18","text":"BUSINESS MODEL","textPreview":"BUSINESS MODEL","textChars":14,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/18byd4zy","slide":8,"name":"Прямоугольник 1","text":"Free distribution now. Paid prevention where the cost is visible.","textPreview":"Free distribution now. Paid prevention where the cost is visible.","textChars":65,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/g72x4zyd","slide":8,"name":"Прямоугольник: скругленные углы 2","bbox":[72,265,330,220]}
+{"kind":"textbox","id":"sh/ri9g7uhw","slide":8,"name":"Прямоугольник 3","text":"FREE","textPreview":"FREE","textChars":4,"textLines":1,"bbox":[100,296,120,20]}
+{"kind":"textbox","id":"sh/6h0fypgb","slide":8,"name":"Прямоугольник 4","text":"Web app + Telegram bot","textPreview":"Web app + Telegram bot","textChars":22,"textLines":1,"bbox":[100,340,270,30]}
+{"kind":"textbox","id":"sh/tkby9kzm","slide":8,"name":"Прямоугольник 5","text":"Acquire users and learn the threat patterns","textPreview":"Acquire users and learn the threat patterns","textChars":43,"textLines":1,"bbox":[100,405,270,48]}
+{"kind":"shape","id":"sh/sjix0zy1","slide":8,"name":"Прямоугольник: скругленные углы 6","bbox":[444,265,330,220]}
+{"kind":"textbox","id":"sh/je9g3ahk","slide":8,"name":"Прямоугольник 7","text":"PILOT","textPreview":"PILOT","textChars":5,"textLines":1,"bbox":[472,296,120,20]}
+{"kind":"textbox","id":"sh/id0fu50z","slide":8,"name":"Прямоугольник 8","text":"Bank / telecom","textPreview":"Bank / telecom","textChars":14,"textLines":1,"bbox":[472,340,270,30]}
+{"kind":"textbox","id":"sh/o7ydoret","slide":8,"name":"Прямоугольник 9","text":"Measure prevented scams and support burden","textPreview":"Measure prevented scams and support burden","textChars":42,"textLines":1,"bbox":[472,405,270,48]}
+{"kind":"shape","id":"sh/98rehwve","slide":8,"name":"Прямоугольник: скругленные углы 10","bbox":[816,265,330,220]}
+{"kind":"textbox","id":"sh/m5gvmhwn","slide":8,"name":"Прямоугольник 11","text":"API","textPreview":"API","textChars":3,"textLines":1,"bbox":[844,296,120,20]}
+{"kind":"textbox","id":"sh/n6pwfmd8","slide":8,"name":"Прямоугольник 12","text":"Institutional licence","textPreview":"Institutional licence","textChars":21,"textLines":1,"bbox":[844,340,270,30]}
+{"kind":"textbox","id":"sh/0jydkreh","slide":8,"name":"Прямоугольник 13","text":"Charge by protected customers or volume","textPreview":"Charge by protected customers or volume","textChars":39,"textLines":1,"bbox":[844,405,270,48]}
+{"kind":"textbox","id":"sh/1k7edwv2","slide":8,"name":"Прямоугольник 14","text":"First pilot metrics: correct intervention rate · false positives · repeat usage · support-call reduction","textPreview":"First pilot metrics: correct intervention rate · false positives · repeat usage · support-call reduction","textChars":104,"textLines":1,"bbox":[72,565,1000,30]}
+{"kind":"shape","id":"sh/ehgvihwr","slide":8,"name":"Прямая соединительная линия 15","bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/zipwbmdc","slide":8,"name":"Прямоугольник 16","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/kfixwbe1","slide":8,"name":"Прямоугольник 17","text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/fu1gfa1s","slide":8,"text":""}
+{"kind":"slide","id":"sl/udsvah03","slide":9,"title":"MISSION + FOUNDER","textShapes":9}
+{"kind":"textbox","id":"sh/do3id4fy","slide":9,"name":"Прямоугольник 14","text":"MISSION + FOUNDER","textPreview":"MISSION + FOUNDER","textChars":17,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/1cfmhgne","slide":9,"name":"Прямоугольник 1","text":"A local trust problem with regional ambition.","textPreview":"A local trust problem with regional ambition.","textChars":45,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/0b65obm9","slide":9,"name":"Прямоугольник: скругленные углы 2","bbox":[72,250,310,310]}
+{"kind":"shape","id":"sh/nex4jq5k","slide":9,"name":"Прямоугольник 3","bbox":[102,288,150,20]}
+{"kind":"shape","id":"sh/mdonql4z","slide":9,"name":"Прямоугольник 4","bbox":[102,338,220,62]}
+{"kind":"shape","id":"sh/9gzml0nq","slide":9,"name":"Прямоугольник 5","bbox":[102,425,220,24]}
+{"kind":"shape","id":"sh/ofq5svm5","slide":9,"name":"Прямоугольник 6","bbox":[102,475,220,54]}
+{"kind":"textbox","id":"sh/bih4na5w","slide":9,"name":"Прямоугольник 7","text":"“Trust is only useful when it is simple enough to act on in seconds.”","textPreview":"“Trust is only useful when it is simple enough to act on in seconds.”","textChars":69,"textLines":1,"bbox":[470,276,650,84]}
+{"kind":"textbox","id":"sh/ah8nu54b","slide":9,"name":"Прямоугольник 8","text":"FOUNDER FOCUS","textPreview":"FOUNDER FOCUS","textChars":13,"textLines":1,"bbox":[470,402,220,22]}
+{"kind":"textbox","id":"sh/oza1gfyh","slide":9,"name":"Прямоугольник 9","text":"Building Tumar.AI end to end: product, detection pipeline, and a multilingual trust layer for everyday users.","textPreview":"Building Tumar.AI end to end: product, detection pipeline, and a multilingual trust layer for everyday users.","textChars":109,"textLines":1,"bbox":[470,438,650,58]}
+{"kind":"textbox","id":"sh/p0ji9kf2","slide":9,"name":"Прямоугольник 10","text":"Mission: help people everywhere make safer digital decisions through trustworthy AI.","textPreview":"Mission: help people everywhere make safer digital decisions through trustworthy AI.","textChars":84,"textLines":1,"bbox":[470,530,650,34]}
+{"kind":"shape","id":"sh/2xsjepgb","slide":9,"name":"Прямая соединительная линия 11","bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/3y107axw","slide":9,"name":"Прямоугольник 12","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/cnu1kzyd","slide":9,"name":"Прямоугольник 13","text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"textbox","id":"sh/bml0buxs","slide":9,"name":"Прямоугольник: скругленные углы 16","text":"Zhylsaiyn Bakytzhan\nFounder & CEO  ·  AI Summit 2026","textPreview":"Zhylsaiyn Bakytzhan | Founder & CEO  ·  AI Summit 2026","textChars":52,"textLines":2,"bbox":[84,458,286,90]}
+{"kind":"image","id":"im/jixovqds","slide":9,"name":"Рисунок 31","geometry":"roundRect","bbox":[72,250,310,310]}
+{"kind":"notes","id":"nt/udsvah03","slide":9,"text":"[Sources]\n- Founder portrait provided by Zhylsaiyn Bakytzhan: C:/Users/User/Downloads/WhatsApp Image 2026-08-06 at 14.18.53.jpeg"}
+{"kind":"slide","id":"sl/m90b6t0r","slide":10,"title":"TUMAR.AI","textShapes":8}
+{"kind":"textbox","id":"sh/q5gb21kb","slide":10,"name":"Прямоугольник 11","text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,62,300,24]}
+{"kind":"textbox","id":"sh/xc3mho32","slide":10,"name":"Прямоугольник 1","text":"Every phone should\ncarry a digital amulet.","textPreview":"Every phone should | carry a digital amulet.","textChars":42,"textLines":2,"bbox":[72,152,650,120]}
+{"kind":"textbox","id":"sh/cbu58j2h","slide":10,"name":"Прямоугольник 2","text":"The ask: a pilot partner, real-world scam patterns, and measured feedback.","textPreview":"The ask: a pilot partner, real-world scam patterns, and measured feedback.","textChars":74,"textLines":1,"bbox":[76,340,600,34]}
+{"kind":"shape","id":"sh/zelojyl8","slide":10,"name":"Прямоугольник: скругленные углы 3","bbox":[860,125,260,260]}
+{"kind":"textbox","id":"sh/l036l83y","slide":10,"name":"Прямоугольник 5","text":"SCAN TO WATCH THE LAUNCH FILM","textPreview":"SCAN TO WATCH THE LAUNCH FILM","textChars":29,"textLines":1,"bbox":[800,415,360,20]}
+{"kind":"textbox","id":"sh/kzu5c32t","slide":10,"name":"Прямоугольник 6","text":"tumar-ai.streamlit.app/launch-film","textPreview":"tumar-ai.streamlit.app/launch-film","textChars":34,"textLines":1,"bbox":[76,545,520,24]}
+{"kind":"textbox","id":"sh/725onyl4","slide":10,"name":"Прямоугольник 7","text":"Launch film + product animation · Scan on any phone to watch the story, then try the live MVP.","textPreview":"Launch film + product animation · Scan on any phone to watch the story, then try the live MVP.","textChars":94,"textLines":1,"bbox":[76,585,680,30]}
+{"kind":"shape","id":"sh/m1cnetkj","slide":10,"name":"Прямая соединительная линия 8","bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/s7yt4b21","slide":10,"name":"Прямоугольник 9","text":"TUMAR.AI  /  ASK","textPreview":"TUMAR.AI  /  ASK","textChars":16,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/d87uxg3m","slide":10,"name":"Прямоугольник 10","text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"image","id":"im/g3yh832h","slide":10,"name":"Рисунок 17","bbox":[880,145,220,220]}
+{"kind":"notes","id":"nt/m90b6t0r","slide":10,"text":"[Sources]\n- Launch Film and Product Animation provided by Bakytzhan Zhylsaiyn.\n- QR destination: https://tumar-ai.streamlit.app/launch-film"}

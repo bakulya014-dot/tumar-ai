@@ -94,6 +94,12 @@ pages = {
         st.Page("views/password_checker.py", title=t("nav.password"), icon="🔑"),
     ],
     t("nav.section_platform"): [
+        st.Page(
+            "views/launch_film.py",
+            title="Launch Film",
+            icon="🎬",
+            url_path="launch-film",
+        ),
         st.Page("views/about.py", title=t("nav.about"), icon="ℹ️"),
     ],
 }

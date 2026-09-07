@@ -1,0 +1,185 @@
+{"kind":"deck","id":"pr/sxxdkz","name":"Deck"}
+{"kind":"layout","layoutId":"8cf43b76-bcf1-476e-b3f5-d36aa57295a7","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"e27aa4ba-2ba9-4b3f-b97a-a761dc3d663a","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/zrn4a3","slide":1,"title":"TUMAR.AI","textShapes":8}
+{"kind":"shape","id":"sh/8j6hkjat","slide":1,"bbox":[850,0,430,720]}
+{"kind":"textbox","id":"sh/mhozi9sn","slide":1,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,58,300,24]}
+{"kind":"textbox","id":"sh/lgfyp4b2","slide":1,"text":"The trust layer\nbefore the click.","textPreview":"The trust layer | before the click.","textChars":33,"textLines":2,"bbox":[72,156,650,120]}
+{"kind":"textbox","id":"sh/0f6hgjah","slide":1,"text":"A multilingual cybersecurity assistant for Kazakhstan—built to help people make safer digital decisions in seconds.","textPreview":"A multilingual cybersecurity assistant for Kazakhstan—built to help people make safer digital decisions in seconds.","textChars":115,"textLines":1,"bbox":[76,318,560,58]}
+{"kind":"shape","id":"sh/zexgnetw","slide":1,"bbox":[76,430,360,30]}
+{"kind":"textbox","id":"sh/ydoze9sr","slide":1,"text":"Live MVP  ·  Kazakh  ·  Русский  ·  English","textPreview":"Live MVP  ·  Kazakh  ·  Русский  ·  English","textChars":43,"textLines":1,"bbox":[76,437,360,16]}
+{"kind":"textbox","id":"sh/5cji18bm","slide":1,"text":"Mission: make trustworthy AI accessible to everyone.","textPreview":"Mission: make trustworthy AI accessible to everyone.","textChars":52,"textLines":1,"bbox":[76,530,620,28]}
+{"kind":"textbox","id":"sh/4bahs3a1","slide":1,"text":"tumar-ai.streamlit.app","textPreview":"tumar-ai.streamlit.app","textChars":22,"textLines":1,"bbox":[76,615,350,20]}
+{"kind":"shape","id":"sh/i1gfutcr","slide":1,"bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/j2pg3edc","slide":1,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/43yxwjux","slide":1,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"image","id":"im/ax0vmpgj","slide":1,"name":"","alt":"Tumar.AI official symbol","bbox":[920,88,275,275]}
+{"kind":"notes","id":"nt/zrn4a3","slide":1,"text":""}
+{"kind":"slide","id":"sl/godb6z","slide":2,"title":"WHY THIS MARKET","textShapes":11}
+{"kind":"textbox","id":"sh/exw3qd4z","slide":2,"text":"WHY THIS MARKET","textPreview":"WHY THIS MARKET","textChars":15,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/107ml8nq","slide":2,"text":"Cybercrime moved into the conversation layer.","textPreview":"Cybercrime moved into the conversation layer.","textChars":45,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/0zyls3m5","slide":2,"bbox":[72,250,360,250]}
+{"kind":"textbox","id":"sh/ru54fy5o","slide":2,"text":"23:41","textPreview":"23:41","textChars":5,"textLines":1,"bbox":[104,284,180,40]}
+{"kind":"textbox","id":"sh/q9w3mto3","slide":2,"text":"“Unusual login from Almaty.\nConfirm your identity now.”","textPreview":"“Unusual login from Almaty. | Confirm your identity now.”","textChars":55,"textLines":2,"bbox":[104,350,270,74]}
+{"kind":"textbox","id":"sh/dwnmh8nu","slide":2,"text":"recognisable sender  ·  fear  ·  one tap","textPreview":"recognisable sender  ·  fear  ·  one tap","textChars":40,"textLines":1,"bbox":[104,454,270,24]}
+{"kind":"textbox","id":"sh/cvelo3m9","slide":2,"text":"The user has seconds.","textPreview":"The user has seconds.","textChars":21,"textLines":1,"bbox":[560,278,420,48]}
+{"kind":"textbox","id":"sh/bq94ri5s","slide":2,"text":"Antivirus protects the device.\nTumar.AI protects the decision.","textPreview":"Antivirus protects the device. | Tumar.AI protects the decision.","textChars":62,"textLines":2,"bbox":[562,360,480,70]}
+{"kind":"textbox","id":"sh/a50nyx47","slide":2,"text":"Beachhead: people in Kazakhstan receiving suspicious messages in Kazakh, Russian, or English.","textPreview":"Beachhead: people in Kazakhstan receiving suspicious messages in Kazakh, Russian, or English.","textChars":93,"textLines":1,"bbox":[562,480,500,46]}
+{"kind":"textbox","id":"sh/wb21gzy5","slide":2,"text":"Verify any public fraud statistic before presenting.","textPreview":"Verify any public fraud statistic before presenting.","textChars":52,"textLines":1,"bbox":[72,588,500,18]}
+{"kind":"shape","id":"sh/xwbi94fq","slide":2,"bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/a9kje9gz","slide":2,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/vat07uxk","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/godb6z","slide":2,"text":""}
+{"kind":"slide","id":"sl/p51r7j","slide":3,"title":"BEACHHEAD CUSTOMER","textShapes":14}
+{"kind":"textbox","id":"sh/dgr6xgja","slide":3,"text":"BEACHHEAD CUSTOMER","textPreview":"BEACHHEAD CUSTOMER","textChars":18,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/qt0n21kj","slide":3,"text":"Start with the people and institutions already carrying the pain.","textPreview":"Start with the people and institutions already carrying the pain.","textChars":65,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/ru94v614","slide":3,"bbox":[72,260,1135,78]}
+{"kind":"textbox","id":"sh/0j258bil","slide":3,"text":"PRIMARY USER","textPreview":"PRIMARY USER","textChars":12,"textLines":1,"bbox":[98,278,170,18]}
+{"kind":"textbox","id":"sh/1kb61gj6","slide":3,"text":"Everyday smartphone user","textPreview":"Everyday smartphone user","textChars":24,"textLines":1,"bbox":[310,274,300,26]}
+{"kind":"textbox","id":"sh/eh0n610f","slide":3,"text":"Needs an answer before clicking or replying","textPreview":"Needs an answer before clicking or replying","textChars":43,"textLines":1,"bbox":[660,278,500,24]}
+{"kind":"shape","id":"sh/zi9oz610","slide":3,"bbox":[72,365,1135,78]}
+{"kind":"textbox","id":"sh/on25cvix","slide":3,"text":"DISTRIBUTION PARTNER","textPreview":"DISTRIBUTION PARTNER","textChars":20,"textLines":1,"bbox":[98,383,170,18]}
+{"kind":"textbox","id":"sh/9ob650j2","slide":3,"text":"Bank or telecom operator","textPreview":"Bank or telecom operator","textChars":24,"textLines":1,"bbox":[310,379,300,26]}
+{"kind":"textbox","id":"sh/5c72tg7m","slide":3,"text":"Already owns the trust relationship and support cost","textPreview":"Already owns the trust relationship and support cost","textChars":52,"textLines":1,"bbox":[660,383,500,24]}
+{"kind":"shape","id":"sh/4byl0bqh","slide":3,"bbox":[72,470,1135,78]}
+{"kind":"textbox","id":"sh/3apkr6pw","slide":3,"text":"EXPANSION BUYER","textPreview":"EXPANSION BUYER","textChars":15,"textLines":1,"bbox":[98,488,170,18]}
+{"kind":"textbox","id":"sh/i9w3y18b","slide":3,"text":"Government, university, enterprise","textPreview":"Government, university, enterprise","textChars":34,"textLines":1,"bbox":[310,484,300,26]}
+{"kind":"textbox","id":"sh/d072xg7y","slide":3,"text":"Needs multilingual protection at volume","textPreview":"Needs multilingual protection at volume","textChars":39,"textLines":1,"bbox":[660,488,500,24]}
+{"kind":"shape","id":"sh/szyl4vqd","slide":3,"bbox":[360,605,560,30]}
+{"kind":"textbox","id":"sh/rypkvqps","slide":3,"text":"Kazakhstan first  →  Central Asia next","textPreview":"Kazakhstan first  →  Central Asia next","textChars":38,"textLines":1,"bbox":[360,612,560,16]}
+{"kind":"shape","id":"sh/qxg32l87","slide":3,"bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/t4n2lw7u","slide":3,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/83e1srq9","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/p51r7j","slide":3,"text":""}
+{"kind":"slide","id":"sl/1vncc3","slide":4,"title":"PRACTICAL MVP TODAY","textShapes":14}
+{"kind":"textbox","id":"sh/cj2twfql","slide":4,"text":"PRACTICAL MVP TODAY","textPreview":"PRACTICAL MVP TODAY","textChars":19,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/ritc3ap0","slide":4,"text":"Streamlit makes the product real, shareable, and testable now.","textPreview":"Streamlit makes the product real, shareable, and testable now.","textChars":62,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/qhkbu58f","slide":4,"bbox":[72,235,520,345]}
+{"kind":"shape","id":"sh/0n2t0zqh","slide":4,"bbox":[680,255,100,100]}
+{"kind":"textbox","id":"sh/zmtc7upc","slide":4,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[680,286,100,34]}
+{"kind":"textbox","id":"sh/elkbyp8r","slide":4,"text":"User input","textPreview":"User input","textChars":10,"textLines":1,"bbox":[635,385,190,24]}
+{"kind":"textbox","id":"sh/9cvux47e","slide":4,"text":"Paste a message, link, or email","textPreview":"Paste a message, link, or email","textChars":31,"textLines":1,"bbox":[620,418,220,38]}
+{"kind":"shape","id":"sh/8bmd4z6t","slide":4,"bbox":[880,255,100,100]}
+{"kind":"textbox","id":"sh/mhonapk7","slide":4,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[880,286,100,34]}
+{"kind":"textbox","id":"sh/7ix4jals","slide":4,"text":"Trust report","textPreview":"Trust report","textChars":12,"textLines":1,"bbox":[835,385,190,24]}
+{"kind":"textbox","id":"sh/8jq5cf2d","slide":4,"text":"Score + evidence + explanation","textPreview":"Score + evidence + explanation","textChars":30,"textLines":1,"bbox":[820,418,220,38]}
+{"kind":"shape","id":"sh/9kz6lk3y","slide":4,"bbox":[1080,255,100,100]}
+{"kind":"textbox","id":"sh/ul8nepkj","slide":4,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[1080,286,100,34]}
+{"kind":"textbox","id":"sh/vmhonul4","slide":4,"text":"Next action","textPreview":"Next action","textChars":11,"textLines":1,"bbox":[1035,385,190,24]}
+{"kind":"textbox","id":"sh/wnq5gz2p","slide":4,"text":"One safe decision","textPreview":"One safe decision","textChars":17,"textLines":1,"bbox":[1020,418,220,38]}
+{"kind":"textbox","id":"sh/hoz6p43u","slide":4,"text":"Streamlit Community Cloud gives the MVP a public URL, GitHub-based updates, and managed secrets; the next step is reliability and measurement.","textPreview":"Streamlit Community Cloud gives the MVP a public URL, GitHub-based updates, and managed secrets; the next step is reliability and measure...","textChars":142,"textLines":1,"bbox":[635,500,540,54]}
+{"kind":"shape","id":"sh/qp4n2l4f","slide":4,"bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/bqd4bqlk","slide":4,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/futkjm1c","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"image","id":"im/sjutwrah","slide":4,"name":"","alt":"Live Tumar.AI Streamlit home screen","bbox":[90,255,484,300]}
+{"kind":"notes","id":"nt/1vncc3","slide":4,"text":""}
+{"kind":"slide","id":"sl/unihtp","slide":5,"title":"LIVE PROOF","textShapes":5}
+{"kind":"textbox","id":"sh/07al8bip","slide":5,"text":"LIVE PROOF","textPreview":"LIVE PROOF","textChars":10,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/z61kz614","slide":5,"text":"The product explains the risk—and tells the user what to do next.","textPreview":"The product explains the risk—and tells the user what to do next.","textChars":65,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/e5s3610z","slide":5,"bbox":[55,220,360,350]}
+{"kind":"shape","id":"sh/8bulcbi1","slide":5,"bbox":[460,220,360,350]}
+{"kind":"shape","id":"sh/m9s3al0v","slide":5,"bbox":[865,220,360,350]}
+{"kind":"shape","id":"sh/wfulgvix","slide":5,"bbox":[350,600,580,30]}
+{"kind":"textbox","id":"sh/yhwr61wr","slide":5,"text":"Messages  ·  Links  ·  Screenshots  ·  Passwords  ·  Breaches","textPreview":"Messages  ·  Links  ·  Screenshots  ·  Passwords  ·  Breaches","textChars":61,"textLines":1,"bbox":[350,607,580,16]}
+{"kind":"shape","id":"sh/zipsf6dc","slide":5,"bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/kjy98bex","slide":5,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/l47ahgvi","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"image","id":"im/obqdcv6d","slide":5,"name":"","alt":"Tumar.AI home interface","bbox":[70,235,330,320]}
+{"kind":"image","id":"im/298valo7","slide":5,"name":"","alt":"Tumar.AI password health interface","bbox":[475,235,330,320]}
+{"kind":"image","id":"im/czaxgv69","slide":5,"name":"","alt":"Tumar.AI email breach interface","bbox":[880,235,330,320]}
+{"kind":"notes","id":"nt/unihtp","slide":5,"text":""}
+{"kind":"slide","id":"sl/nw6kl8","slide":6,"title":"GROUNDED INTELLIGENCE","textShapes":14}
+{"kind":"textbox","id":"sh/69wrap4j","slide":6,"text":"GROUNDED INTELLIGENCE","textPreview":"GROUNDED INTELLIGENCE","textChars":21,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/twna5kna","slide":6,"text":"AI explains. Security sources verify.","textPreview":"AI explains. Security sources verify.","textChars":37,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/8ve9czmp","slide":6,"bbox":[280,360,85,0]}
+{"kind":"shape","id":"sh/j6lsza58","slide":6,"bbox":[90,280,190,160]}
+{"kind":"textbox","id":"sh/y5cr654n","slide":6,"text":"INPUT","textPreview":"INPUT","textChars":5,"textLines":1,"bbox":[112,307,150,20]}
+{"kind":"textbox","id":"sh/l8na1kny","slide":6,"text":"Message\nURL\nScreenshot","textPreview":"Message | URL | Screenshot","textChars":22,"textLines":3,"bbox":[112,348,150,70]}
+{"kind":"shape","id":"sh/k7u98fmd","slide":6,"bbox":[555,360,85,0]}
+{"kind":"shape","id":"sh/b2lsva5w","slide":6,"bbox":[365,280,190,160]}
+{"kind":"textbox","id":"sh/a1cr254b","slide":6,"text":"SIGNALS","textPreview":"SIGNALS","textChars":7,"textLines":1,"bbox":[387,307,150,20]}
+{"kind":"textbox","id":"sh/cnqxgzu5","slide":6,"text":"Heuristics\nIntent\nLanguage","textPreview":"Heuristics | Intent | Language","textChars":26,"textLines":3,"bbox":[387,348,150,70]}
+{"kind":"shape","id":"sh/dozyp4vq","slide":6,"bbox":[830,360,85,0]}
+{"kind":"shape","id":"sh/ql8fepcz","slide":6,"bbox":[640,280,190,160]}
+{"kind":"textbox","id":"sh/rmhgnudk","slide":6,"text":"SOURCES","textPreview":"SOURCES","textChars":7,"textLines":1,"bbox":[662,307,150,20]}
+{"kind":"textbox","id":"sh/4jqxczut","slide":6,"text":"XposedOrNot\nPassword k-anonymity","textPreview":"XposedOrNot | Password k-anonymity","textChars":32,"textLines":2,"bbox":[662,348,150,70]}
+{"kind":"shape","id":"sh/pkzelkve","slide":6,"bbox":[915,280,190,160]}
+{"kind":"textbox","id":"sh/2hofapc3","slide":6,"text":"OUTPUT","textPreview":"OUTPUT","textChars":6,"textLines":1,"bbox":[937,307,150,20]}
+{"kind":"textbox","id":"sh/3ixwjudo","slide":6,"text":"Trust score\nEvidence\nAction","textPreview":"Trust score | Evidence | Action","textChars":27,"textLines":3,"bbox":[937,348,150,70]}
+{"kind":"textbox","id":"sh/ofaxojud","slide":6,"text":"Why XposedOrNot?","textPreview":"Why XposedOrNot?","textChars":16,"textLines":1,"bbox":[90,520,220,24]}
+{"kind":"textbox","id":"sh/9gjyxovy","slide":6,"text":"It gives Tumar.AI a real breach-exposure signal instead of asking a language model to guess whether an email has appeared in known leaks.","textPreview":"It gives Tumar.AI a real breach-exposure signal instead of asking a language model to guess whether an email has appeared in known leaks.","textChars":137,"textLines":1,"bbox":[330,520,790,48]}
+{"kind":"shape","id":"sh/xwfyhon2","slide":6,"bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/wb6x8jmh","slide":6,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/vaxwfe5w","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/nw6kl8","slide":6,"text":""}
+{"kind":"slide","id":"sl/yubwhe","slide":7,"title":"SCALE PLAN","textShapes":14}
+{"kind":"textbox","id":"sh/onyp4bm5","slide":7,"text":"SCALE PLAN","textPreview":"SCALE PLAN","textChars":10,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/3mpov6lk","slide":7,"text":"Streamlit is the front door. PostgreSQL becomes the memory layer.","textPreview":"Streamlit is the front door. PostgreSQL becomes the memory layer.","textChars":65,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/2lw7214z","slide":7,"bbox":[72,260,250,170]}
+{"kind":"textbox","id":"sh/xs761g3m","slide":7,"text":"TODAY","textPreview":"TODAY","textChars":5,"textLines":1,"bbox":[98,290,150,20]}
+{"kind":"textbox","id":"sh/cryp8bm1","slide":7,"text":"Streamlit MVP","textPreview":"Streamlit MVP","textChars":13,"textLines":1,"bbox":[98,332,190,28]}
+{"kind":"textbox","id":"sh/bqpoz6lw","slide":7,"text":"Fast feedback\nPublic demo\nSession-scoped reports","textPreview":"Fast feedback | Public demo | Session-scoped reports","textChars":48,"textLines":3,"bbox":[98,375,180,48]}
+{"kind":"shape","id":"sh/qpg7614b","slide":7,"bbox":[322,345,108,0]}
+{"kind":"shape","id":"sh/twn6pw3i","slide":7,"bbox":[430,260,250,170]}
+{"kind":"textbox","id":"sh/svepwrmx","slide":7,"text":"NEXT","textPreview":"NEXT","textChars":4,"textLines":1,"bbox":[456,290,150,20]}
+{"kind":"textbox","id":"sh/e50vaxkn","slide":7,"text":"REST API","textPreview":"REST API","textChars":8,"textLines":1,"bbox":[456,332,190,28]}
+{"kind":"textbox","id":"sh/f69cj2l8","slide":7,"text":"Auth\nRate limits\nObservability","textPreview":"Auth | Rate limits | Observability","textChars":30,"textLines":3,"bbox":[456,375,180,48]}
+{"kind":"shape","id":"sh/07idcn2t","slide":7,"bbox":[680,345,108,0]}
+{"kind":"shape","id":"sh/18rels3e","slide":7,"bbox":[788,260,250,170]}
+{"kind":"textbox","id":"sh/290vexkz","slide":7,"text":"SCALE","textPreview":"SCALE","textChars":5,"textLines":1,"bbox":[814,290,150,20]}
+{"kind":"textbox","id":"sh/natwn2lk","slide":7,"text":"PostgreSQL","textPreview":"PostgreSQL","textChars":10,"textLines":1,"bbox":[814,332,190,28]}
+{"kind":"textbox","id":"sh/ob2dg725","slide":7,"text":"Users + consent\nReports + events\nRedacted corpus metadata","textPreview":"Users + consent | Reports + events | Redacted corpus metadata","textChars":57,"textLines":3,"bbox":[814,375,190,48]}
+{"kind":"textbox","id":"sh/9cbepc3a","slide":7,"text":"PostgreSQL is not for storing raw passwords or indiscriminate message dumps. It is for controlled, auditable product data and consented, redacted learning signals.","textPreview":"PostgreSQL is not for storing raw passwords or indiscriminate message dumps. It is for controlled, auditable product data and consented, ...","textChars":163,"textLines":1,"bbox":[72,520,1000,48]}
+{"kind":"shape","id":"sh/adkvihkv","slide":7,"bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/betwrmlg","slide":7,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/72dcfmho","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/yubwhe","slide":7,"text":""}
+{"kind":"slide","id":"sl/psmcqp","slide":8,"title":"BUSINESS MODEL","textShapes":14}
+{"kind":"textbox","id":"sh/upsnytw7","slide":8,"text":"BUSINESS MODEL","textPreview":"BUSINESS MODEL","textChars":14,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/1sj698vi","slide":8,"text":"Free distribution now. Paid prevention where the cost is visible.","textPreview":"Free distribution now. Paid prevention where the cost is visible.","textChars":65,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/gra503ex","slide":8,"bbox":[72,265,330,220]}
+{"kind":"textbox","id":"sh/7mh43edg","slide":8,"text":"FREE","textPreview":"FREE","textChars":4,"textLines":1,"bbox":[100,296,120,20]}
+{"kind":"textbox","id":"sh/6l8nutwv","slide":8,"text":"Web app + Telegram bot","textPreview":"Web app + Telegram bot","textChars":22,"textLines":1,"bbox":[100,340,270,30]}
+{"kind":"textbox","id":"sh/toj65ovm","slide":8,"text":"Acquire users and learn the threat patterns","textPreview":"Acquire users and learn the threat patterns","textChars":43,"textLines":1,"bbox":[100,405,270,48]}
+{"kind":"shape","id":"sh/snq5wje1","slide":8,"bbox":[444,265,330,220]}
+{"kind":"textbox","id":"sh/bilofidk","slide":8,"text":"PILOT","textPreview":"PILOT","textChars":5,"textLines":1,"bbox":[472,296,120,20]}
+{"kind":"textbox","id":"sh/qhcn6dwz","slide":8,"text":"Bank / telecom","textPreview":"Bank / telecom","textChars":14,"textLines":1,"bbox":[472,340,270,30]}
+{"kind":"textbox","id":"sh/ozit0vex","slide":8,"text":"Measure prevented scams and support burden","textPreview":"Measure prevented scams and support burden","textChars":42,"textLines":1,"bbox":[472,405,270,48]}
+{"kind":"shape","id":"sh/90ra90f2","slide":8,"bbox":[816,265,330,220]}
+{"kind":"textbox","id":"sh/mxgby5wr","slide":8,"text":"API","textPreview":"API","textChars":3,"textLines":1,"bbox":[844,296,120,20]}
+{"kind":"textbox","id":"sh/ny9s7axc","slide":8,"text":"Institutional licence","textPreview":"Institutional licence","textChars":21,"textLines":1,"bbox":[844,340,270,30]}
+{"kind":"textbox","id":"sh/0vytwvel","slide":8,"text":"Charge by protected customers or volume","textPreview":"Charge by protected customers or volume","textChars":39,"textLines":1,"bbox":[844,405,270,48]}
+{"kind":"textbox","id":"sh/1w7a50f6","slide":8,"text":"First pilot metrics: correct intervention rate · false positives · repeat usage · support-call reduction","textPreview":"First pilot metrics: correct intervention rate · false positives · repeat usage · support-call reduction","textChars":104,"textLines":1,"bbox":[72,565,1000,30]}
+{"kind":"shape","id":"sh/etgbulwf","slide":8,"bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/zups3qx0","slide":8,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/crytsbep","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/psmcqp","slide":8,"text":""}
+{"kind":"slide","id":"sl/vksppi","slide":9,"title":"MISSION + FOUNDER","textShapes":12}
+{"kind":"textbox","id":"sh/7md03m5g","slide":9,"text":"MISSION + FOUNDER","textPreview":"MISSION + FOUNDER","textChars":17,"textLines":1,"bbox":[72,48,450,20]}
+{"kind":"textbox","id":"sh/snmhcr61","slide":9,"text":"A local trust problem with regional ambition.","textPreview":"A local trust problem with regional ambition.","textChars":45,"textLines":1,"bbox":[72,82,1120,70]}
+{"kind":"shape","id":"sh/tofi5wnm","slide":9,"bbox":[72,250,310,310]}
+{"kind":"textbox","id":"sh/ix4z6hoz","slide":9,"text":"FOUNDER","textPreview":"FOUNDER","textChars":7,"textLines":1,"bbox":[102,288,150,20]}
+{"kind":"textbox","id":"sh/jyd0zm54","slide":9,"text":"Bakytzhan\nZhylsaiyn","textPreview":"Bakytzhan | Zhylsaiyn","textChars":19,"textLines":2,"bbox":[102,338,220,62]}
+{"kind":"textbox","id":"sh/kzmh876p","slide":9,"text":"Founder & CEO","textPreview":"Founder & CEO","textChars":13,"textLines":1,"bbox":[102,425,220,24]}
+{"kind":"textbox","id":"sh/50vi1cna","slide":9,"text":"Building the product, detection pipeline, and local trust layer end to end.","textPreview":"Building the product, detection pipeline, and local trust layer end to end.","textChars":75,"textLines":1,"bbox":[102,475,220,54]}
+{"kind":"textbox","id":"sh/2toji1o3","slide":9,"text":"“Cybersecurity is not only a technical problem—it is a human decision made under pressure.”","textPreview":"“Cybersecurity is not only a technical problem—it is a human decision made under pressure.”","textChars":91,"textLines":1,"bbox":[470,282,620,84]}
+{"kind":"textbox","id":"sh/3ux0b65o","slide":9,"text":"Mission","textPreview":"Mission","textChars":7,"textLines":1,"bbox":[470,415,180,22]}
+{"kind":"textbox","id":"sh/jm1ovy9g","slide":9,"text":"Help people make safer digital decisions through trustworthy AI.","textPreview":"Help people make safer digital decisions through trustworthy AI.","textChars":64,"textLines":1,"bbox":[470,450,590,40]}
+{"kind":"textbox","id":"sh/y1s7mtsv","slide":9,"text":"Vision: become the AI Trust Layer for Central Asia.","textPreview":"Vision: become the AI Trust Layer for Central Asia.","textChars":51,"textLines":1,"bbox":[470,530,590,30]}
+{"kind":"shape","id":"sh/loj6x8rm","slide":9,"bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/knapo3a1","slide":9,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/7qlozy9s","slide":9,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"notes","id":"nt/vksppi","slide":9,"text":""}
+{"kind":"slide","id":"sl/9mqjd7","slide":10,"title":"TUMAR.AI","textShapes":8}
+{"kind":"textbox","id":"sh/6l836hg7","slide":10,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,62,300,24]}
+{"kind":"textbox","id":"sh/tojmhcfy","slide":10,"text":"Every phone should\ncarry a digital amulet.","textPreview":"Every phone should | carry a digital amulet.","textChars":42,"textLines":2,"bbox":[72,152,650,120]}
+{"kind":"textbox","id":"sh/snal8ryd","slide":10,"text":"The ask: a pilot partner, real-world scam patterns, and measured feedback.","textPreview":"The ask: a pilot partner, real-world scam patterns, and measured feedback.","textChars":74,"textLines":1,"bbox":[76,340,600,34]}
+{"kind":"shape","id":"sh/fq14jmxo","slide":10,"bbox":[860,125,260,260]}
+{"kind":"textbox","id":"sh/hsjmlwfu","slide":10,"text":"SCAN TO TRY THE LIVE MVP","textPreview":"SCAN TO TRY THE LIVE MVP","textChars":24,"textLines":1,"bbox":[840,415,300,20]}
+{"kind":"textbox","id":"sh/gra5cry9","slide":10,"text":"tumar-ai.streamlit.app","textPreview":"tumar-ai.streamlit.app","textChars":22,"textLines":1,"bbox":[76,545,400,24]}
+{"kind":"textbox","id":"sh/3el4n6x0","slide":10,"text":"Launch videos and animation: use the video files as the opening demo asset; a separate QR requires a public hosted video URL.","textPreview":"Launch videos and animation: use the video files as the opening demo asset; a separate QR requires a public hosted video URL.","textChars":125,"textLines":1,"bbox":[76,585,700,30]}
+{"kind":"shape","id":"sh/2tsne1gf","slide":10,"bbox":[72,674,1136,0]}
+{"kind":"textbox","id":"sh/gzaxgvel","slide":10,"text":"TUMAR.AI  /  ASK","textPreview":"TUMAR.AI  /  ASK","textChars":16,"textLines":1,"bbox":[72,686,340,18]}
+{"kind":"textbox","id":"sh/h0je9gf6","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1150,686,58,18]}
+{"kind":"image","id":"im/b6hc7udw","slide":10,"name":"","alt":"Scan to open the live Tumar.AI MVP","bbox":[880,145,220,220]}
+{"kind":"notes","id":"nt/9mqjd7","slide":10,"text":""}
