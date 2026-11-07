@@ -276,6 +276,29 @@ CI runs the test suites and the offline evaluation on every push. The
 AI evaluation is run deliberately before prompt or model changes ship —
 it costs money and varies between runs, so it does not belong in CI.
 
+## Accounts: landing page and Google sign-up
+
+New visitors land on a public page (`views/landing.py`, styled by
+`assets/landing.css`) with two ways in: **Continue with Google** or
+**Try without an account** (guest mode keeps every tool open to everyone).
+Signed-in users are recorded in a small SQLite registry (`user_store.py`:
+email, name, language, first/last seen, sign-in count — nothing else).
+
+To switch Google sign-in on:
+
+1. Google Cloud Console → APIs & Services → Credentials → *Create OAuth
+   client ID* → **Web application**.
+2. Add authorized redirect URIs: `http://localhost:8501/oauth2callback` and
+   `https://<your-app>.streamlit.app/oauth2callback`.
+3. OAuth consent screen → **Publish app** ("In production"), so anyone with
+   a Google account can register, not only listed testers.
+4. Copy the `[auth]` block from `.streamlit/secrets.toml.example` into
+   `.streamlit/secrets.toml` (or the Streamlit Cloud *Secrets* box) and fill
+   in the client ID/secret, a random `cookie_secret`, and the production
+   `redirect_uri`.
+5. Set `TUMAR_USERS_DB` to a path on persistent storage in production —
+   Streamlit Cloud's disk is wiped on every restart.
+
 ## Tech Stack
 
 - Python 3.11+
