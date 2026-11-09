@@ -71,6 +71,15 @@ requested_language = st.query_params.get("lang")
 if requested_language in LANGUAGES and "language" not in st.session_state:
     st.session_state["language"] = requested_language
 
+# The landing page and the sidebar each draw a language selector bound
+# to the same "language" key. They are different widgets, so when the
+# landing selector disappears Streamlit would delete its value and the
+# sidebar would fall back to English. Re-assigning the value at the top
+# of every run detaches it from any one widget, so a language chosen on
+# the landing page survives sign-in or guest entry.
+if "language" in st.session_state:
+    st.session_state["language"] = st.session_state["language"]
+
 # Each st.Page links one file in views/ to one entry in the sidebar
 # menu. Titles go through t() so the menu follows the chosen language.
 #
