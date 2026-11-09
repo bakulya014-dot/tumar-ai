@@ -23,9 +23,9 @@ from services.trust_report import from_breach_result
 
 SOURCE = "breach_checker"
 
-page_header(t("breach.title"), t("breach.subtitle"))
+page_header(t("breach.title"), t("breach.subtitle"), "breach")
 
-st.caption(t("breach.privacy_note"))
+st.caption(components.labeled("privacy", t("breach.privacy_note")))
 
 email = st.text_input(
     t("breach.input_label"),
@@ -35,7 +35,8 @@ email = st.text_input(
     help=t("breach.input_help"),
 )
 check_clicked = st.button(
-    t("breach.check_button"), type="primary", use_container_width=True
+    t("breach.check_button"), type="primary", use_container_width=True,
+    icon=components.icon("search"),
 )
 
 if check_clicked:
@@ -49,7 +50,7 @@ if check_clicked:
             try:
                 result = check_email(cleaned)
             except BreachCheckError as error:
-                components.error_view(f"😕 {t(f'errors.{error.code}')}")
+                components.error_view(t(f'errors.{error.code}'))
             else:
                 report_store.remember(
                     st.session_state, from_breach_result(result)
@@ -62,5 +63,5 @@ if remembered:
     render_trust_report(remembered)
 else:
     components.empty_state(
-        "📧", t("breach.empty_title"), t("breach.empty_text")
+        "breach", t("breach.empty_title"), t("breach.empty_text")
     )

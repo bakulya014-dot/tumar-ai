@@ -115,7 +115,7 @@ def contribution_box(content: str, report: TrustReport) -> None:
         # Nowhere durable to put it, so do not ask.
         return
 
-    with st.expander(t("contribute.title"), expanded=False):
+    with st.expander(t("contribute.title"), expanded=False, icon=components.icon("contribute")):
         if report.report_id in _contributed_ids():
             _render_thanks()
             return
@@ -129,10 +129,14 @@ def contribution_box(content: str, report: TrustReport) -> None:
         st.caption(t("contribute.preview_note"))
         st.caption(t("contribute.withdraw_note"))
 
-        if st.button(t("contribute.button"), key=f"contribute_{report.report_id}"):
+        if st.button(
+            t("contribute.button"),
+            key=f"contribute_{report.report_id}",
+            icon=components.icon("contribute"),
+        ):
             if _store(redacted, kind, report):
                 _contributed_ids().add(report.report_id)
-                st.success(t("contribute.stored"))
+                st.success(t("contribute.stored"), icon=components.icon("done"))
                 st.rerun()
             else:
                 # Refused, or our own service was unreachable. Say so;
@@ -165,9 +169,13 @@ def _store(redacted: str, kind: str, report: TrustReport) -> bool:
 
 def _render_thanks() -> None:
     """Shown once this sample has been contributed."""
-    st.success(t("contribute.already"))
+    st.success(t("contribute.already"), icon=components.icon("done"))
     st.caption(t("contribute.withdraw_note"))
-    if st.button(t("contribute.withdraw_button"), key="withdraw_contributions"):
+    if st.button(
+        t("contribute.withdraw_button"),
+        key="withdraw_contributions",
+        icon=components.icon("delete"),
+    ):
         removed = _withdraw()
         _contributed_ids().clear()
         st.info(t("contribute.withdrawn", count=removed))

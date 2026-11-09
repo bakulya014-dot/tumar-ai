@@ -1,0 +1,10 @@
+# Ignore secrets
+.env
+
+# Ignore databases
+*.db
+broadcast.db
+
+# Ignore Python cache
+__pycache__/
+venv/

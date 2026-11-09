@@ -42,7 +42,7 @@ st.write(t("home.intro"))
 
 # --- Primary action: one paste box for anything ---
 
-section_header(t("home.quick_title"), t("home.quick_intro"))
+section_header(t("home.quick_title"), t("home.quick_intro"), icon_name="quick")
 
 quick_input = st.text_area(
     t("home.quick_input_label"),
@@ -56,9 +56,14 @@ quick_input = st.text_area(
 # Unrecognized text falls through to the AI scam analyzer, which sends
 # it to the AI provider. A password pasted here would go with it, so
 # the box says plainly where passwords belong instead.
-st.caption(t("home.quick_no_passwords"))
+st.caption(components.labeled("key", t("home.quick_no_passwords")))
 
-if st.button(t("home.quick_button"), type="primary", use_container_width=True):
+if st.button(
+    t("home.quick_button"),
+    type="primary",
+    use_container_width=True,
+    icon=components.icon("quick"),
+):
     cleaned = quick_input.strip()
     if not cleaned:
         st.warning(t("home.quick_empty"))
@@ -76,7 +81,7 @@ if st.button(t("home.quick_button"), type="primary", use_container_width=True):
                     subject, AnalysisContext(api_key=api_key)
                 )
             except ServiceError as error:
-                components.error_view(f"😕 {t(f'errors.{error.code}')}")
+                components.error_view(t(f'errors.{error.code}'))
             else:
                 report_store.remember(st.session_state, report)
 
@@ -86,7 +91,7 @@ if latest:
     render_trust_report(latest)
     page = _TOOL_PAGES.get(latest.source)
     if page:
-        st.page_link(page, label=t("home.quick_full_tool"), icon="➡️")
+        st.page_link(page, label=t("home.quick_full_tool"), icon=components.icon("next"))
     contribution_box(quick_input, latest)
 
 # --- This session so far ---
@@ -94,7 +99,7 @@ if latest:
 past = report_store.history(st.session_state)
 if past:
     summary = report_store.summarize(past)
-    section_header(t("home.stats_title"), t("home.stats_scope"))
+    section_header(t("home.stats_title"), t("home.stats_scope"), icon_name="stats")
     checks_col, threats_col, trust_col = st.columns(3)
     with checks_col:
         components.stat(str(summary.checks), t("home.stat_checks"))
@@ -107,7 +112,7 @@ if past:
     with trust_col:
         components.stat(f"{summary.average_trust}", t("home.stat_avg_trust"))
 
-    section_header(t("home.recent_title"))
+    section_header(t("home.recent_title"), icon_name="history")
     for report in past[:RECENT_LIMIT]:
         components.recent_row(
             t(f"trust.verdict.{report.verdict}"),
@@ -118,30 +123,30 @@ if past:
         )
     # Users of a privacy-first product should be able to act on that
     # promise, not just read it.
-    if st.button(t("home.recent_clear")):
+    if st.button(t("home.recent_clear"), icon=components.icon("delete")):
         report_store.clear(st.session_state)
         st.rerun()
 else:
-    section_header(t("home.recent_title"))
+    section_header(t("home.recent_title"), icon_name="history")
     components.empty_state(
-        "🕒", t("home.recent_empty_title"), t("home.recent_empty_text")
+        "history", t("home.recent_empty_title"), t("home.recent_empty_text")
     )
 
 # --- Everything the platform can check ---
 
-section_header(t("home.tools_title"))
+section_header(t("home.tools_title"), icon_name="widgets")
 
 tools_left, tools_right = st.columns(2)
 with tools_left:
     feature_card(
-        "🔍",
+        "scam",
         t("home.scam_card_title"),
         t("home.scam_card_text"),
         "views/scam_analyzer.py",
         t("home.scam_card_link"),
     )
     feature_card(
-        "📧",
+        "breach",
         t("home.breach_card_title"),
         t("home.breach_card_text"),
         "views/breach_checker.py",
@@ -149,14 +154,14 @@ with tools_left:
     )
 with tools_right:
     feature_card(
-        "🔗",
+        "url",
         t("home.url_card_title"),
         t("home.url_card_text"),
         "views/url_scanner.py",
         t("home.url_card_link"),
     )
     feature_card(
-        "🔑",
+        "password",
         t("home.password_card_title"),
         t("home.password_card_text"),
         "views/password_checker.py",
@@ -165,7 +170,7 @@ with tools_right:
 
 # --- Platform status: only what we actually know ---
 
-section_header(t("home.status_title"))
+section_header(t("home.status_title"), icon_name="status")
 status_left, status_right = st.columns(2)
 with status_left:
     components.status_badge(
@@ -179,7 +184,7 @@ with status_right:
 
 # --- How it works, for first-time visitors ---
 
-section_header(t("home.how_title"))
+section_header(t("home.how_title"), icon_name="route")
 
 step1, step2, step3 = st.columns(3)
 with step1, st.container(border=True, key="tstep_1"):

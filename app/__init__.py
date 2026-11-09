@@ -1,0 +1,1 @@
+"""Tumar.AI application package."""

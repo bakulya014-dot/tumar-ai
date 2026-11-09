@@ -36,7 +36,7 @@ def _render(report: TrustReport) -> None:
         st.warning(t("scam.otp_warning"))
 
 
-page_header(t("scam.title"), t("scam.subtitle"))
+page_header(t("scam.title"), t("scam.subtitle"), "scam")
 
 api_key = components.get_gemini_api_key()
 if not api_key:
@@ -54,10 +54,12 @@ message = st.text_area(
 
 analyze_col, example_col = st.columns([3, 1])
 analyze_clicked = analyze_col.button(
-    t("scam.analyze_button"), type="primary", use_container_width=True
+    t("scam.analyze_button"), type="primary", use_container_width=True,
+    icon=components.icon("scam"),
 )
 example_col.button(
-    t("scam.example_button"), on_click=_fill_example, use_container_width=True
+    t("scam.example_button"), on_click=_fill_example, use_container_width=True,
+    icon=components.icon("example"),
 )
 
 if analyze_clicked:
@@ -69,7 +71,7 @@ if analyze_clicked:
             try:
                 result = analyze_message(cleaned, api_key=api_key)
             except ScamAnalysisError as error:
-                components.error_view(f"😕 {t(f'errors.{error.code}')}")
+                components.error_view(t(f'errors.{error.code}'))
             else:
                 report_store.remember(
                     st.session_state, from_scam_report(result, cleaned)
@@ -83,5 +85,5 @@ if remembered:
     contribution_box(message, remembered)
 else:
     components.empty_state(
-        "🔍", t("scam.empty_title"), t("scam.empty_text")
+        "scam", t("scam.empty_title"), t("scam.empty_text")
     )

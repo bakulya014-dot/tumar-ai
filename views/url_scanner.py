@@ -24,7 +24,7 @@ def _fill_example() -> None:
     st.session_state["url_input"] = t("url.example_url")
 
 
-page_header(t("url.title"), t("url.subtitle"))
+page_header(t("url.title"), t("url.subtitle"), "url")
 
 api_key = components.get_gemini_api_key()
 if not api_key:
@@ -41,10 +41,12 @@ url = st.text_input(
 
 check_col, example_col = st.columns([3, 1])
 check_clicked = check_col.button(
-    t("url.check_button"), type="primary", use_container_width=True
+    t("url.check_button"), type="primary", use_container_width=True,
+    icon=components.icon("url"),
 )
 example_col.button(
-    t("url.example_button"), on_click=_fill_example, use_container_width=True
+    t("url.example_button"), on_click=_fill_example, use_container_width=True,
+    icon=components.icon("example"),
 )
 
 if check_clicked:
@@ -58,7 +60,7 @@ if check_clicked:
                     cleaned, api_key=api_key, language=current_language()
                 )
             except UrlScanError as error:
-                components.error_view(f"😕 {t(f'errors.{error.code}')}")
+                components.error_view(t(f'errors.{error.code}'))
             else:
                 report_store.remember(st.session_state, report)
 
@@ -66,7 +68,7 @@ if check_clicked:
 remembered = report_store.latest(st.session_state, SOURCE)
 if remembered:
     render_trust_report(remembered)
-    st.caption(t("url.address_only_note"))
+    st.caption(components.labeled("info", t("url.address_only_note")))
     contribution_box(url, remembered)
 else:
-    components.empty_state("🔗", t("url.empty_title"), t("url.empty_text"))
+    components.empty_state("url", t("url.empty_title"), t("url.empty_text"))
