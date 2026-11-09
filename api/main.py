@@ -21,9 +21,13 @@ import uuid
 from dataclasses import dataclass
 from pathlib import Path
 
+import sqlite3
+
 from fastapi import Depends, FastAPI, Header, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 
 # Make the project root importable when uvicorn is started from it.
 ROOT = Path(__file__).resolve().parent.parent
@@ -55,7 +59,12 @@ from services.trust_engine import (  # noqa: E402
     default_analyzers,
 )
 
-VERSION = "0.1.0"
+VERSION = "0.2.0"
+
+# Analyzers that need the AI provider. The others (email breach
+# lookup) are deterministic database checks and keep working when no
+# AI key is configured, instead of the whole API failing closed.
+_NEEDS_AI = frozenset({"message", "url"})
 
 # Short error codes from the services layer, mapped to the status that
 # tells a client what to do about it. Anything unmapped becomes a 502:
@@ -84,7 +93,11 @@ _STATUS_BY_CODE = {
 _GENERIC_MESSAGES = {
     400: "The request could not be analyzed as submitted.",
     401: "A valid API key is required.",
+    404: "No such endpoint.",
+    405: "That method is not allowed on this endpoint.",
     413: "The submitted content is too large.",
+    422: "The request body is missing a field or has an invalid value.",
+    500: "An unexpected error occurred.",
     429: "Too many requests, or the monthly quota is spent.",
     503: "The analysis service is temporarily unavailable.",
     504: "The analysis service did not respond in time.",
@@ -98,9 +111,13 @@ limiter = RateLimiter(settings.rate_limit, settings.rate_window_seconds)
 
 # Passwords are not analyzable over HTTP — see api/schemas.py. Building
 # the engine without that analyzer makes it structurally impossible
-# rather than merely undocumented.
+# rather than merely undocumented. Images are left out too: this API
+# accepts text only, so listing an image analyzer in /v1/analyzers
+# would advertise a capability no request can reach.
 _API_ANALYZERS = tuple(
-    analyzer for analyzer in default_analyzers() if analyzer.kind != "password"
+    analyzer
+    for analyzer in default_analyzers()
+    if analyzer.kind not in ("password", "image")
 )
 engine = TrustEngine(_API_ANALYZERS)
 
@@ -123,16 +140,48 @@ if settings.allowed_origins:
     )
 
 
-def _error(request_id: str, status: int, code: str) -> JSONResponse:
+def _error(
+    request_id: str, status: int, code: str, fields: list[str] | None = None
+) -> JSONResponse:
     """Build an error response that reveals nothing internal."""
     body = ErrorResponse(
         request_id=request_id,
         error=ErrorBody(
             code=code,
             message=_GENERIC_MESSAGES.get(status, _GENERIC_MESSAGES[502]),
+            fields=fields or [],
         ),
     )
-    return JSONResponse(status_code=status, content=body.model_dump())
+    response = JSONResponse(status_code=status, content=body.model_dump())
+    response.headers["X-Request-ID"] = request_id
+    return response
+
+
+def _request_id(request: Request) -> str:
+    return getattr(request.state, "request_id", "") or uuid.uuid4().hex[:16]
+
+
+@app.exception_handler(RequestValidationError)
+async def validation_failed(request: Request, exc: RequestValidationError) -> JSONResponse:
+    """422 in the platform's error shape.
+
+    FastAPI's default 422 body echoes the submitted value back. For an
+    API whose input is someone's private message, that is a leak — into
+    client logs, proxies and error trackers — so only the field names
+    are returned.
+    """
+    fields = sorted(
+        {".".join(str(part) for part in error.get("loc", ()) if part != "body") or "body"
+         for error in exc.errors()}
+    )
+    return _error(_request_id(request), 422, "invalid_request", fields)
+
+
+@app.exception_handler(StarletteHTTPException)
+async def http_error(request: Request, exc: StarletteHTTPException) -> JSONResponse:
+    """404 / 405 and friends in the platform's error shape."""
+    code = {404: "not_found", 405: "method_not_allowed"}.get(exc.status_code, "http_error")
+    return _error(_request_id(request), exc.status_code, code)
 
 
 @app.middleware("http")
@@ -214,9 +263,30 @@ def authenticate(
 
 @app.get("/v1/health", response_model=HealthResponse, tags=["service"])
 async def health() -> HealthResponse:
-    """Liveness check. Unauthenticated on purpose, and says nothing secret."""
+    """Liveness check. Unauthenticated on purpose, and says nothing secret.
+
+    Each dependency is checked locally and reported as one word. The AI
+    provider is NOT called: "configured" means a key is present, not
+    that the provider answered — the report says so rather than
+    claiming a verification that did not happen.
+    """
+    checks = {"ai_provider": "configured" if settings.configured else "missing"}
+    try:
+        with sqlite3.connect(settings.database_path, timeout=2) as conn:
+            conn.execute("SELECT 1")
+        checks["database"] = "ok"
+    except sqlite3.Error:
+        checks["database"] = "error"
+    try:
+        from services.image_scanner import ocr_engine
+
+        checks["ocr"] = "available" if ocr_engine.available() else "unavailable"
+    except Exception:
+        checks["ocr"] = "unavailable"
     return HealthResponse(
-        status="ok" if settings.configured else "unconfigured", version=VERSION
+        status="ok" if settings.configured else "unconfigured",
+        version=VERSION,
+        checks=checks,
     )
 
 
@@ -284,10 +354,8 @@ def analyze(
         )
         return _error(request_id, status, code)
 
-    if not settings.configured:
-        # Fail closed rather than serving an endpoint that cannot work.
-        return finish(503, "not_configured")
-
+    # Authentication first: an anonymous caller learns nothing about how
+    # this deployment is configured, only that a key is required.
     if not caller.authenticated:
         logger.warning(
             "auth_failed request_id=%s caller=%s", request_id, caller.fingerprint
@@ -318,6 +386,11 @@ def analyze(
     analyzer = engine.detect(subject)
     if analyzer is None:
         return finish(400, "unsupported_input")
+
+    if analyzer.kind in _NEEDS_AI and not settings.configured:
+        # Fail closed for analyses that cannot work without the AI
+        # provider, rather than returning a half-judged verdict.
+        return finish(503, "not_configured", analyzer.kind)
 
     try:
         report = engine.analyze(

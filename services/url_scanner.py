@@ -14,6 +14,7 @@ This module knows nothing about Streamlit — it can be reused unchanged
 by the future Trust Engine, API server, bot, or browser extension.
 """
 
+import re
 from functools import lru_cache
 from pathlib import Path
 from typing import Literal
@@ -27,6 +28,11 @@ from services.heuristics import url_reasons
 from services.trust_report import Evidence, TrustReport, preview_text
 
 PROMPT_FILE = Path(__file__).resolve().parent.parent / "prompts" / "url_scanner_v1.md"
+
+# Unicode letters and digits, "-" and "."; must start and end with a
+# letter or digit. (IPv6 literals never reach this check: the "." rule
+# above already rejects them — a known limitation.)
+_HOSTNAME = re.compile(r"[^\W_](?:[\w.-]*[^\W_])?", re.IGNORECASE)
 
 
 class UrlAnalysis(BaseModel):
@@ -74,9 +80,19 @@ def normalize_url(raw: str) -> str:
         raise UrlScanError("invalid_url")
     if "://" not in candidate:
         candidate = "https://" + candidate
-    parsed = urlparse(candidate)
-    host = parsed.hostname or ""
+    try:
+        parsed = urlparse(candidate)
+        host = parsed.hostname or ""
+    except ValueError:  # e.g. "http://[::1" — an unbalanced IPv6 bracket
+        raise UrlScanError("invalid_url") from None
     if parsed.scheme not in ("http", "https") or "." not in host:
+        raise UrlScanError("invalid_url")
+    # A hostname is letters, digits, hyphens and dots. Letters may be
+    # non-Latin on purpose — a mixed-script look-alike such as
+    # "kаspi.kz" (Cyrillic а) must still reach the homoglyph check —
+    # but markup and punctuation never form a host. Without this,
+    # "<script>alert(document.cookie)</script>" parsed as a URL.
+    if not _HOSTNAME.fullmatch(host):
         raise UrlScanError("invalid_url")
     return candidate
 

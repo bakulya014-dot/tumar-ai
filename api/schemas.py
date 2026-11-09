@@ -62,6 +62,11 @@ class AnalyzeRequest(BaseModel):
 class AnalyzeResponse(BaseModel):
     """A completed analysis."""
 
+    # `success` and `error` were added in 0.2.0 so every response has
+    # the same top-level shape as ErrorResponse. Both are additive:
+    # existing clients that read `report` are unaffected.
+    success: Literal[True] = True
+    error: None = None
     request_id: str = Field(description="Correlates this call with our logs.")
     detected_kind: str = Field(description="Which analyzer handled the input.")
     report: TrustReport
@@ -157,10 +162,18 @@ class AnalyzersResponse(BaseModel):
 
 
 class HealthResponse(BaseModel):
-    """Liveness, plus whether the deployment is usable at all."""
+    """Liveness, plus whether the deployment is usable at all.
+
+    `checks` reports each dependency as a word, never a detail:
+    ai_provider (configured | missing), database (ok | error),
+    ocr (available | unavailable). No provider is called — a health
+    probe that spends tokens on every load-balancer ping would be a
+    bill, not a check.
+    """
 
     status: Literal["ok", "unconfigured"]
     version: str
+    checks: dict[str, str] = Field(default_factory=dict)
 
 
 class ErrorBody(BaseModel):
@@ -168,13 +181,20 @@ class ErrorBody(BaseModel):
 
     `code` is the same short code the rest of the platform uses, so a
     client can localize it. `message` is a plain-language fallback and
-    never contains provider details, keys, or stack traces.
+    never contains provider details, keys, or stack traces. `fields`
+    names the request fields that failed validation (422 only) — the
+    submitted values are never echoed back, because the content of a
+    request may be the very message the user wanted kept private.
     """
 
     code: str
     message: str
+    fields: list[str] = Field(default_factory=list)
 
 
 class ErrorResponse(BaseModel):
+    """Every failure, whatever produced it, has exactly this shape."""
+
+    success: Literal[False] = False
     request_id: str
     error: ErrorBody

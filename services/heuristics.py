@@ -379,8 +379,14 @@ def url_reasons(url: str) -> list[str]:
     subject. One set of checks, one place to improve them.
     """
     normalized = url if "://" in url else f"http://{url}"
-    parsed = urlparse(normalized.lower())
-    host = parsed.hostname or ""
+    try:
+        parsed = urlparse(normalized.lower())
+        host = parsed.hostname or ""
+    except ValueError:
+        # Malformed (e.g. "http://[::1" — an unbalanced IPv6 bracket).
+        # Not a URL we can judge, and never a reason to fail the whole
+        # message analysis around it.
+        return []
     if not host:
         return []
 

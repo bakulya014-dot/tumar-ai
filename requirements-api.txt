@@ -11,5 +11,13 @@ google-genai==2.12.1
 pydantic==2.13.4
 requests==2.34.2
 
+# The Trust Engine registers the image scanner, so importing it pulls
+# these in even though this API accepts text only. Without them the
+# API fails at import time. (Tesseract, the OCR binary, is optional.)
+numpy==2.5.2
+pillow==12.3.0
+opencv-python-headless==5.0.0.93
+pytesseract==0.3.13
+
 # Test client for tests/test_api.py.
 httpx==0.28.1
