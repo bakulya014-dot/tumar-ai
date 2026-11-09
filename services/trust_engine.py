@@ -37,22 +37,15 @@ from pydantic import BaseModel
 
 from services.breach_checker import check_email, is_valid_email
 from services.common import ServiceError
+from services.image_scanner import SUPPORTED_MIME_TYPES, scan_image, to_trust_report
 from services.password_check import check_password
 from services.scam_analysis import analyze_message
-from services.providers import vision_provider
 from services.trust_report import (
     TrustReport,
     from_breach_result,
-    from_image_analysis,
     from_scam_report,
 )
 from services.url_scanner import UrlScanError, normalize_url, scan_url
-from services.vision_analysis import (
-    SUPPORTED_MIME_TYPES,
-    VisionAnalysisError,
-    analyze_image,
-    to_analysis_text,
-)
 
 
 class TrustSubject(BaseModel):
@@ -76,6 +69,10 @@ class AnalysisContext(BaseModel):
     # Which optional vision provider to prefer. Empty means "whatever
     # is configured", and no provider at all is a normal state.
     vision_provider: str = ""
+    # The user's privacy choice: may image bytes and extracted text be
+    # sent to external AI providers? False keeps every analysis local
+    # (OCR, QR, URL heuristics, the message scanner, risk scoring).
+    allow_external_ai: bool = True
 
 
 class EngineError(ServiceError):
@@ -162,23 +159,23 @@ class MessageAnalyzer(Analyzer):
 
 
 class ImageAnalyzer(Analyzer):
-    """Screenshots → read the image, then judge it like any message.
+    """Screenshots → Visual Threat Intelligence (services/image_scanner).
 
-    The vision provider extracts what the screenshot says; this
-    analyzer then runs the ordinary scam analysis over that text. So a
-    phishing page, a fake receipt and a forged bank notification all
-    pass through the same measured pipeline as a pasted message —
-    the same urgency patterns, the same one-time-code direction model,
-    the same URL heuristics, the same prompt.
+    The image is validated and re-encoded, read by OCR (Kazakh,
+    Russian, English), searched for QR codes, and every link found is
+    run through the platform's URL heuristics. The transcript then
+    passes through the same measured message pipeline as pasted text
+    — the same urgency patterns, the same one-time-code direction
+    model, the same prompt when an AI provider is allowed. A vision
+    model, when configured and permitted, adds what it *saw*; it never
+    decides.
 
-    That is why the engine did not need changing to gain vision: the
-    TrustSubject envelope has carried bytes and a mime type since it
-    was written, waiting for exactly this.
-
-    Requires a vision provider. Without one the analyzer declines the
-    subject, and the engine reports that images are unsupported rather
-    than failing — the platform has never depended on an optional
-    provider being present.
+    No layer is required. Without Tesseract the OCR stage reports
+    "unavailable"; without a provider the AI stages report "skipped";
+    the verdict is still evidence-based, and the report says which
+    layers ran. The analyzer therefore claims every supported image,
+    and the only way to be refused is to upload something that is not
+    one.
     """
 
     kind = "image"
@@ -187,32 +184,20 @@ class ImageAnalyzer(Analyzer):
         return (
             isinstance(subject.content, bytes)
             and subject.mime_type in SUPPORTED_MIME_TYPES
-            and vision_provider() is not None
         )
 
     def analyze(
         self, subject: TrustSubject, context: AnalysisContext
     ) -> TrustReport:
         assert isinstance(subject.content, bytes)
-        provider = vision_provider(context.vision_provider)
-        if provider is None:
-            raise VisionAnalysisError("vision_unavailable")
-
-        vision = analyze_image(
-            image_bytes=subject.content,
-            mime_type=subject.mime_type,
-            provider=provider,
+        result = scan_image(
+            subject.content,
+            api_key=context.api_key,
             language=subject.language,
+            allow_external=context.allow_external_ai,
+            preferred_vision=context.vision_provider,
         )
-
-        extracted = to_analysis_text(vision)
-        if not extracted:
-            # Nothing legible. Saying so beats inventing a verdict
-            # about an image nobody could read.
-            raise VisionAnalysisError("nothing_detected")
-
-        scam = analyze_message(extracted, api_key=context.api_key)
-        return from_image_analysis(scam, vision, subject.filename)
+        return to_trust_report(result, subject.filename)
 
 
 class PasswordAnalyzer(Analyzer):

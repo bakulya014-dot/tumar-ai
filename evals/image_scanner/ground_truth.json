@@ -1,0 +1,41 @@
+{
+  "schema": {
+    "id": "unique case id",
+    "file": "file name under evals/image_scanner/images/ (not committed)",
+    "language": "en | ru | kk — language of the text in the image",
+    "label": "scam | legitimate",
+    "split": "test | dev — only test rows count toward reported metrics",
+    "family": "cases that are near-duplicates (same scam, re-cropped) share one family and one split",
+    "tags": ["free-form: banking, delivery, qr, login, blurry, no-text, injection, ..."],
+    "expected_text": "optional verbatim transcript for OCR accuracy",
+    "qr_payload": "optional exact payload the QR code must decode to",
+    "expected_categories": ["optional scam-intent categories that must appear"]
+  },
+  "status": "FRAMEWORK ONLY — no labelled images have been collected yet. Performance is not validated.",
+  "collection_plan": [
+    "legitimate banking notification (en, ru, kk)",
+    "fake banking notification (en, ru, kk)",
+    "legitimate delivery message",
+    "delivery-payment scam",
+    "legitimate QR code (official site)",
+    "suspicious QR destination (look-alike domain, raw IP)",
+    "fake login page",
+    "normal screenshot with no threat (chat, news, settings)",
+    "blurry / low-resolution variants of the above",
+    "corrupted file and oversized image (expected: refused)",
+    "image with no readable text",
+    "image containing adversarial prompt-injection text"
+  ],
+  "cases": [
+    {
+      "id": "example-corrupted",
+      "file": "corrupted.png",
+      "language": "en",
+      "label": "legitimate",
+      "split": "test",
+      "family": "example",
+      "tags": ["corrupted"],
+      "note": "Expected outcome: refused with image_corrupted. Not present in the repo."
+    }
+  ]
+}

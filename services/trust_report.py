@@ -34,7 +34,7 @@ from pydantic import BaseModel, Field
 
 from services.breach_checker import EmailBreachResult
 from services.confidence import estimate as estimate_confidence
-from services.heuristics import is_strong_url_signal
+from services.heuristics import HeuristicReport, is_strong_url_signal
 from services.scam_analysis import ScamReport
 from services.vision_analysis import VisionFinding, to_analysis_text
 
@@ -111,6 +111,12 @@ class TrustReport(BaseModel):
     # contradiction, too little text to judge. Translation keys, so any
     # consumer can render them.
     confidence_reason_keys: list[str] = Field(default_factory=list)
+    # Optional, module-specific extras. The image scanner uses them for
+    # its five-step risk level and per-stage status (ocr / qr / vision)
+    # so a consumer can say what was and was not analysed. Other
+    # modules leave them empty; nothing downstream requires them.
+    risk_level: str = ""
+    analysis_metadata: dict[str, str] = Field(default_factory=dict)
 
 
 # --- Adapters: module results -> TrustReport ---
@@ -137,10 +143,14 @@ _BREACH_SCORES = {"none": 85, "medium": 40, "high": 15}
 _BREACH_CONFIDENCE = 95
 
 
-def from_scam_report(report: ScamReport, message: str) -> TrustReport:
-    """Convert a scam analysis (heuristics + AI) into a TrustReport."""
+def evidence_from_heuristics(heuristics: HeuristicReport) -> list[Evidence]:
+    """The deterministic scanner's findings as evidence items.
+
+    Shared by every module that runs the message scanner over text —
+    pasted messages and text read out of screenshots alike — so the
+    same finding is always labelled and weighted the same way.
+    """
     evidence: list[Evidence] = []
-    heuristics = report.heuristics
 
     # A code being delivered to you is not evidence of anything; only
     # being asked to hand it over, or to type it somewhere, is.
@@ -175,6 +185,13 @@ def from_scam_report(report: ScamReport, message: str) -> TrustReport:
                     weight="strong" if is_strong_url_signal(reason) else "weak",
                 )
             )
+    return evidence
+
+
+def from_scam_report(report: ScamReport, message: str) -> TrustReport:
+    """Convert a scam analysis (heuristics + AI) into a TrustReport."""
+    heuristics = report.heuristics
+    evidence = evidence_from_heuristics(heuristics)
     for flag in report.ai.red_flags:
         evidence.append(
             Evidence(kind="ai", code="red_flag", detail=flag, weight="weak")

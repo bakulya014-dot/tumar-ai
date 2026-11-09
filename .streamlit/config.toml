@@ -11,3 +11,8 @@ textColor = "#E8EEF9"
 linkColor = "#7DD3FC"
 borderColor = "#1B2740"
 baseRadius = "12px"
+
+[server]
+# Uploads above this are refused by Streamlit before they reach the
+# image validator (which enforces its own, configurable 6 MiB limit).
+maxUploadSize = 8

@@ -82,8 +82,11 @@ def test_passwords_are_never_auto_detected() -> None:
 
 
 def test_unsupported_input_raises_coded_error() -> None:
+    """Bytes of a type no analyzer understands are refused by the
+    engine. (Images are now claimed by the image scanner regardless of
+    provider configuration, so the unsupported example is a PDF.)"""
     engine = TrustEngine()
-    subject = TrustSubject(content=b"\x89PNG...", mime_type="image/png")
+    subject = TrustSubject(content=b"%PDF-1.7 ...", mime_type="application/pdf")
     assert engine.detect(subject) is None
     try:
         engine.analyze(subject, AnalysisContext())

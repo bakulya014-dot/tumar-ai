@@ -30,6 +30,7 @@ plain language, accessible to everyone.
 | --- | --- |
 | AI Scam Message Analyzer (AI + deterministic scanner) | ✅ Available (beta) |
 | URL Scanner (address-only trust verdict, AI + heuristics) | ✅ Available (beta) |
+| Screenshot Scanner — Visual Threat Intelligence (OCR kk/ru/en, QR decoding, link checks, optional vision model, documented risk levels) | ✅ Available (beta) |
 | Email Breach Checker | ✅ Available (beta) |
 | Quick Check (auto-routing via the Trust Engine) | ✅ Available (beta) |
 | Dashboard (session figures, recent analyses, platform status) | ✅ Available (beta) |
@@ -108,6 +109,45 @@ privacy note.
   over a list of reports — testable without Streamlit and reusable by the
   REST API later. The numbers are labeled as session-scoped, because that is
   all they honestly are.
+
+## Screenshot Scanner: Visual Threat Intelligence
+
+`services/image_scanner/` analyses an uploaded image in layers, each
+reporting a status instead of failing the scan:
+
+| Layer | Module | Needs |
+| --- | --- | --- |
+| Validation: real file signature, size / pixel limits, decompression-bomb guard, re-encode, strip EXIF, fix orientation | `validator.py` | Pillow |
+| Preprocessing: grayscale, upscale, denoise, threshold, deskew | `preprocessing.py` | OpenCV (headless) |
+| OCR in Kazakh, Russian, English | `ocr_engine.py` | Tesseract binary (`packages.txt` on Streamlit Cloud; `winget install UB-Mannheim.TesseractOCR` on Windows, plus the `rus` and `kaz` language packs) |
+| QR detection and decoding (payloads classified, never opened) | `qr_decoder.py` | OpenCV |
+| Link extraction from OCR / QR / vision; the platform's URL heuristics; private-network check | `url_extractor.py` | — |
+| Scam-intent categories; prompt-injection phrases | `classifier.py` | — |
+| Risk scoring: documented, grouped, capped; five levels | `risk_engine.py` | — |
+| Optional vision model (facts only, never a verdict) | existing `services/vision_analysis.py` | a vision-capable provider |
+| Optional text model | existing `services/scam_analysis.py` | a text provider |
+
+The Trust Engine's `ImageAnalyzer` calls `scan_image()` and converts
+the result with `to_trust_report()`. The report carries a
+`risk_level` (`inconclusive` / `low` / `moderate` / `high` /
+`critical`) and `analysis_metadata` with every stage's status, so a
+"low" result always says which stages actually ran. Risk and
+confidence are separate numbers; the scoring table is in the
+`risk_engine.py` docstring and pinned by `tests/test_image_scanner.py`.
+
+Privacy: the upload is discarded after validation; only a re-encoded,
+metadata-free PNG exists in memory; nothing is written to disk; the
+image reaches an external provider only when the user leaves "Allow
+external AI providers" on and one is configured. No link, QR
+destination or address is ever fetched by the server.
+
+Evaluation: `python evals/image_scanner/evaluation.py`. The framework
+is in place; **no labelled image set has been collected yet, so no
+image-scanner performance figure is validated** (see
+`evals/image_scanner/README.md`).
+
+Environment knobs: `TUMAR_IMAGE_MAX_BYTES`, `TUMAR_IMAGE_MAX_SIDE`,
+`TUMAR_IMAGE_MAX_PIXELS`, `TESSERACT_CMD`, `TUMAR_OCR_LANGS`.
 
 ## Privacy and safety guarantees
 

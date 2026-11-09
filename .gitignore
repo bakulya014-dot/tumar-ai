@@ -14,6 +14,11 @@ venv/
 # belongs in history, not the output of a particular run.
 evals/results/
 
+# Image-scanner evaluation set: real screenshots carry other people's
+# data and stay local. Runs are one machine at one moment.
+evals/image_scanner/images/
+evals/image_scanner/results/
+
 # Key and usage database. Keys are stored hashed, but this file still
 # holds customer identities and their traffic, and it has no business
 # in version control.

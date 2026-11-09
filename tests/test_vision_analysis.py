@@ -235,7 +235,12 @@ def test_text_analysis_is_unchanged_when_no_vision_is_involved() -> None:
 
 
 def test_images_are_declined_when_no_provider_is_configured() -> None:
-    """The platform must keep working with no vision provider at all."""
+    """The platform must keep working with no vision provider at all.
+
+    Since the image scanner gained local layers (OCR, QR, link checks)
+    an image is claimed even with no provider: the vision stage then
+    reports "skipped" instead of the whole subject being refused.
+    """
     import os
 
     saved = {
@@ -244,10 +249,10 @@ def test_images_are_declined_when_no_provider_is_configured() -> None:
     }
     try:
         subject = TrustSubject(content=_PNG, mime_type="image/png")
-        assert ImageAnalyzer().can_handle(subject) is False
-        # …and the engine says so rather than failing.
+        assert ImageAnalyzer().can_handle(subject) is True
         engine = TrustEngine()
-        assert engine.detect(subject) is None
+        detected = engine.detect(subject)
+        assert detected is not None and detected.kind == "image"
     finally:
         for name, value in saved.items():
             if value is not None:
