@@ -3,10 +3,13 @@
 Tells a first-time visitor who Tumar.AI is for, why it beats the usual
 guesswork, and how it works, then offers two ways in: register with
 Google, or try the tools as a guest. Every string goes through t(), and
-every value placed in HTML is escaped.
+every value placed in HTML is escaped. No emoji or pictograms are drawn
+here: markers are plain CSS shapes, so the page reads the same on every
+platform.
 """
 
 import html
+import unicodedata
 from pathlib import Path
 
 import streamlit as st
@@ -23,18 +26,24 @@ _MARQUEE = (
 )
 _OLD_TOOLS = ("search", "virustotal", "hibp", "family_chat", "notebook", "ignore")
 _OLD_PAINS = ("lost_money", "hijacked", "leaked")
-_MODULES = (
-    ("🔍", "scam"), ("🔗", "url"), ("🖼️", "image"),
-    ("📧", "breach"), ("🔑", "password"), ("🤖", "bot"),
-)
+_FEATURES = ("threat", "kanon", "xon", "bot")
 _TUMAR_WINS = ("verdict", "plain", "private")
 _STEPS = ("paste", "check", "act")
 _PRIVACY = ("redact", "never_sold", "k_anon")
 
 
+def _plain(text: str) -> str:
+    """Drop pictographs (emoji, variation selectors) and surrounding space."""
+    kept = (
+        ch for ch in text
+        if unicodedata.category(ch) != "So" and not 0xFE00 <= ord(ch) <= 0xFE0F
+    )
+    return "".join(kept).strip()
+
+
 def e(key: str, **kw: object) -> str:
-    """Translate and HTML-escape."""
-    return html.escape(t(key, **kw))
+    """Translate, strip pictographs, and HTML-escape."""
+    return html.escape(_plain(t(key, **kw)))
 
 
 def _html(markup: str) -> None:
@@ -67,13 +76,10 @@ logo, lang, signin = st.columns([3, 1.1, 0.9], vertical_alignment="center")
 with logo:
     _html(
         '<div class="l-brand"><svg viewBox="0 0 48 48" aria-hidden="true">'
-        '<defs><linearGradient id="l-g" x1="0" y1="0" x2="1" y2="1">'
-        '<stop offset="0" stop-color="#F5C97B"/><stop offset="1" stop-color="#22D3EE"/>'
-        "</linearGradient></defs>"
         '<path d="M24 6 L42 38 A3 3 0 0 1 39.4 42.5 H8.6 A3 3 0 0 1 6 38 Z" '
-        'fill="rgba(34,211,238,0.08)" stroke="url(#l-g)" stroke-width="2.5" '
+        'fill="rgba(0,240,255,0.06)" stroke="#00F0FF" stroke-width="2.25" '
         'stroke-linejoin="round"/><path d="M17 27 l5.5 5.5 l10.5 -13" fill="none" '
-        'stroke="#7DE9FF" stroke-width="3" stroke-linecap="round" '
+        'stroke="#F1F5F9" stroke-width="2.75" stroke-linecap="round" '
         'stroke-linejoin="round"/></svg><span>Tumar.AI</span></div>'
     )
 with lang:
@@ -97,11 +103,12 @@ if st.session_state.pop("tumar_auth_missing", False):
 rotator = "".join(
     f"<span>{e('landing.for_' + a)}</span>" for a in _AUDIENCES + _AUDIENCES[:1]
 )
-stars = "".join(f'<i style="--x:{(i * 37) % 100}%;--y:{(i * 53) % 90}%;--d:{i % 7}s"></i>' for i in range(28))
 _html(f"""
 <section class="l-hero">
-  <div class="l-stars" aria-hidden="true">{stars}</div>
-  <div class="l-rotator" aria-label="{e('landing.for_' + _AUDIENCES[0])}"><div>{rotator}</div></div>
+  <div class="l-grid" aria-hidden="true"></div>
+  <div class="l-pill"><i aria-hidden="true"></i>
+    <div class="l-rotator" aria-label="{e('landing.for_' + _AUDIENCES[0])}"><div>{rotator}</div></div>
+  </div>
   <h1 class="l-title">
     <span>{e('landing.h1_a')}</span>
     <span>{e('landing.h1_b')}</span>
@@ -122,14 +129,15 @@ _html(f"""
 </section>
 """)
 
-# ---------- Old way vs the Tumar way ----------
-old_chips = "".join(f"<span>{e('landing.old_' + k)}</span>" for k in _OLD_TOOLS)
-pains = "".join(f"<span class='l-pain'>{e('landing.pain_' + k)}</span>" for k in _OLD_PAINS)
-tiles = "".join(
-    f"<div class='l-tile'><b>{icon}</b><span>{e('landing.mod_' + k)}</span></div>"
-    for icon, k in _MODULES
+# ---------- The old way vs the Tumar.AI way ----------
+old_tools = "".join(f"<span>{e('landing.old_' + k)}</span>" for k in _OLD_TOOLS)
+pains = "".join(f"<span>{e('landing.pain_' + k)}</span>" for k in _OLD_PAINS)
+features = "".join(
+    f"<li><em>0{i}</em><div><b>{e('landing.feat_' + k + '_t')}</b>"
+    f"<span>{e('landing.feat_' + k + '_d')}</span></div></li>"
+    for i, k in enumerate(_FEATURES, start=1)
 )
-wins = "".join(f"<span class='l-win'>✓ {e('landing.win_' + k)}</span>" for k in _TUMAR_WINS)
+wins = "".join(f"<span>{e('landing.win_' + k)}</span>" for k in _TUMAR_WINS)
 _html(f"""
 <section class="l-section">
   <p class="l-eyebrow">{e('landing.compare_eyebrow')}</p>
@@ -138,14 +146,14 @@ _html(f"""
     <div class="l-card l-old">
       <p class="l-card-tag">{e('landing.old_tag')}</p>
       <p class="l-card-lead">{e('landing.old_lead')}</p>
-      <div class="l-chips l-scatter">{old_chips}</div>
-      <div class="l-chips">{pains}</div>
+      <div class="l-scatter">{old_tools}</div>
+      <div class="l-pains">{pains}</div>
     </div>
     <div class="l-card l-new">
       <p class="l-card-tag">{e('landing.new_tag')}</p>
       <p class="l-card-lead">{e('landing.new_lead')}</p>
-      <div class="l-tiles">{tiles}</div>
-      <div class="l-chips">{wins}</div>
+      <ol class="l-stack">{features}</ol>
+      <div class="l-wins">{wins}</div>
     </div>
   </div>
 </section>
@@ -178,22 +186,20 @@ _html(f"""
 </section>
 """)
 
-# ---------- Closing call to action over the night steppe ----------
+# ---------- Closing call to action ----------
 _html(f"""
 <section class="l-final">
-  <div class="l-stars" aria-hidden="true">{stars}</div>
+  <div class="l-grid" aria-hidden="true"></div>
   <h2 class="l-h2">{e('landing.final_title')}</h2>
   <p class="l-sub">{e('landing.final_sub')}</p>
 </section>
 """)
 _cta_row("final")
 _html(f"""
-<div class="l-steppe" aria-hidden="true">
-  <svg viewBox="0 0 1200 140" preserveAspectRatio="none">
-    <path d="M0 140 L0 92 L120 60 L210 84 L330 34 L450 78 L560 52 L640 70 L760 22 L880 72
-             L990 46 L1090 74 L1200 50 L1200 140 Z" fill="#0A1224"/>
-    <path d="M0 140 L0 112 L180 96 L360 112 L540 98 L720 114 L900 100 L1080 112 L1200 104
-             L1200 140 Z" fill="#070D1A"/>
+<div class="l-horizon" aria-hidden="true">
+  <svg viewBox="0 0 1200 80" preserveAspectRatio="none">
+    <path d="M0 64 L120 40 L210 56 L330 20 L450 50 L560 32 L640 46 L760 10 L880 48
+             L990 30 L1090 50 L1200 34" fill="none" vector-effect="non-scaling-stroke"/>
   </svg>
 </div>
 <footer class="l-footer">
