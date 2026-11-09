@@ -1,0 +1,69 @@
+{
+  "captured_at": "2026-11-09T06:44:58+00:00",
+  "git_commit": "a030fbc",
+  "git_branch": "feat/demo-readiness",
+  "working_tree_clean": false,
+  "app_version": "v0.1.0 (Streamlit app, i18n app.version_caption)",
+  "api_version": "0.2.0",
+  "app_url": "http://localhost:8501",
+  "api_url": "http://localhost:8000",
+  "viewport": "1366x900",
+  "browser": "msedge.exe (headless)",
+  "screenshots": [
+    {
+      "file": "01-landing-page.png",
+      "shows": "Public landing page, English",
+      "live_analysis": false
+    },
+    {
+      "file": "02-dashboard-home.png",
+      "shows": "Home dashboard after entering as a guest",
+      "live_analysis": false
+    },
+    {
+      "file": "03-phishing-analysis-result.png",
+      "shows": "Live analysis of a Russian-language Kaspi phishing SMS",
+      "live_analysis": true
+    },
+    {
+      "file": "03b-phishing-analysis-full.png",
+      "shows": "Same result, full page including evidence",
+      "live_analysis": true
+    },
+    {
+      "file": "04-legitimate-message-result.png",
+      "shows": "Live analysis of an ordinary work message",
+      "live_analysis": true
+    },
+    {
+      "file": "05-kazakh-analysis-result.png",
+      "shows": "Kazakh interface, live analysis of a Kazakh prize scam",
+      "live_analysis": true
+    },
+    {
+      "file": "06-screenshot-scanner-qr.png",
+      "shows": "Screenshot Scanner decoding a QR code that points to a look-alike domain",
+      "live_analysis": true
+    },
+    {
+      "file": "07-api-docs-swagger.png",
+      "shows": "Interactive API documentation (FastAPI /docs)",
+      "live_analysis": false
+    },
+    {
+      "file": "07b-api-health-response.png",
+      "shows": "Raw /v1/health response",
+      "live_analysis": false
+    },
+    {
+      "file": "08-system-architecture.png",
+      "shows": "System architecture diagram (docs/architecture.html)",
+      "live_analysis": false
+    },
+    {
+      "file": "09-test-and-evaluation-results.png",
+      "shows": "Real test-suite and offline evaluation output (docs/evaluation-results.html)",
+      "live_analysis": false
+    }
+  ]
+}

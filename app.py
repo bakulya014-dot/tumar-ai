@@ -13,6 +13,7 @@ from pathlib import Path
 
 import streamlit as st
 
+import auth
 from components import load_styles
 from i18n import LANGUAGES, t
 
@@ -64,14 +65,20 @@ st.set_page_config(
 # Aura design system: stylesheet + ambient aurora background.
 load_styles()
 
-# Logo shown at the top of the sidebar on every page.
-st.logo(str(APP_DIR / "assets" / "logo.svg"), size="large")
-
 # Deep links like ?lang=ru open the app in that language. The user's
 # own selector choice (stored in session state) always wins afterward.
 requested_language = st.query_params.get("lang")
 if requested_language in LANGUAGES and "language" not in st.session_state:
     st.session_state["language"] = requested_language
+
+# The landing page and the sidebar each draw a language selector bound
+# to the same "language" key. They are different widgets, so when the
+# landing selector disappears Streamlit would delete its value and the
+# sidebar would fall back to English. Re-assigning the value at the top
+# of every run detaches it from any one widget, so a language chosen on
+# the landing page survives sign-in or guest entry.
+if "language" in st.session_state:
+    st.session_state["language"] = st.session_state["language"]
 
 # Each st.Page links one file in views/ to one entry in the sidebar
 # menu. Titles go through t() so the menu follows the chosen language.
@@ -80,6 +87,30 @@ if requested_language in LANGUAGES and "language" not in st.session_state:
 # adds many more modules, and a flat list stops being scannable at
 # around eight entries. New modules join an existing section — or add
 # one — without the menu needing a redesign.
+#
+# Visitors who have neither signed in with Google nor chosen guest mode
+# see only the public landing page — no sidebar, no tools yet.
+if not auth.has_access():
+    st.navigation(
+        [st.Page("views/landing.py", title="Tumar.AI", icon="🛡️", default=True)],
+        position="hidden",
+    ).run()
+    st.stop()
+
+# Logo shown at the top of the sidebar on every app page (the landing
+# page draws its own).
+st.logo(str(APP_DIR / "assets" / "logo.svg"), size="large")
+
+# First run after Google sign-in: register (or refresh) the user and
+# greet them once.
+_new_user = auth.record_registration()
+if _new_user is not None:
+    _first_name = (auth.user_display()[0] or "").split(" ")[0] or "👋"
+    st.toast(
+        t("account.welcome_new" if _new_user else "account.welcome_back", name=_first_name),
+        icon="🛡️",
+    )
+
 pages = {
     t("nav.section_overview"): [
         st.Page("views/home.py", title=t("nav.home"), icon="🏠", default=True),
@@ -94,6 +125,12 @@ pages = {
         st.Page("views/password_checker.py", title=t("nav.password"), icon="🔑"),
     ],
     t("nav.section_platform"): [
+        st.Page(
+            "views/launch_film.py",
+            title="Launch Film",
+            icon="🎬",
+            url_path="launch-film",
+        ),
         st.Page("views/about.py", title=t("nav.about"), icon="ℹ️"),
     ],
 }
@@ -103,6 +140,21 @@ selected_page = st.navigation(pages)
 # Language selector + footer, shown below the navigation menu.
 with st.sidebar:
     st.divider()
+    _name, _email = auth.user_display()
+    if _email:
+        st.caption(t("account.signed_in_as", name=_name or _email))
+        st.caption(_email)
+    else:
+        st.caption(t("account.guest"))
+        st.button(
+            t("account.create_account"),
+            on_click=auth.sign_in,
+            use_container_width=True,
+            type="primary",
+        )
+        if st.session_state.pop("tumar_auth_missing", False):
+            st.warning(t("landing.auth_missing"))
+    st.button(t("account.sign_out"), on_click=auth.sign_out, use_container_width=True)
     st.selectbox(
         t("app.language_label"),
         options=list(LANGUAGES),

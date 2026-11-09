@@ -16,6 +16,8 @@ uvicorn api.main:app --port 8000
 ```
 
 Interactive documentation: `http://localhost:8000/docs`.
+Endpoint reference with examples, the error envelope and the 0.2.0 changes: [`docs/API.md`](../docs/API.md).
+Local run with the Streamlit app's keys: `python scripts/run_api_local.py`.
 
 | Variable | Default | Purpose |
 | --- | --- | --- |

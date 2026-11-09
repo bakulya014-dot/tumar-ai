@@ -21,6 +21,7 @@ fields (deterministic modules) are both handled, so callers never
 branch on the module either.
 """
 
+
 import html
 from collections import OrderedDict
 

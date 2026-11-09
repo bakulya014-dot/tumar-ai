@@ -30,6 +30,7 @@ plain language, accessible to everyone.
 | --- | --- |
 | AI Scam Message Analyzer (AI + deterministic scanner) | ✅ Available (beta) |
 | URL Scanner (address-only trust verdict, AI + heuristics) | ✅ Available (beta) |
+| Screenshot Scanner — Visual Threat Intelligence (OCR kk/ru/en, QR decoding, link checks, optional vision model, documented risk levels) | ✅ Available (beta) |
 | Email Breach Checker | ✅ Available (beta) |
 | Quick Check (auto-routing via the Trust Engine) | ✅ Available (beta) |
 | Dashboard (session figures, recent analyses, platform status) | ✅ Available (beta) |
@@ -108,6 +109,45 @@ privacy note.
   over a list of reports — testable without Streamlit and reusable by the
   REST API later. The numbers are labeled as session-scoped, because that is
   all they honestly are.
+
+## Screenshot Scanner: Visual Threat Intelligence
+
+`services/image_scanner/` analyses an uploaded image in layers, each
+reporting a status instead of failing the scan:
+
+| Layer | Module | Needs |
+| --- | --- | --- |
+| Validation: real file signature, size / pixel limits, decompression-bomb guard, re-encode, strip EXIF, fix orientation | `validator.py` | Pillow |
+| Preprocessing: grayscale, upscale, denoise, threshold, deskew | `preprocessing.py` | OpenCV (headless) |
+| OCR in Kazakh, Russian, English | `ocr_engine.py` | Tesseract binary (`packages.txt` on Streamlit Cloud; `winget install UB-Mannheim.TesseractOCR` on Windows, plus the `rus` and `kaz` language packs) |
+| QR detection and decoding (payloads classified, never opened) | `qr_decoder.py` | OpenCV |
+| Link extraction from OCR / QR / vision; the platform's URL heuristics; private-network check | `url_extractor.py` | — |
+| Scam-intent categories; prompt-injection phrases | `classifier.py` | — |
+| Risk scoring: documented, grouped, capped; five levels | `risk_engine.py` | — |
+| Optional vision model (facts only, never a verdict) | existing `services/vision_analysis.py` | a vision-capable provider |
+| Optional text model | existing `services/scam_analysis.py` | a text provider |
+
+The Trust Engine's `ImageAnalyzer` calls `scan_image()` and converts
+the result with `to_trust_report()`. The report carries a
+`risk_level` (`inconclusive` / `low` / `moderate` / `high` /
+`critical`) and `analysis_metadata` with every stage's status, so a
+"low" result always says which stages actually ran. Risk and
+confidence are separate numbers; the scoring table is in the
+`risk_engine.py` docstring and pinned by `tests/test_image_scanner.py`.
+
+Privacy: the upload is discarded after validation; only a re-encoded,
+metadata-free PNG exists in memory; nothing is written to disk; the
+image reaches an external provider only when the user leaves "Allow
+external AI providers" on and one is configured. No link, QR
+destination or address is ever fetched by the server.
+
+Evaluation: `python evals/image_scanner/evaluation.py`. The framework
+is in place; **no labelled image set has been collected yet, so no
+image-scanner performance figure is validated** (see
+`evals/image_scanner/README.md`).
+
+Environment knobs: `TUMAR_IMAGE_MAX_BYTES`, `TUMAR_IMAGE_MAX_SIDE`,
+`TUMAR_IMAGE_MAX_PIXELS`, `TESSERACT_CMD`, `TUMAR_OCR_LANGS`.
 
 ## Privacy and safety guarantees
 
@@ -275,6 +315,29 @@ certainty than the verdict has earned. See `evals/README.md`.
 CI runs the test suites and the offline evaluation on every push. The
 AI evaluation is run deliberately before prompt or model changes ship —
 it costs money and varies between runs, so it does not belong in CI.
+
+## Accounts: landing page and Google sign-up
+
+New visitors land on a public page (`views/landing.py`, styled by
+`assets/landing.css`) with two ways in: **Continue with Google** or
+**Try without an account** (guest mode keeps every tool open to everyone).
+Signed-in users are recorded in a small SQLite registry (`user_store.py`:
+email, name, language, first/last seen, sign-in count — nothing else).
+
+To switch Google sign-in on:
+
+1. Google Cloud Console → APIs & Services → Credentials → *Create OAuth
+   client ID* → **Web application**.
+2. Add authorized redirect URIs: `http://localhost:8501/oauth2callback` and
+   `https://<your-app>.streamlit.app/oauth2callback`.
+3. OAuth consent screen → **Publish app** ("In production"), so anyone with
+   a Google account can register, not only listed testers.
+4. Copy the `[auth]` block from `.streamlit/secrets.toml.example` into
+   `.streamlit/secrets.toml` (or the Streamlit Cloud *Secrets* box) and fill
+   in the client ID/secret, a random `cookie_secret`, and the production
+   `redirect_uri`.
+5. Set `TUMAR_USERS_DB` to a path on persistent storage in production —
+   Streamlit Cloud's disk is wiped on every restart.
 
 ## Tech Stack
 

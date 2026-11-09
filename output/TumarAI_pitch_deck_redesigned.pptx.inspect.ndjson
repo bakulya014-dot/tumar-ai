@@ -1,0 +1,291 @@
+{"kind":"deck","id":"pr/j6fc7l","name":"Deck"}
+{"kind":"layout","layoutId":"633dc64f-64e1-434e-8dcc-861d01aadf00","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"95944248-2eec-49f1-9ffb-5a1c37a4d18c","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/sukwnt","slide":1,"title":"TUMAR.AI","textShapes":12}
+{"kind":"shape","id":"sh/q5kretob","slide":1,"bbox":[850,0,430,720]}
+{"kind":"textbox","id":"sh/d8ba98n2","slide":1,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,60,320,28]}
+{"kind":"textbox","id":"sh/c72tg36h","slide":1,"text":"Your digital amulet\nagainst online scams.","textPreview":"Your digital amulet | against online scams.","textChars":41,"textLines":2,"bbox":[72,150,650,150]}
+{"kind":"textbox","id":"sh/329s3y50","slide":1,"text":"A multilingual cybersecurity assistant for the moment before you click, reply, or share.","textPreview":"A multilingual cybersecurity assistant for the moment before you click, reply, or share.","textChars":88,"textLines":1,"bbox":[76,330,520,64]}
+{"kind":"shape","id":"sh/210ratof","slide":1,"bbox":[76,430,270,30]}
+{"kind":"textbox","id":"sh/p4ba5on6","slide":1,"text":"Kazakh  ·  Русский  ·  English","textPreview":"Kazakh  ·  Русский  ·  English","textChars":30,"textLines":1,"bbox":[76,437,270,16]}
+{"kind":"textbox","id":"sh/o3i9cj6l","slide":1,"text":"tumar-ai.streamlit.app","textPreview":"tumar-ai.streamlit.app","textChars":22,"textLines":1,"bbox":[76,620,320,22]}
+{"kind":"shape","id":"sh/fy9sze5o","slide":1,"bbox":[920,120,260,470]}
+{"kind":"shape","id":"sh/ed0r69oj","slide":1,"bbox":[930,132,240,446]}
+{"kind":"shape","id":"sh/ob6d07ul","slide":1,"bbox":[1026,125,48,5]}
+{"kind":"textbox","id":"sh/pczu9cvq","slide":1,"text":"Tumar.AI","textPreview":"Tumar.AI","textChars":8,"textLines":1,"bbox":[944,154,212,24]}
+{"kind":"shape","id":"sh/2povyxcf","slide":1,"bbox":[948,198,204,70]}
+{"kind":"textbox","id":"sh/nqxc72d0","slide":1,"text":"Likely scam","textPreview":"Likely scam","textChars":11,"textLines":1,"bbox":[962,212,176,20]}
+{"kind":"textbox","id":"sh/0n6dwnu9","slide":1,"text":"14 / 100 trust","textPreview":"14 / 100 trust","textChars":14,"textLines":1,"bbox":[962,240,176,18]}
+{"kind":"textbox","id":"sh/1ofu5svu","slide":1,"text":"Do not open the link.\nCall your bank directly.","textPreview":"Do not open the link. | Call your bank directly.","textChars":46,"textLines":2,"bbox":[948,300,204,48]}
+{"kind":"shape","id":"sh/elovudc3","slide":1,"bbox":[948,502,204,34]}
+{"kind":"textbox","id":"sh/fmxc3ido","slide":1,"text":"Recommended action","textPreview":"Recommended action","textChars":18,"textLines":1,"bbox":[948,510,204,18]}
+{"kind":"shape","id":"sh/kjqd8rud","slide":1,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/lkjehwvy","slide":1,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/t0fu1c32","slide":1,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/sukwnt","slide":1,"text":""}
+{"kind":"slide","id":"sl/agp6hi","slide":2,"title":"THE PROBLEM","textShapes":13}
+{"kind":"textbox","id":"sh/hwjqxgfe","slide":2,"text":"THE PROBLEM","textPreview":"THE PROBLEM","textChars":11,"textLines":1,"bbox":[72,52,420,20]}
+{"kind":"textbox","id":"sh/at8721g3","slide":2,"text":"Scams win in the moment of doubt.","textPreview":"Scams win in the moment of doubt.","textChars":33,"textLines":1,"bbox":[72,86,1120,78]}
+{"kind":"textbox","id":"sh/vu18v6xo","slide":2,"text":"The message looks ordinary. The decision is not.","textPreview":"The message looks ordinary. The decision is not.","textChars":48,"textLines":1,"bbox":[72,170,840,42]}
+{"kind":"shape","id":"sh/8rqp0ryx","slide":2,"bbox":[72,260,340,250]}
+{"kind":"textbox","id":"sh/9szqtwfi","slide":2,"text":"23:41","textPreview":"23:41","textChars":5,"textLines":1,"bbox":[104,294,180,40]}
+{"kind":"textbox","id":"sh/mp87y1gr","slide":2,"text":"“Unusual login from Almaty.\nConfirm your identity now.”","textPreview":"“Unusual login from Almaty. | Confirm your identity now.”","textChars":55,"textLines":2,"bbox":[104,360,250,74]}
+{"kind":"textbox","id":"sh/nqh8rmxc","slide":2,"text":"recognisable sender  ·  fear  ·  one-tap link","textPreview":"recognisable sender  ·  fear  ·  one-tap link","textChars":45,"textLines":1,"bbox":[104,466,250,42]}
+{"kind":"textbox","id":"sh/0nqpwry1","slide":2,"text":"₸25B","textPreview":"₸25B","textChars":4,"textLines":1,"bbox":[520,278,260,72]}
+{"kind":"textbox","id":"sh/lozqpwfm","slide":2,"text":"lost to online fraud in Kazakhstan in six months","textPreview":"lost to online fraud in Kazakhstan in six months","textChars":48,"textLines":1,"bbox":[522,360,250,54]}
+{"kind":"textbox","id":"sh/xgrudc7y","slide":2,"text":"+25%","textPreview":"+25%","textChars":4,"textLines":1,"bbox":[860,278,220,72]}
+{"kind":"textbox","id":"sh/cfidk76d","slide":2,"text":"year-over-year growth in online fraud cases","textPreview":"year-over-year growth in online fraud cases","textChars":43,"textLines":1,"bbox":[862,360,260,54]}
+{"kind":"textbox","id":"sh/be9cb2p8","slide":2,"text":"Sources: Kazakhstan Ministry of Internal Affairs / Prosecutor General’s Office, H1 2025. Verify figures before public use.","textPreview":"Sources: Kazakhstan Ministry of Internal Affairs / Prosecutor General’s Office, H1 2025. Verify figures before public use.","textChars":122,"textLines":1,"bbox":[72,590,820,34]}
+{"kind":"shape","id":"sh/adgbixon","slide":2,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/pc7u9s72","slide":2,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/obytgn6h","slide":2,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/agp6hi","slide":2,"text":""}
+{"kind":"slide","id":"sl/78bgzy","slide":3,"title":"WHY CURRENT TOOLS MISS IT","textShapes":14}
+{"kind":"textbox","id":"sh/p8bup0vy","slide":3,"text":"WHY CURRENT TOOLS MISS IT","textPreview":"WHY CURRENT TOOLS MISS IT","textChars":25,"textLines":1,"bbox":[72,52,420,20]}
+{"kind":"textbox","id":"sh/250bu5cn","slide":3,"text":"Most defenses protect systems. Scams target judgment.","textPreview":"Most defenses protect systems. Scams target judgment.","textChars":53,"textLines":1,"bbox":[72,86,1120,78]}
+{"kind":"shape","id":"sh/369cnqd8","slide":3,"bbox":[72,270,330,220]}
+{"kind":"textbox","id":"sh/cb2t0fup","slide":3,"text":"Antivirus","textPreview":"Antivirus","textChars":9,"textLines":1,"bbox":[100,304,270,30]}
+{"kind":"textbox","id":"sh/dwbutkva","slide":3,"text":"Files and downloads","textPreview":"Files and downloads","textChars":19,"textLines":1,"bbox":[100,352,270,24]}
+{"kind":"shape","id":"sh/q9kby5cj","slide":3,"bbox":[100,392,272,0]}
+{"kind":"textbox","id":"sh/ratcrad4","slide":3,"text":"The scam arrives as conversation.","textPreview":"The scam arrives as conversation.","textChars":33,"textLines":1,"bbox":[100,418,270,48]}
+{"kind":"shape","id":"sh/sfytobel","slide":3,"bbox":[444,270,330,220]}
+{"kind":"textbox","id":"sh/tg7uhgvq","slide":3,"text":"Spam filters","textPreview":"Spam filters","textChars":12,"textLines":1,"bbox":[472,304,270,30]}
+{"kind":"textbox","id":"sh/x0vy1kna","slide":3,"text":"Email inboxes","textPreview":"Email inboxes","textChars":13,"textLines":1,"bbox":[472,352,270,24]}
+{"kind":"shape","id":"sh/wzmh8f65","slide":3,"bbox":[472,392,272,0]}
+{"kind":"textbox","id":"sh/bydgza5k","slide":3,"text":"The message comes through Telegram or WhatsApp.","textPreview":"The message comes through Telegram or WhatsApp.","textChars":47,"textLines":1,"bbox":[472,418,270,48]}
+{"kind":"shape","id":"sh/ax4z65oz","slide":3,"bbox":[816,270,330,220]}
+{"kind":"textbox","id":"sh/lofi5knm","slide":3,"text":"Awareness training","textPreview":"Awareness training","textChars":18,"textLines":1,"bbox":[844,304,270,30]}
+{"kind":"textbox","id":"sh/k3mhcf61","slide":3,"text":"General knowledge","textPreview":"General knowledge","textChars":17,"textLines":1,"bbox":[844,352,270,24]}
+{"kind":"shape","id":"sh/j2d03u5g","slide":3,"bbox":[844,392,272,0]}
+{"kind":"textbox","id":"sh/y14zapov","slide":3,"text":"The lesson arrives weeks before the decision.","textPreview":"The lesson arrives weeks before the decision.","textChars":45,"textLines":1,"bbox":[844,418,270,48]}
+{"kind":"textbox","id":"sh/tsfi94ni","slide":3,"text":"No one is standing next to the person at 23:41.","textPreview":"No one is standing next to the person at 23:41.","textChars":47,"textLines":1,"bbox":[72,560,900,38]}
+{"kind":"shape","id":"sh/8r6hgz6x","slide":3,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/s7yts7yl","slide":3,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/d87a1cz6","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/78bgzy","slide":3,"text":""}
+{"kind":"slide","id":"sl/n6yxlj","slide":4,"title":"THE SOLUTION","textShapes":18}
+{"kind":"textbox","id":"sh/v2p8z61s","slide":4,"text":"THE SOLUTION","textPreview":"THE SOLUTION","textChars":12,"textLines":1,"bbox":[72,52,420,20]}
+{"kind":"textbox","id":"sh/g3yp8b2d","slide":4,"text":"An assistant that checks anything suspicious before you act.","textPreview":"An assistant that checks anything suspicious before you act.","textChars":60,"textLines":1,"bbox":[72,86,1120,78]}
+{"kind":"textbox","id":"sh/h47q1gjy","slide":4,"text":"Messages. Links. Screenshots. Passwords. Email addresses.","textPreview":"Messages. Links. Screenshots. Passwords. Email addresses.","textChars":57,"textLines":1,"bbox":[72,170,840,42]}
+{"kind":"shape","id":"sh/6xw72hkb","slide":4,"bbox":[210,370,850,0]}
+{"kind":"shape","id":"sh/7y5ovm1w","slide":4,"bbox":[110,320,92,92]}
+{"kind":"textbox","id":"sh/8zep4r2h","slide":4,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[110,339,92,36]}
+{"kind":"textbox","id":"sh/t076xwj2","slide":4,"text":"Paste or forward","textPreview":"Paste or forward","textChars":16,"textLines":1,"bbox":[70,450,170,24]}
+{"kind":"textbox","id":"sh/y9w7yhkf","slide":4,"text":"The content as it arrives","textPreview":"The content as it arrives","textChars":25,"textLines":1,"bbox":[65,484,180,42]}
+{"kind":"shape","id":"sh/ja5orm1k","slide":4,"bbox":[360,320,92,92]}
+{"kind":"textbox","id":"sh/3upona9c","slide":4,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[360,339,92,36]}
+{"kind":"textbox","id":"sh/i9g7e5sr","slide":4,"text":"Trust Engine","textPreview":"Trust Engine","textChars":12,"textLines":1,"bbox":[320,450,170,24]}
+{"kind":"textbox","id":"sh/5w76pkri","slide":4,"text":"Signals + model reasoning","textPreview":"Signals + model reasoning","textChars":25,"textLines":1,"bbox":[315,484,180,42]}
+{"kind":"shape","id":"sh/4vypgfax","slide":4,"bbox":[610,320,92,92]}
+{"kind":"textbox","id":"sh/ryporu9o","slide":4,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[610,339,92,36]}
+{"kind":"textbox","id":"sh/qxg7ips3","slide":4,"text":"One verdict","textPreview":"One verdict","textChars":11,"textLines":1,"bbox":[570,450,170,24]}
+{"kind":"textbox","id":"sh/d0r6tkru","slide":4,"text":"Score + explanation","textPreview":"Score + explanation","textChars":19,"textLines":1,"bbox":[565,484,180,42]}
+{"kind":"shape","id":"sh/szypkza9","slide":4,"bbox":[860,320,92,92]}
+{"kind":"textbox","id":"sh/725ofq94","slide":4,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[860,339,92,36]}
+{"kind":"textbox","id":"sh/61cn6lsz","slide":4,"text":"Next action","textPreview":"Next action","textChars":11,"textLines":1,"bbox":[820,450,170,24]}
+{"kind":"textbox","id":"sh/axkretc7","slide":4,"text":"Plain-language guidance","textPreview":"Plain-language guidance","textChars":23,"textLines":1,"bbox":[815,484,180,42]}
+{"kind":"shape","id":"sh/bytsnyts","slide":4,"bbox":[424,590,430,30]}
+{"kind":"textbox","id":"sh/wj29g3ud","slide":4,"text":"Same report language across every module","textPreview":"Same report language across every module","textChars":40,"textLines":1,"bbox":[424,597,430,16]}
+{"kind":"shape","id":"sh/xkvap8by","slide":4,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/2tkratcb","slide":4,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/nutsjytw","slide":4,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/n6yxlj","slide":4,"text":""}
+{"kind":"slide","id":"sl/t5jgsm","slide":5,"title":"LIVE DEMO","textShapes":10}
+{"kind":"textbox","id":"sh/e1gjehcv","slide":5,"text":"LIVE DEMO","textPreview":"LIVE DEMO","textChars":9,"textLines":1,"bbox":[72,56,300,24]}
+{"kind":"textbox","id":"sh/14ri9wbm","slide":5,"text":"Paste anything suspicious.\nGet a verdict and a reason.","textPreview":"Paste anything suspicious. | Get a verdict and a reason.","textChars":54,"textLines":2,"bbox":[72,110,520,100]}
+{"kind":"shape","id":"sh/03i1gru1","slide":5,"bbox":[670,72,500,500]}
+{"kind":"shape","id":"sh/n690b6tc","slide":5,"bbox":[680,84,480,476]}
+{"kind":"textbox","id":"sh/250ji1c7","slide":5,"text":"Tumar.AI  /  Quick Check","textPreview":"Tumar.AI  /  Quick Check","textChars":24,"textLines":1,"bbox":[694,94,452,24]}
+{"kind":"textbox","id":"sh/p8ridwbi","slide":5,"text":"Paste anything suspicious.","textPreview":"Paste anything suspicious.","textChars":26,"textLines":1,"bbox":[694,144,452,30]}
+{"kind":"shape","id":"sh/o7i1kbux","slide":5,"bbox":[694,198,452,74]}
+{"kind":"textbox","id":"sh/jap0z2d8","slide":5,"text":"Bank alert: unusual login...\nConfirm your identity now","textPreview":"Bank alert: unusual login... | Confirm your identity now","textChars":54,"textLines":2,"bbox":[708,215,424,42]}
+{"kind":"shape","id":"sh/i9wz6xcn","slide":5,"bbox":[694,302,452,38]}
+{"kind":"textbox","id":"sh/wrm94bqx","slide":5,"text":"Check it","textPreview":"Check it","textChars":8,"textLines":1,"bbox":[694,312,452,18]}
+{"kind":"shape","id":"sh/xsvqdgri","slide":5,"bbox":[694,504,452,30]}
+{"kind":"textbox","id":"sh/ap4r2l87","slide":5,"text":"Kazakh  ·  Русский  ·  English","textPreview":"Kazakh  ·  Русский  ·  English","textChars":30,"textLines":1,"bbox":[694,511,452,16]}
+{"kind":"textbox","id":"sh/bqd8b69c","slide":5,"text":"The live demo should show one message, one suspicious link, and one breach check. Stop after the recommendation—the point is trust, not feature inventory.","textPreview":"The live demo should show one message, one suspicious link, and one breach check. Stop after the recommendation—the point is trust, not f...","textChars":154,"textLines":1,"bbox":[72,580,850,42]}
+{"kind":"shape","id":"sh/kv698vq9","slide":5,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/5wfah0ru","slide":5,"text":"TUMAR.AI  /  DEMO","textPreview":"TUMAR.AI  /  DEMO","textChars":17,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/yt4r6l83","slide":5,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/t5jgsm","slide":5,"text":""}
+{"kind":"slide","id":"sl/w8xpb1","slide":6,"title":"PRODUCT SURFACE","textShapes":14}
+{"kind":"textbox","id":"sh/k3qxk3mt","slide":6,"text":"PRODUCT SURFACE","textPreview":"PRODUCT SURFACE","textChars":15,"textLines":1,"bbox":[72,52,420,20]}
+{"kind":"textbox","id":"sh/z2hgryl8","slide":6,"text":"Three ways in, because that is how scams arrive.","textPreview":"Three ways in, because that is how scams arrive.","textChars":48,"textLines":1,"bbox":[72,86,1120,78]}
+{"kind":"shape","id":"sh/y18fit4n","slide":6,"bbox":[72,270,320,230]}
+{"kind":"textbox","id":"sh/x0zypo32","slide":6,"text":"MESSAGE","textPreview":"MESSAGE","textChars":7,"textLines":1,"bbox":[98,300,230,22]}
+{"kind":"textbox","id":"sh/cz6xgjmh","slide":6,"text":"Paste the SMS or forwarded chat.","textPreview":"Paste the SMS or forwarded chat.","textChars":32,"textLines":1,"bbox":[98,350,260,58]}
+{"kind":"textbox","id":"sh/byxgnelw","slide":6,"text":"Intent, urgency, impersonation","textPreview":"Intent, urgency, impersonation","textChars":30,"textLines":1,"bbox":[98,440,260,30]}
+{"kind":"shape","id":"sh/axofe94r","slide":6,"bbox":[430,270,320,230]}
+{"kind":"textbox","id":"sh/pwfyl436","slide":6,"text":"LINK","textPreview":"LINK","textChars":4,"textLines":1,"bbox":[456,300,230,22]}
+{"kind":"textbox","id":"sh/ov6xcjml","slide":6,"text":"Check the address before opening it.","textPreview":"Check the address before opening it.","textChars":36,"textLines":1,"bbox":[456,350,260,58]}
+{"kind":"textbox","id":"sh/m5wvi58f","slide":6,"text":"Look-alikes, shorteners, risky signals","textPreview":"Look-alikes, shorteners, risky signals","textChars":38,"textLines":1,"bbox":[456,440,260,30]}
+{"kind":"shape","id":"sh/n65wrap0","slide":6,"bbox":[788,270,320,230]}
+{"kind":"textbox","id":"sh/o7edkfql","slide":6,"text":"SCREENSHOT","textPreview":"SCREENSHOT","textChars":10,"textLines":1,"bbox":[814,300,230,22]}
+{"kind":"textbox","id":"sh/98netk7q","slide":6,"text":"Upload what people actually share.","textPreview":"Upload what people actually share.","textChars":34,"textLines":1,"bbox":[814,350,260,58]}
+{"kind":"textbox","id":"sh/ehcve583","slide":6,"text":"Text extraction, then analysis","textPreview":"Text extraction, then analysis","textChars":30,"textLines":1,"bbox":[814,440,260,30]}
+{"kind":"textbox","id":"sh/z2lcnapo","slide":6,"text":"Every verdict comes with the reason behind it.","textPreview":"Every verdict comes with the reason behind it.","textChars":46,"textLines":1,"bbox":[72,572,850,34]}
+{"kind":"shape","id":"sh/03udgfq9","slide":6,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/14nupk7u","slide":6,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/qdcval87","slide":6,"text":"06","textPreview":"06","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/w8xpb1","slide":6,"text":""}
+{"kind":"slide","id":"sl/v5ik7p","slide":7,"title":"WHY TUMAR.AI IS DIFFERENT","textShapes":29}
+{"kind":"textbox","id":"sh/sbmxg36h","slide":7,"text":"WHY TUMAR.AI IS DIFFERENT","textPreview":"WHY TUMAR.AI IS DIFFERENT","textChars":25,"textLines":1,"bbox":[72,52,420,20]}
+{"kind":"textbox","id":"sh/radwni5w","slide":7,"text":"Protection people can trust because it explains itself.","textPreview":"Protection people can trust because it explains itself.","textChars":55,"textLines":1,"bbox":[72,86,1120,78]}
+{"kind":"textbox","id":"sh/q94fedob","slide":7,"text":"Capability","textPreview":"Capability","textChars":10,"textLines":1,"bbox":[72,250,220,24]}
+{"kind":"textbox","id":"sh/58vel8nq","slide":7,"text":"Antivirus","textPreview":"Antivirus","textChars":9,"textLines":1,"bbox":[342,250,220,24]}
+{"kind":"textbox","id":"sh/472xc365","slide":7,"text":"Bank alerts","textPreview":"Bank alerts","textChars":11,"textLines":1,"bbox":[612,250,220,24]}
+{"kind":"textbox","id":"sh/36twjy50","slide":7,"text":"Tumar.AI","textPreview":"Tumar.AI","textChars":8,"textLines":1,"bbox":[882,250,220,24]}
+{"kind":"shape","id":"sh/i5kfatof","slide":7,"bbox":[72,333,1128,0]}
+{"kind":"textbox","id":"sh/h4behonu","slide":7,"text":"Works in the moment of doubt","textPreview":"Works in the moment of doubt","textChars":28,"textLines":1,"bbox":[72,300,250,24]}
+{"kind":"textbox","id":"sh/gj2x8j69","slide":7,"text":"—","textPreview":"—","textChars":1,"textLines":1,"bbox":[342,300,220,24]}
+{"kind":"textbox","id":"sh/qxgbe50j","slide":7,"text":"—","textPreview":"—","textChars":1,"textLines":1,"bbox":[612,300,220,24]}
+{"kind":"textbox","id":"sh/bypcna14","slide":7,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[882,300,220,24]}
+{"kind":"shape","id":"sh/czytgvip","slide":7,"bbox":[72,381,1128,0]}
+{"kind":"textbox","id":"sh/d07up0ju","slide":7,"text":"Kazakh language","textPreview":"Kazakh language","textChars":15,"textLines":1,"bbox":[72,348,250,24]}
+{"kind":"textbox","id":"sh/2twbal07","slide":7,"text":"partial","textPreview":"partial","textChars":7,"textLines":1,"bbox":[342,348,220,24]}
+{"kind":"textbox","id":"sh/3upcjq1s","slide":7,"text":"—","textPreview":"—","textChars":1,"textLines":1,"bbox":[612,348,220,24]}
+{"kind":"textbox","id":"sh/ovytcvid","slide":7,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[882,348,220,24]}
+{"kind":"shape","id":"sh/pw7ul0jy","slide":7,"bbox":[72,429,1128,0]}
+{"kind":"textbox","id":"sh/u5wb6l0b","slide":7,"text":"Explains the verdict","textPreview":"Explains the verdict","textChars":20,"textLines":1,"bbox":[72,396,250,24]}
+{"kind":"textbox","id":"sh/f65cfq1w","slide":7,"text":"—","textPreview":"—","textChars":1,"textLines":1,"bbox":[342,396,220,24]}
+{"kind":"textbox","id":"sh/jal8nmho","slide":7,"text":"partial","textPreview":"partial","textChars":7,"textLines":1,"bbox":[612,396,220,24]}
+{"kind":"textbox","id":"sh/i9srehg3","slide":7,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[882,396,220,24]}
+{"kind":"shape","id":"sh/5c3qpczu","slide":7,"bbox":[72,477,1128,0]}
+{"kind":"textbox","id":"sh/kbu9gry9","slide":7,"text":"Real breach lookup","textPreview":"Real breach lookup","textChars":18,"textLines":1,"bbox":[72,444,250,24]}
+{"kind":"textbox","id":"sh/7el8rmhk","slide":7,"text":"—","textPreview":"—","textChars":1,"textLines":1,"bbox":[342,444,220,24]}
+{"kind":"textbox","id":"sh/6dcrihgz","slide":7,"text":"—","textPreview":"—","textChars":1,"textLines":1,"bbox":[612,444,220,24]}
+{"kind":"textbox","id":"sh/t03qtwzq","slide":7,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[882,444,220,24]}
+{"kind":"shape","id":"sh/szu9kry5","slide":7,"bbox":[72,525,1128,0]}
+{"kind":"textbox","id":"sh/nih8f2hg","slide":7,"text":"Privacy-first session handling","textPreview":"Privacy-first session handling","textChars":30,"textLines":1,"bbox":[72,492,250,24]}
+{"kind":"textbox","id":"sh/mh876xgv","slide":7,"text":"—","textPreview":"—","textChars":1,"textLines":1,"bbox":[342,492,220,24]}
+{"kind":"textbox","id":"sh/cbmx0zah","slide":7,"text":"—","textPreview":"—","textChars":1,"textLines":1,"bbox":[612,492,220,24]}
+{"kind":"textbox","id":"sh/dcvet4b2","slide":7,"text":"●","textPreview":"●","textChars":1,"textLines":1,"bbox":[882,492,220,24]}
+{"kind":"shape","id":"sh/q94fypsb","slide":7,"bbox":[300,585,680,30]}
+{"kind":"textbox","id":"sh/radwrutw","slide":7,"text":"Never promise “safe forever.” Give the next safe action.","textPreview":"Never promise “safe forever.” Give the next safe action.","textChars":56,"textLines":1,"bbox":[300,592,680,16]}
+{"kind":"shape","id":"sh/47mxwzal","slide":7,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/p8vepkbq","slide":7,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/25kfupsf","slide":7,"text":"07","textPreview":"07","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/v5ik7p","slide":7,"text":""}
+{"kind":"slide","id":"sl/g8q9eo","slide":8,"title":"DISTRIBUTION BEFORE MONETISATION","textShapes":14}
+{"kind":"textbox","id":"sh/dofu1cve","slide":8,"text":"DISTRIBUTION BEFORE MONETISATION","textPreview":"DISTRIBUTION BEFORE MONETISATION","textChars":32,"textLines":1,"bbox":[72,52,420,20]}
+{"kind":"textbox","id":"sh/qlovqxw3","slide":8,"text":"The consumer product is the wedge. Institutions pay for prevention.","textPreview":"The consumer product is the wedge. Institutions pay for prevention.","textChars":67,"textLines":1,"bbox":[72,86,1120,78]}
+{"kind":"shape","id":"sh/rmxcz2do","slide":8,"bbox":[72,270,330,210]}
+{"kind":"textbox","id":"sh/4j6donex","slide":8,"text":"NOW","textPreview":"NOW","textChars":3,"textLines":1,"bbox":[102,300,120,22]}
+{"kind":"textbox","id":"sh/pkfuxsvi","slide":8,"text":"Free web app\n+ Telegram bot","textPreview":"Free web app | + Telegram bot","textChars":27,"textLines":2,"bbox":[102,350,240,66]}
+{"kind":"textbox","id":"sh/2h4vmxwr","slide":8,"text":"Build trust and usage where scams arrive.","textPreview":"Build trust and usage where scams arrive.","textChars":41,"textLines":1,"bbox":[102,438,245,28]}
+{"kind":"shape","id":"sh/3idcvidc","slide":8,"bbox":[475,270,330,210]}
+{"kind":"textbox","id":"sh/ofqd0re1","slide":8,"text":"NEXT","textPreview":"NEXT","textChars":4,"textLines":1,"bbox":[505,300,120,22]}
+{"kind":"textbox","id":"sh/9gze9wvm","slide":8,"text":"Bank / telco\npilot","textPreview":"Bank / telco | pilot","textChars":18,"textLines":2,"bbox":[505,350,240,66]}
+{"kind":"textbox","id":"sh/tcne5g7a","slide":8,"text":"Measure scams prevented and support calls avoided.","textPreview":"Measure scams prevented and support calls avoided.","textChars":50,"textLines":1,"bbox":[505,438,245,40]}
+{"kind":"shape","id":"sh/sbexwbqp","slide":8,"bbox":[878,270,330,210]}
+{"kind":"textbox","id":"sh/ra5w3qp4","slide":8,"text":"THEN","textPreview":"THEN","textChars":4,"textLines":1,"bbox":[908,300,120,22]}
+{"kind":"textbox","id":"sh/6pwful8j","slide":8,"text":"API licence\nfor institutions","textPreview":"API licence | for institutions","textChars":28,"textLines":2,"bbox":[908,350,240,66]}
+{"kind":"textbox","id":"sh/5one1g7y","slide":8,"text":"Volume-based protection for the region.","textPreview":"Volume-based protection for the region.","textChars":39,"textLines":1,"bbox":[908,438,245,28]}
+{"kind":"textbox","id":"sh/4nuxsbqd","slide":8,"text":"Kazakhstan first → Central Asia next","textPreview":"Kazakhstan first → Central Asia next","textChars":36,"textLines":1,"bbox":[72,570,700,32]}
+{"kind":"shape","id":"sh/jmlwz6p8","slide":8,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/ilcvq18n","slide":8,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/pk7yd07i","slide":8,"text":"08","textPreview":"08","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/g8q9eo","slide":8,"text":""}
+{"kind":"slide","id":"sl/jqa8sy","slide":9,"title":"FROM MVP TO INFRASTRUCTURE","textShapes":21}
+{"kind":"textbox","id":"sh/ut4n6xon","slide":9,"text":"FROM MVP TO INFRASTRUCTURE","textPreview":"FROM MVP TO INFRASTRUCTURE","textChars":26,"textLines":1,"bbox":[72,52,420,20]}
+{"kind":"textbox","id":"sh/hwfm1s7y","slide":9,"text":"The next milestone is measured prevention—not more features.","textPreview":"The next milestone is measured prevention—not more features.","textChars":60,"textLines":1,"bbox":[72,86,1120,78]}
+{"kind":"shape","id":"sh/gvm58n6d","slide":9,"bbox":[247,367,110,0]}
+{"kind":"shape","id":"sh/76d4vipw","slide":9,"bbox":[72,300,80,80]}
+{"kind":"textbox","id":"sh/654n2dob","slide":9,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[72,322,80,28]}
+{"kind":"textbox","id":"sh/tsvmxs72","slide":9,"text":"NOW","textPreview":"NOW","textChars":3,"textLines":1,"bbox":[72,420,180,20]}
+{"kind":"textbox","id":"sh/8rm54n6h","slide":9,"text":"MVP shipped","textPreview":"MVP shipped","textChars":11,"textLines":1,"bbox":[72,450,210,26]}
+{"kind":"textbox","id":"sh/rmxo7mp0","slide":9,"text":"Web app, REST API, three languages","textPreview":"Web app, REST API, three languages","textChars":34,"textLines":1,"bbox":[72,490,215,48]}
+{"kind":"shape","id":"sh/q1onehov","slide":9,"bbox":[532,367,110,0]}
+{"kind":"shape","id":"sh/0val0nqx","slide":9,"bbox":[357,300,80,80]}
+{"kind":"textbox","id":"sh/1wjmts72","slide":9,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[357,322,80,28]}
+{"kind":"textbox","id":"sh/et83yd8r","slide":9,"text":"NEXT","textPreview":"NEXT","textChars":4,"textLines":1,"bbox":[357,420,180,20]}
+{"kind":"textbox","id":"sh/zu14ripc","slide":9,"text":"Pilot","textPreview":"Pilot","textChars":5,"textLines":1,"bbox":[357,450,210,26]}
+{"kind":"textbox","id":"sh/crqlwnql","slide":9,"text":"One bank or telco; measure prevented scams","textPreview":"One bank or telco; measure prevented scams","textChars":42,"textLines":1,"bbox":[357,490,215,48]}
+{"kind":"shape","id":"sh/dszmps76","slide":9,"bbox":[817,367,110,0]}
+{"kind":"shape","id":"sh/q583ud8f","slide":9,"bbox":[642,300,80,80]}
+{"kind":"textbox","id":"sh/r6h4nip0","slide":9,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[642,322,80,28]}
+{"kind":"textbox","id":"sh/43qls3qp","slide":9,"text":"THEN","textPreview":"THEN","textChars":4,"textLines":1,"bbox":[642,420,180,20]}
+{"kind":"textbox","id":"sh/p4zml87a","slide":9,"text":"Before the tap","textPreview":"Before the tap","textChars":14,"textLines":1,"bbox":[642,450,210,26]}
+{"kind":"textbox","id":"sh/5kr2p4zy","slide":9,"text":"Real-time link defence inside the flow","textPreview":"Real-time link defence inside the flow","textChars":38,"textLines":1,"bbox":[642,490,215,48]}
+{"kind":"shape","id":"sh/kzi1wzid","slide":9,"bbox":[927,300,80,80]}
+{"kind":"textbox","id":"sh/jypknu1s","slide":9,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[927,322,80,28]}
+{"kind":"textbox","id":"sh/ixgjup07","slide":9,"text":"BEYOND","textPreview":"BEYOND","textChars":6,"textLines":1,"bbox":[927,420,180,20]}
+{"kind":"textbox","id":"sh/xw72lkjm","slide":9,"text":"Central Asia","textPreview":"Central Asia","textChars":12,"textLines":1,"bbox":[927,450,210,26]}
+{"kind":"textbox","id":"sh/wvy1sfih","slide":9,"text":"Same languages, same playbooks","textPreview":"Same languages, same playbooks","textChars":30,"textLines":1,"bbox":[927,490,215,48]}
+{"kind":"shape","id":"sh/vupkju1w","slide":9,"bbox":[260,590,760,30]}
+{"kind":"textbox","id":"sh/atgjqp0b","slide":9,"text":"Ask: pilot partner, feedback, and access to real-world scam data","textPreview":"Ask: pilot partner, feedback, and access to real-world scam data","textChars":64,"textLines":1,"bbox":[260,597,760,16]}
+{"kind":"shape","id":"sh/1sb2xoz6","slide":9,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/gr214jil","slide":9,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/els72hcr","slide":9,"text":"09","textPreview":"09","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/jqa8sy","slide":9,"text":""}
+{"kind":"slide","id":"sl/zzucn9","slide":10,"title":"TUMAR.AI","textShapes":10}
+{"kind":"textbox","id":"sh/5gnqlkne","slide":10,"text":"TUMAR.AI","textPreview":"TUMAR.AI","textChars":8,"textLines":1,"bbox":[72,62,300,28]}
+{"kind":"textbox","id":"sh/idwrq54n","slide":10,"text":"Every phone should\ncarry a digital amulet.","textPreview":"Every phone should | carry a digital amulet.","textChars":42,"textLines":2,"bbox":[72,150,650,120]}
+{"kind":"textbox","id":"sh/3e58ja58","slide":10,"text":"Scan to try the live MVP.","textPreview":"Scan to try the live MVP.","textChars":25,"textLines":1,"bbox":[76,330,450,32]}
+{"kind":"shape","id":"sh/gbupofmh","slide":10,"bbox":[742,118,220,270]}
+{"kind":"shape","id":"sh/hcnqhkn2","slide":10,"bbox":[998,118,220,270]}
+{"kind":"textbox","id":"sh/07y90zm1","slide":10,"text":"WEB APP","textPreview":"WEB APP","textChars":7,"textLines":1,"bbox":[742,330,220,20]}
+{"kind":"textbox","id":"sh/187qt4nm","slide":10,"text":"TELEGRAM BOT","textPreview":"TELEGRAM BOT","textChars":12,"textLines":1,"bbox":[998,330,220,20]}
+{"kind":"textbox","id":"sh/dsnytw7y","slide":10,"text":"tumar-ai.streamlit.app","textPreview":"tumar-ai.streamlit.app","textChars":22,"textLines":1,"bbox":[72,500,420,24]}
+{"kind":"textbox","id":"sh/crehkr6t","slide":10,"text":"Kazakh  ·  Русский  ·  English","textPreview":"Kazakh  ·  Русский  ·  English","textChars":30,"textLines":1,"bbox":[72,540,420,24]}
+{"kind":"textbox","id":"sh/bq5grmp8","slide":10,"text":"@tumar_ai_bot","textPreview":"@tumar_ai_bot","textChars":13,"textLines":1,"bbox":[72,585,300,22]}
+{"kind":"shape","id":"sh/qpwzihon","slide":10,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/po3ypc72","slide":10,"text":"TUMAR.AI  /  TRY IT","textPreview":"TUMAR.AI  /  TRY IT","textChars":19,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/onuhg76h","slide":10,"text":"10","textPreview":"10","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"image","id":"im/3yp0v2pw","slide":10,"name":"","alt":"Scannable Tumar.AI QR code","bbox":[762,138,180,180]}
+{"kind":"image","id":"im/ixgzmx8b","slide":10,"name":"","alt":"Scannable Tumar.AI QR code","bbox":[1018,138,180,180]}
+{"kind":"notes","id":"nt/zzucn9","slide":10,"text":""}
+{"kind":"slide","id":"sl/jwtkob","slide":11,"title":"APPENDIX","textShapes":13}
+{"kind":"textbox","id":"sh/b6hgjqpc","slide":11,"text":"APPENDIX","textPreview":"APPENDIX","textChars":8,"textLines":1,"bbox":[72,52,420,20]}
+{"kind":"textbox","id":"sh/w7axcv6x","slide":11,"text":"The Trust Engine keeps every module speaking the same language.","textPreview":"The Trust Engine keeps every module speaking the same language.","textChars":63,"textLines":1,"bbox":[72,86,1120,78]}
+{"kind":"shape","id":"sh/x8jyl07i","slide":11,"bbox":[300,370,70,0]}
+{"kind":"shape","id":"sh/y9sfe5o3","slide":11,"bbox":[90,285,210,170]}
+{"kind":"textbox","id":"sh/ja1gnap8","slide":11,"text":"INPUTS","textPreview":"INPUTS","textChars":6,"textLines":1,"bbox":[114,312,160,20]}
+{"kind":"textbox","id":"sh/kbaxgf6t","slide":11,"text":"Telegram\nWeb app\nREST API","textPreview":"Telegram | Web app | REST API","textChars":25,"textLines":3,"bbox":[114,352,160,80]}
+{"kind":"shape","id":"sh/lcjyp07e","slide":11,"bbox":[585,370,70,0]}
+{"kind":"shape","id":"sh/edof21oj","slide":11,"bbox":[375,285,210,170]}
+{"kind":"textbox","id":"sh/zexwb6p4","slide":11,"text":"SIGNALS","textPreview":"SIGNALS","textChars":7,"textLines":1,"bbox":[399,312,160,20]}
+{"kind":"textbox","id":"sh/zyl47mtk","slide":11,"text":"Heuristics\nBreach lookups\nLanguage cues","textPreview":"Heuristics | Breach lookups | Language cues","textChars":39,"textLines":3,"bbox":[399,352,160,80]}
+{"kind":"shape","id":"sh/yxc3ehsz","slide":11,"bbox":[870,370,70,0]}
+{"kind":"shape","id":"sh/lk3m9wbq","slide":11,"bbox":[660,285,210,170]}
+{"kind":"textbox","id":"sh/0julgra5","slide":11,"text":"REASONING","textPreview":"REASONING","textChars":9,"textLines":1,"bbox":[684,312,160,20]}
+{"kind":"textbox","id":"sh/bu1432to","slide":11,"text":"Configurable AI\nstructured evidence","textPreview":"Configurable AI | structured evidence","textChars":35,"textLines":2,"bbox":[684,352,160,80]}
+{"kind":"shape","id":"sh/qts3axs3","slide":11,"bbox":[945,285,210,170]}
+{"kind":"textbox","id":"sh/dwjm5cbu","slide":11,"text":"OUTPUT","textPreview":"OUTPUT","textChars":6,"textLines":1,"bbox":[969,312,160,20]}
+{"kind":"textbox","id":"sh/cvalc7a9","slide":11,"text":"Trust score\nexplanation\nnext action","textPreview":"Trust score | explanation | next action","textChars":35,"textLines":3,"bbox":[969,352,160,80]}
+{"kind":"textbox","id":"sh/3q14z2tc","slide":11,"text":"One report schema means the web app, bot, and future clients do not need separate security logic.","textPreview":"One report schema means the web app, bot, and future clients do not need separate security logic.","textChars":97,"textLines":1,"bbox":[90,550,900,34]}
+{"kind":"shape","id":"sh/2p836xs7","slide":11,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/618nixwz","slide":11,"text":"APPENDIX  /  TUMAR.AI","textPreview":"APPENDIX  /  TUMAR.AI","textChars":21,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/rmh4b2dk","slide":11,"text":"11","textPreview":"11","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/jwtkob","slide":11,"text":""}
+{"kind":"slide","id":"sl/payex7","slide":12,"title":"APPENDIX","textShapes":12}
+{"kind":"textbox","id":"sh/2h4j6p0b","slide":12,"text":"APPENDIX","textPreview":"APPENDIX","textChars":8,"textLines":1,"bbox":[72,52,420,20]}
+{"kind":"textbox","id":"sh/pkf214zm","slide":12,"text":"Privacy is a product constraint, not a footer claim.","textPreview":"Privacy is a product constraint, not a footer claim.","textChars":52,"textLines":1,"bbox":[72,86,1120,78]}
+{"kind":"textbox","id":"sh/4j618zi1","slide":12,"text":"Passwords","textPreview":"Passwords","textChars":9,"textLines":1,"bbox":[100,260,180,24]}
+{"kind":"textbox","id":"sh/fed0vuhk","slide":12,"text":"Only a five-character hash prefix is sent to HIBP; the password never reaches the AI layer.","textPreview":"Only a five-character hash prefix is sent to HIBP; the password never reaches the AI layer.","textChars":91,"textLines":1,"bbox":[330,260,750,44]}
+{"kind":"shape","id":"sh/ut4j2p0z","slide":12,"bbox":[100,316,1020,0]}
+{"kind":"textbox","id":"sh/hgvixkzq","slide":12,"text":"Reports","textPreview":"Reports","textChars":7,"textLines":1,"bbox":[100,344,180,24]}
+{"kind":"textbox","id":"sh/gfm14fi5","slide":12,"text":"Results live in the browser session and are not written to disk.","textPreview":"Results live in the browser session and are not written to disk.","textChars":64,"textLines":1,"bbox":[330,344,750,44]}
+{"kind":"shape","id":"sh/zahk7eho","slide":12,"bbox":[100,400,1020,0]}
+{"kind":"textbox","id":"sh/ep8je90j","slide":12,"text":"Email checks","textPreview":"Email checks","textChars":12,"textLines":1,"bbox":[100,428,180,24]}
+{"kind":"textbox","id":"sh/krqhk329","slide":12,"text":"The address is sent to XposedOrNot for the actual breach lookup.","textPreview":"The address is sent to XposedOrNot for the actual breach lookup.","textChars":64,"textLines":1,"bbox":[330,428,750,44]}
+{"kind":"shape","id":"sh/lszyt8ju","slide":12,"bbox":[100,484,1020,0]}
+{"kind":"textbox","id":"sh/yp8fitk3","slide":12,"text":"Contributions","textPreview":"Contributions","textChars":13,"textLines":1,"bbox":[100,512,180,24]}
+{"kind":"textbox","id":"sh/jqhgry1o","slide":12,"text":"Only optional, consented, redacted samples can enter the corpus.","textPreview":"Only optional, consented, redacted samples can enter the corpus.","textChars":64,"textLines":1,"bbox":[330,512,750,44]}
+{"kind":"shape","id":"sh/wnqxg32d","slide":12,"bbox":[100,568,1020,0]}
+{"kind":"shape","id":"sh/xozyp8jy","slide":12,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/alofetk7","slide":12,"text":"APPENDIX  /  TUMAR.AI","textPreview":"APPENDIX  /  TUMAR.AI","textChars":21,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/bmhgny1s","slide":12,"text":"12","textPreview":"12","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/payex7","slide":12,"text":""}
+{"kind":"slide","id":"sl/vr6ci0","slide":13,"title":"APPENDIX","textShapes":9}
+{"kind":"textbox","id":"sh/kjy5kve9","slide":13,"text":"APPENDIX","textPreview":"APPENDIX","textChars":8,"textLines":1,"bbox":[72,52,420,20]}
+{"kind":"textbox","id":"sh/jipobqxo","slide":13,"text":"The product is honest about what it knows—and what it does not.","textPreview":"The product is honest about what it knows—and what it does not.","textChars":63,"textLines":1,"bbox":[72,86,1120,78]}
+{"kind":"textbox","id":"sh/yhwnilw3","slide":13,"text":"CURRENTLY MEASURED","textPreview":"CURRENTLY MEASURED","textChars":18,"textLines":1,"bbox":[92,270,250,22]}
+{"kind":"textbox","id":"sh/xgn69gfi","slide":13,"text":"Gemini + deterministic signals\nXposedOrNot breach lookup\nHIBP k-anonymity password lookup","textPreview":"Gemini + deterministic signals | XposedOrNot breach lookup | HIBP k-anonymity password lookup","textChars":89,"textLines":3,"bbox":[92,310,390,120]}
+{"kind":"textbox","id":"sh/wfe5gbed","slide":13,"text":"OPTIONAL / CONFIGURABLE","textPreview":"OPTIONAL / CONFIGURABLE","textChars":23,"textLines":1,"bbox":[650,270,300,22]}
+{"kind":"textbox","id":"sh/be547qxs","slide":13,"text":"DeepSeek as an alternate text provider\nVision provider for screenshot analysis\nFuture real-time link defence","textPreview":"DeepSeek as an alternate text provider | Vision provider for screenshot analysis | Future real-time link defence","textChars":108,"textLines":3,"bbox":[650,310,430,120]}
+{"kind":"textbox","id":"sh/adwnelw7","slide":13,"text":"This distinction protects trust with users, judges, and future partners.","textPreview":"This distinction protects trust with users, judges, and future partners.","textChars":72,"textLines":1,"bbox":[92,560,900,34]}
+{"kind":"shape","id":"sh/hcr6lkv2","slide":13,"bbox":[72,676,1136,0]}
+{"kind":"textbox","id":"sh/gbi5sfeh","slide":13,"text":"APPENDIX  /  TUMAR.AI","textPreview":"APPENDIX  /  TUMAR.AI","textChars":21,"textLines":1,"bbox":[72,686,260,18]}
+{"kind":"textbox","id":"sh/i1crylg7","slide":13,"text":"13","textPreview":"13","textChars":2,"textLines":1,"bbox":[1152,686,56,18]}
+{"kind":"notes","id":"nt/vr6ci0","slide":13,"text":""}
