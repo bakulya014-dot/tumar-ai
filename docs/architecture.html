@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tumar.AI architecture</title>
+<style>
+:root { --bg:#070D1A; --raise:#0C1424; --ink:#E8EEF9; --muted:#93A3BC; --cyan:#22D3EE; --gold:#F5C97B; --line:#24365A; --ok:#34D399; --warn:#FBBF24; }
+body { margin:0; background:var(--bg); color:var(--ink); font:14px/1.45 Inter,Segoe UI,system-ui,sans-serif; }
+main { max-width:1240px; margin:0 auto; padding:26px 16px 36px; }
+h1 { margin:0; font-size:24px; } .sub { color:var(--muted); margin:4px 0 18px; }
+svg { width:100%; height:auto; display:block; }
+.box { fill:var(--raise); stroke:var(--line); stroke-width:1.5; }
+.core { fill:#0E1E33; stroke:var(--cyan); stroke-width:1.8; }
+.opt { fill:var(--raise); stroke:var(--line); stroke-dasharray:6 4; stroke-width:1.5; }
+.t { fill:var(--ink); font:600 14px Inter,Segoe UI,sans-serif; }
+.s { fill:var(--muted); font:12px Inter,Segoe UI,sans-serif; }
+.g { fill:var(--gold); font:700 11px Consolas,monospace; letter-spacing:.12em; }
+.a { stroke:#5C7AA8; stroke-width:1.6; fill:none; marker-end:url(#arr); }
+.legend { display:flex; gap:22px; color:var(--muted); font-size:13px; margin-top:10px; flex-wrap:wrap; }
+.legend i { display:inline-block; width:22px; height:12px; border-radius:3px; vertical-align:-1px; margin-right:6px; }
+</style>
+</head>
+<body><main>
+<h1>Tumar.AI — system architecture</h1>
+<p class="sub">As implemented on branch feat/demo-readiness (November 2026). Solid = always runs · dashed = optional, used only when configured.</p>
+<svg viewBox="0 0 1200 690" role="img" aria-label="Clients call the Trust Engine in-process or through the REST API; the engine routes to analyzers that use local heuristics and optional external providers.">
+  <defs><marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5C7AA8"/></marker></defs>
+
+  <text class="g" x="20" y="24">CLIENTS</text>
+  <rect class="box" x="20" y="36" width="270" height="96" rx="12"/>
+  <text class="t" x="36" y="64">Streamlit web app</text>
+  <text class="s" x="36" y="84">app.py · views/ · landing + Google sign-in</text>
+  <text class="s" x="36" y="102">guest mode · kk / ru / en interface</text>
+  <text class="s" x="36" y="120">calls the engine in-process (no HTTP)</text>
+
+  <rect class="box" x="20" y="150" width="270" height="78" rx="12"/>
+  <text class="t" x="36" y="178">Telegram bot</text>
+  <text class="s" x="36" y="198">telegram_bot/ · aiogram · /scan /check /audit</text>
+  <text class="s" x="36" y="216">imports services directly</text>
+
+  <rect class="box" x="20" y="246" width="270" height="78" rx="12"/>
+  <text class="t" x="36" y="274">External API clients</text>
+  <text class="s" x="36" y="294">server-to-server · API key per client</text>
+  <text class="s" x="36" y="312">(no browser client today; CORS closed)</text>
+
+  <text class="g" x="340" y="24">BOUNDARY</text>
+  <rect class="box" x="340" y="206" width="250" height="160" rx="12"/>
+  <text class="t" x="356" y="234">REST API  (FastAPI, v0.2.0)</text>
+  <text class="s" x="356" y="256">POST /v1/analyze · GET /v1/health</text>
+  <text class="s" x="356" y="274">GET /v1/analyzers · /v1/contributions</text>
+  <text class="s" x="356" y="296">API keys (hashed) · rate limit · quotas</text>
+  <text class="s" x="356" y="314">input limits · one error envelope</text>
+  <text class="s" x="356" y="332">request IDs · no content in logs</text>
+  <text class="s" x="356" y="350">SQLite: keys, usage, opt-in samples</text>
+
+  <path class="a" d="M290 84 C 630 84, 640 84, 650 150"/>
+  <path class="a" d="M290 189 C 560 189, 600 170, 650 172"/>
+  <path class="a" d="M290 285 L 340 285"/>
+  <path class="a" d="M590 260 L 650 236"/>
+
+  <text class="g" x="650" y="24">CORE</text>
+  <rect class="core" x="650" y="36" width="530" height="320" rx="14"/>
+  <text class="t" x="668" y="64">Trust Engine  (services/trust_engine.py)</text>
+  <text class="s" x="668" y="84">detects the input type, routes it, returns one TrustReport schema</text>
+
+  <rect class="box" x="668" y="100" width="160" height="70" rx="10"/>
+  <text class="t" x="680" y="124">Message</text><text class="s" x="680" y="144">heuristics + AI layer</text><text class="s" x="680" y="160">kk / ru / en patterns</text>
+  <rect class="box" x="840" y="100" width="160" height="70" rx="10"/>
+  <text class="t" x="852" y="124">URL</text><text class="s" x="852" y="144">look-alike, homoglyph,</text><text class="s" x="852" y="160">IP, shortener + AI</text>
+  <rect class="box" x="1012" y="100" width="152" height="70" rx="10"/>
+  <text class="t" x="1024" y="124">Email</text><text class="s" x="1024" y="144">breach database</text><text class="s" x="1024" y="160">lookup (no AI)</text>
+  <rect class="box" x="668" y="182" width="248" height="78" rx="10"/>
+  <text class="t" x="680" y="206">Image (Visual Threat Intel.)</text><text class="s" x="680" y="226">validate · OCR · QR · links · intent</text><text class="s" x="680" y="244">documented risk score, 5 levels</text>
+  <rect class="box" x="928" y="182" width="236" height="78" rx="10"/>
+  <text class="t" x="940" y="206">Password (declared only)</text><text class="s" x="940" y="226">k-anonymity: 5 hash chars leave</text><text class="s" x="940" y="244">never auto-detected, not over HTTP</text>
+  <rect class="box" x="668" y="272" width="496" height="70" rx="10"/>
+  <text class="t" x="680" y="296">Shared: evidence-based confidence · redaction · language detection</text>
+  <text class="s" x="680" y="316">evidence tagged by origin: heuristic (local) · ai (model) · external (database)</text>
+  <text class="s" x="680" y="332">verdict never from the model alone · failures return coded errors, never a guess</text>
+
+  <text class="g" x="650" y="398">EXTERNAL / OPTIONAL</text>
+  <rect class="opt" x="650" y="410" width="250" height="92" rx="12"/>
+  <text class="t" x="666" y="436">AI providers</text>
+  <text class="s" x="666" y="456">Gemini (measured default)</text>
+  <text class="s" x="666" y="474">DeepSeek · OpenAI · Claude</text>
+  <text class="s" x="666" y="492">switch = explicit config + eval run</text>
+  <rect class="opt" x="916" y="410" width="264" height="92" rx="12"/>
+  <text class="t" x="932" y="436">Breach databases</text>
+  <text class="s" x="932" y="456">XposedOrNot (email)</text>
+  <text class="s" x="932" y="474">Have I Been Pwned range API</text>
+  <text class="s" x="932" y="492">(password, k-anonymity)</text>
+  <rect class="opt" x="650" y="518" width="250" height="74" rx="12"/>
+  <text class="t" x="666" y="544">Tesseract OCR (system binary)</text>
+  <text class="s" x="666" y="564">kaz + rus + eng · packages.txt</text>
+  <text class="s" x="666" y="580">absent → stage reports "unavailable"</text>
+  <rect class="opt" x="916" y="518" width="264" height="74" rx="12"/>
+  <text class="t" x="932" y="544">Google OAuth (sign-in)</text>
+  <text class="s" x="932" y="564">Streamlit st.login · OIDC</text>
+  <text class="s" x="932" y="580">guest mode needs none</text>
+  <path class="a" d="M775 356 L 775 410"/>
+  <path class="a" d="M1048 356 L 1048 410"/>
+  <path class="a" d="M650 330 L 628 330 L 628 555 L 650 555"/>
+
+  <text class="g" x="20" y="398">QUALITY</text>
+  <rect class="box" x="20" y="410" width="570" height="182" rx="12"/>
+  <text class="t" x="36" y="438">Evaluation &amp; tests</text>
+  <text class="s" x="36" y="460">evals/corpus: 61 labelled messages, 40 labelled URLs (kk / ru / en, incl. adversarial + hard negatives)</text>
+  <text class="s" x="36" y="480">evals/runner.py offline (CI) and --ai (costs tokens) · evals/compare.py provider comparison</text>
+  <text class="s" x="36" y="500">evals/image_scanner: framework only — no labelled image set yet</text>
+  <text class="s" x="36" y="520">24 offline test suites (python run_tests.py), incl. API contract + provider-failure tests</text>
+  <text class="s" x="36" y="540">GitHub Actions CI: .github/workflows/ci.yml</text>
+  <text class="s" x="36" y="572">Deploy: Streamlit Community Cloud (app) · uvicorn (API) · worker Procfile (bot)</text>
+</svg>
+<div class="legend"><span><i style="background:#0E1E33;border:1.5px solid #22D3EE"></i>core platform</span><span><i style="background:#0C1424;border:1.5px solid #24365A"></i>always runs</span><span><i style="border:1.5px dashed #24365A"></i>optional / external</span></div>
+</main></body></html>

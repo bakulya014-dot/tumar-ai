@@ -1,0 +1,85 @@
+Tumar.AI test and evaluation output — 2026-11-09 06:44 UTC — feat/demo-readiness@a030fbc (+uncommitted changes)
+
+========================================================================
+Automated test suites — python run_tests.py
+exit code 0, 44.7 s
+========================================================================
+[PASS] test_api.py
+[PASS] test_api_contract.py
+[PASS] test_breach_checker.py
+[PASS] test_corpus_client.py
+[PASS] test_corpus_store.py
+[PASS] test_deepseek_integration.py
+[PASS] test_evals.py
+[PASS] test_heuristics.py
+[PASS] test_i18n.py
+[PASS] test_image_scanner.py
+[PASS] test_keystore.py
+[PASS] test_language.py
+[PASS] test_password_check.py
+[PASS] test_providers.py
+[PASS] test_redaction.py
+[PASS] test_regressions.py
+[PASS] test_report_store.py
+[PASS] test_report_view.py
+[PASS] test_telegram_bot_features.py
+[PASS] test_trust_engine.py
+[PASS] test_trust_report.py
+[PASS] test_url_scanner.py
+[PASS] test_user_store.py
+[PASS] test_vision_analysis.py
+All 24 suites passed.
+
+========================================================================
+Offline evaluation (deterministic layer) — python evals/runner.py
+exit code 0, 2.4 s
+========================================================================
+Corpus: 61 messages, 40 URLs
+
+DETERMINISTIC SCANNER (messages)
+  corpus:                    33 scam / 28 legitimate
+  any match, scams:          90.9%
+  any match, legitimate:     50.0%
+  RISK signal, scams:        90.9%   (higher is better)
+  RISK signal, legitimate:   42.9%   (lower is better)
+  no risk signal on scams:   adv-ru-qr-parking, adv-en-crypto-giveaway, adv-en-subscription
+  noise on legitimate:       legit-en-password-reset, legit-kk-otp, legit-en-urgent-work, legit-ru-urgent-work, legit-en-security-alert, adv-legit-ru-2fa-setup, adv-legit-en-bank-warning, adv-legit-ru-bank-warning, adv-legit-en-crypto-news, adv-legit-en-prize-draw, adv-legit-kk-urgent-meeting, adv-legit-ru-password-changed
+
+URL HEURISTICS
+  corpus:                    20 malicious / 20 legitimate
+  [any_finding_rule]
+    detection rate:          100.0%
+    false positive rate:     5.0%
+    false positive:          advurl-legit-three-hyphens -> many_hyphens
+  [weighted_rule]
+    detection rate:          100.0%
+    false positive rate:     0.0%
+
+Saved: evals\results\20261109-064442.json
+
+========================================================================
+Image-scanner evaluation framework — python evals/image_scanner/evaluation.py
+exit code 0, 2.7 s
+========================================================================
+{
+  "validated": false,
+  "note": "No labelled images present: performance has NOT been validated.",
+  "tesseract_available": false,
+  "ocr_languages": [],
+  "detection": null,
+  "per_language": null,
+  "ocr_mean_similarity": null,
+  "ocr_unavailable_count": 0,
+  "qr_success_rate": null,
+  "latency_ms_median": null,
+  "latency_ms_p90": null,
+  "vision_failure_rate": null,
+  "text_model_failure_rate": null,
+  "refused_uploads": [],
+  "run_at": "2026-11-09T06:44:45+00:00",
+  "label": "",
+  "labelled_cases": 1,
+  "images_present": 0
+}
+
+Image-scanner performance has not been validated: add labelled images to evals/image_scanner/images

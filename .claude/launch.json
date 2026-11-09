@@ -6,6 +6,12 @@
       "runtimeExecutable": "venv/Scripts/python.exe",
       "runtimeArgs": ["-m", "streamlit", "run", "app.py", "--server.headless", "true", "--server.port", "8501"],
       "port": 8501
+    },
+    {
+      "name": "tumar-api",
+      "runtimeExecutable": "venv/Scripts/python.exe",
+      "runtimeArgs": ["scripts/run_api_local.py", "--port", "8000"],
+      "port": 8000
     }
   ]
 }
