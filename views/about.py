@@ -5,7 +5,7 @@ import streamlit as st
 from components import page_header
 from i18n import t
 
-page_header(t("about.title"), t("about.subtitle"))
+page_header(t("about.title"), t("about.subtitle"), "about")
 
 st.write(t("about.intro"))
 

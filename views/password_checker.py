@@ -21,9 +21,9 @@ from services.password_check import PasswordCheckError, check_password
 MAX_PASSWORD_LENGTH = 128
 SOURCE = "password_checker"
 
-page_header(t("password.title"), t("password.subtitle"))
+page_header(t("password.title"), t("password.subtitle"), "password")
 
-st.info(t("password.privacy"))
+st.info(t("password.privacy"), icon=components.icon("privacy"))
 
 password = st.text_input(
     t("password.input_label"),
@@ -34,7 +34,8 @@ password = st.text_input(
 )
 
 check_clicked = st.button(
-    t("password.check_button"), type="primary", use_container_width=True
+    t("password.check_button"), type="primary", use_container_width=True,
+    icon=components.icon("key"),
 )
 
 if check_clicked:
@@ -45,7 +46,7 @@ if check_clicked:
             try:
                 report = check_password(password)
             except PasswordCheckError as error:
-                components.error_view(f"😕 {t(f'errors.{error.code}')}")
+                components.error_view(t(f'errors.{error.code}'))
             else:
                 # Only the report is remembered. It contains a fixed
                 # row of dots, never the password or its length.
@@ -54,8 +55,8 @@ if check_clicked:
 remembered = report_store.latest(st.session_state, SOURCE)
 if remembered:
     render_trust_report(remembered)
-    st.caption(t("password.method_note"))
+    st.caption(components.labeled("info", t("password.method_note")))
 else:
     components.empty_state(
-        "🔑", t("password.empty_title"), t("password.empty_text")
+        "password", t("password.empty_title"), t("password.empty_text")
     )

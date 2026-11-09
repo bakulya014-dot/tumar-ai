@@ -74,14 +74,14 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
 
     _render_metrics(report)
 
-    st.subheader(t("trust.explanation_title"))
+    st.subheader(components.labeled("explain", t("trust.explanation_title")))
     st.write(_text(report.explanation, report.explanation_key))
 
     actions = report.recommended_actions or [
         t(key) for key in report.recommended_action_keys
     ]
     if actions:
-        st.subheader(t("trust.actions_title"))
+        st.subheader(components.labeled("actions", t("trust.actions_title")))
         for number, action in enumerate(actions, start=1):
             st.markdown(f"{number}. {action}")
 
@@ -134,7 +134,7 @@ def _render_evidence(report: TrustReport, expanded: bool) -> None:
         st.caption(t("trust.no_evidence"))
         return
 
-    with st.expander(t("trust.evidence_title"), expanded=expanded):
+    with st.expander(t("trust.evidence_title"), expanded=expanded, icon=components.icon("evidence")):
         links = [item for item in report.evidence if item.code.startswith("url_")]
         if links:
             st.markdown(f"**{t('trust.evidence_urls')}**")

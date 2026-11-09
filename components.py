@@ -30,6 +30,64 @@ TRUST_CSS_VARIANTS = {"safe": "safe", "caution": "suspicious", "danger": "danger
 # Platform verdict code -> chip variant, for compact verdict pills.
 TRUST_CHIP_VARIANTS = {"safe": "ok", "caution": "warn", "danger": "danger"}
 
+# One icon language for the whole product: Google's Material Symbols
+# (Rounded), the vector set Streamlit itself ships. Emoji render
+# differently on every OS and read as playful; a single outlined set
+# reads as one designed system. Pages name icons by meaning ("scam",
+# "history"); this table is the only place that knows the glyph.
+ICONS = {
+    "brand": "shield",
+    "home": "space_dashboard",
+    "scam": "manage_search",
+    "url": "link",
+    "image": "image_search",
+    "breach": "alternate_email",
+    "password": "password",
+    "film": "movie",
+    "about": "info",
+    "quick": "bolt",
+    "stats": "monitoring",
+    "history": "history",
+    "delete": "delete",
+    "status": "monitor_heart",
+    "explain": "forum",
+    "flags": "flag",
+    "actions": "task_alt",
+    "breakdown": "analytics",
+    "signals": "science",
+    "evidence": "fact_check",
+    "privacy": "lock",
+    "contribute": "volunteer_activism",
+    "done": "check_circle",
+    "language": "translate",
+    "next": "arrow_forward",
+    "error": "error",
+    "warning": "warning",
+    "key": "key",
+    "info": "info",
+    "example": "auto_awesome",
+    "search": "search",
+    "settings": "settings",
+    "tips": "tips_and_updates",
+}
+
+
+def icon(name: str) -> str:
+    """Streamlit's Markdown shortcode for a named icon (labels, titles, icon=)."""
+    return f":material/{ICONS.get(name, name)}:"
+
+
+def icon_html(name: str, extra_class: str = "") -> str:
+    """The same icon as an HTML span, for the custom HTML components."""
+    glyph = html.escape(ICONS.get(name, name))
+    cls = f"t-ms {extra_class}".strip()
+    return f'<span class="{cls}" aria-hidden="true">{glyph}</span>'
+
+
+def labeled(name: str, text: str) -> str:
+    """`text` with its icon in front, for Markdown-rendered labels."""
+    return f"{icon(name)} {text}"
+
 
 @st.cache_data(show_spinner=False)
 def _styles() -> str:
@@ -61,15 +119,24 @@ def get_gemini_api_key() -> str:
         return ""
 
 
-def page_header(title: str, subtitle: str) -> None:
-    """Render a consistent title and subtitle at the top of a page."""
-    st.title(title)
-    st.caption(subtitle)
+def page_header(title: str, subtitle: str, icon_name: str = "brand") -> None:
+    """A consistent page header: icon tile, title and subtitle.
+
+    The tile carries the page's icon in the brand cyan, with a slow
+    sheen sweep (styles.css .t-page-icon) as its micro-animation.
+    """
+    st.markdown(
+        f'<div class="t-page-head">'
+        f'<div class="t-page-icon">{icon_html(icon_name)}</div>'
+        f'<div class="t-page-text"><h1>{html.escape(title)}</h1>'
+        f"<p>{html.escape(subtitle)}</p></div></div>",
+        unsafe_allow_html=True,
+    )
     st.divider()
 
 
 def feature_card(
-    icon: str,
+    icon_name: str,
     title: str,
     description: str,
     page_path: str,
@@ -87,11 +154,15 @@ def feature_card(
     """
     slug = page_path.rsplit("/", 1)[-1].removesuffix(".py")
     with st.container(border=True, key=f"tcard_{slug}"):
-        st.subheader(f"{icon} {title}")
+        st.markdown(
+            f'<div class="t-card-head"><span class="t-card-icon">{icon_html(icon_name)}</span>'
+            f"<h3>{html.escape(title)}</h3></div>",
+            unsafe_allow_html=True,
+        )
         if badge:
             status_badge(badge, "gold")
         st.write(description)
-        st.page_link(page_path, label=link_label, icon="➡️")
+        st.page_link(page_path, label=link_label, icon=icon("next"))
 
 
 def recent_row(
@@ -116,9 +187,9 @@ def recent_row(
     )
 
 
-def section_header(title: str, caption: str = "") -> None:
+def section_header(title: str, caption: str = "", icon_name: str = "") -> None:
     """One consistent section heading across every page."""
-    st.subheader(title)
+    st.subheader(labeled(icon_name, title) if icon_name else title)
     if caption:
         st.caption(caption)
 
@@ -144,24 +215,27 @@ def stat(value: str, label: str, variant: str = "brand") -> None:
     )
 
 
-def empty_state(icon: str, title: str, text: str) -> None:
+def empty_state(icon_name: str, title: str, text: str) -> None:
     """Shown where content will appear once the user acts.
 
     An empty area leaves users wondering whether something is broken;
-    a named empty state tells them what will show up and why.
+    a named empty state tells them what will show up and why. The
+    illustration is a small "standing watch" radar: concentric rings,
+    a slow sweep, and the module's icon at the centre.
     """
     st.markdown(
-        f'<div class="t-empty"><div class="t-empty-icon" aria-hidden="true">'
-        f'{html.escape(icon)}</div><div class="t-empty-title">'
-        f'{html.escape(title)}</div><div class="t-empty-text">'
-        f"{html.escape(text)}</div></div>",
+        f'<div class="t-empty"><div class="t-radar" aria-hidden="true">'
+        f'<span class="t-radar-ring"></span><span class="t-radar-ring r2"></span>'
+        f'<span class="t-radar-sweep"></span>{icon_html(icon_name, "t-radar-icon")}</div>'
+        f'<div class="t-empty-title">{html.escape(title)}</div>'
+        f'<div class="t-empty-text">{html.escape(text)}</div></div>',
         unsafe_allow_html=True,
     )
 
 
 def error_view(message: str, hint: str = "") -> None:
     """The one way this product reports a failure."""
-    st.error(message)
+    st.error(message, icon=icon("error"))
     if hint:
         st.caption(hint)
 
@@ -193,7 +267,7 @@ def render_hero(title: str, subtitle: str) -> None:
       <path d="M48 8 L86 74 A6 6 0 0 1 81 83 H15 A6 6 0 0 1 10 74 Z"
             fill="rgba(34,211,238,0.06)" stroke="url(#t-amulet-grad)"
             stroke-width="2.5" stroke-linejoin="round"/>
-      <path d="M34 54 l10 10 l19 -23" fill="none" stroke="#7DE9FF"
+      <path class="t-amulet-check" d="M34 54 l10 10 l19 -23" fill="none" stroke="#7DE9FF"
             stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
     </svg>
   </div>

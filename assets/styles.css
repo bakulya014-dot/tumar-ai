@@ -35,6 +35,30 @@ html, body, .stApp,
   font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif !important;
 }
 
+/* Icons keep their icon font. The rule above sets Inter on every
+   span, and Streamlit draws its icons (sidebar collapse, expander
+   chevrons, page icons) as spans whose text is the icon's name — so
+   without this they print as words like "keyboard_double_arrow_left".
+   Streamlit marks every icon span translate="no" (stIconMaterial,
+   stExpanderIcon, Markdown :material: icons), so one attribute rule
+   covers them all; it outranks `.stApp span`. */
+.stApp span[translate="no"],
+.stApp .t-ms,
+.t-ms {
+  font-family: 'Material Symbols Rounded' !important;
+  font-weight: normal !important;
+  font-style: normal;
+  line-height: 1;
+  letter-spacing: normal !important;
+  text-transform: none;
+  white-space: nowrap;
+  direction: ltr;
+  font-feature-settings: 'liga';
+  -webkit-font-feature-settings: 'liga';
+  -webkit-font-smoothing: antialiased;
+  user-select: none;
+}
+
 /* Monospace stays monospace (code snippets, URLs). */
 .stApp code, .stApp pre, .stApp kbd, .t-threat-url {
   font-family: 'SFMono-Regular', ui-monospace, Consolas, monospace !important;
@@ -511,6 +535,149 @@ p, li, label { line-height: 1.65; }
   color: var(--t-ink-muted);
   font-size: 0.84rem;
 }
+
+/* ============================================================
+   Iconography + micro-animations
+   One vector set (Material Symbols Rounded) everywhere, tinted in
+   the brand cyan. Motion is short (150–900 ms), uses only transform
+   and opacity, and is switched off for reduced-motion users below.
+   ============================================================ */
+
+/* Icons inside headings, captions and expanders take the brand tint. */
+.stApp h2 span[role="img"][translate="no"],
+.stApp h3 span[role="img"][translate="no"],
+[data-testid="stExpander"] summary [data-testid="stExpanderIcon"] {
+  color: var(--t-cyan);
+}
+.stApp h2 span[role="img"][translate="no"],
+.stApp h3 span[role="img"][translate="no"] {
+  margin-right: 0.15em;
+  animation: t-pop 0.5s cubic-bezier(.2, .9, .3, 1.2) both;
+}
+[data-testid="stCaptionContainer"] span[role="img"][translate="no"],
+[data-testid="stWidgetLabel"] span[role="img"][translate="no"] {
+  color: var(--t-cyan);
+  opacity: 0.85;
+  margin-right: 0.2em;
+}
+
+/* ---------- Page header: icon tile + title ---------- */
+.t-page-head { display: flex; align-items: center; gap: 1rem; margin: 0.2rem 0 0.2rem; }
+.t-page-icon {
+  position: relative; flex: none; overflow: hidden;
+  width: 56px; height: 56px; border-radius: 16px;
+  display: grid; place-items: center;
+  background: linear-gradient(145deg, rgba(34, 211, 238, 0.16), rgba(56, 189, 248, 0.04));
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  box-shadow: 0 0 0 4px rgba(34, 211, 238, 0.05), var(--t-glow);
+  animation: t-pop 0.5s cubic-bezier(.2, .9, .3, 1.2) both;
+}
+.t-page-icon .t-ms { font-size: 30px; color: var(--t-cyan); }
+/* A slow sheen passes over the tile, like light on a metal amulet. */
+.t-page-icon::after {
+  content: ""; position: absolute; inset: -40%;
+  background: linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.22) 50%, transparent 60%);
+  transform: translateX(-120%);
+  animation: t-sheen 6s ease-in-out 1.2s infinite;
+}
+.t-page-text h1 { margin: 0 !important; padding: 0 !important; line-height: 1.1 !important; }
+.t-page-text p { margin: 0.3rem 0 0 !important; color: var(--t-ink-muted); font-size: 0.98rem; }
+.t-page-head [data-testid="stHeaderActionElements"],
+.t-card-head [data-testid="stHeaderActionElements"] { display: none !important; }
+
+@keyframes t-pop {
+  from { opacity: 0; transform: scale(0.7) rotate(-8deg); }
+  to   { opacity: 1; transform: scale(1) rotate(0); }
+}
+@keyframes t-sheen {
+  0%, 70% { transform: translateX(-120%); }
+  100%    { transform: translateX(120%); }
+}
+
+/* ---------- Feature cards ---------- */
+.t-card-head { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.35rem; }
+.t-card-head h3 { margin: 0 !important; padding: 0 !important; }
+.t-card-icon {
+  flex: none; width: 42px; height: 42px; border-radius: 12px;
+  display: grid; place-items: center;
+  background: rgba(34, 211, 238, 0.08);
+  border: 1px solid rgba(34, 211, 238, 0.22);
+  transition: transform 0.25s cubic-bezier(.2, .9, .3, 1.3), background 0.25s ease, border-color 0.25s ease;
+}
+.t-card-icon .t-ms { font-size: 23px; color: var(--t-cyan); }
+[class*="st-key-tcard"] { transition: transform 0.25s ease, box-shadow 0.25s ease; }
+[class*="st-key-tcard"]:hover { transform: translateY(-3px); }
+[class*="st-key-tcard"]:hover > [data-testid="stVerticalBlock"],
+[class*="st-key-tcard"][data-testid="stVerticalBlock"]:hover {
+  border-color: rgba(34, 211, 238, 0.45) !important;
+  box-shadow: 0 14px 34px -18px rgba(34, 211, 238, 0.45);
+}
+[class*="st-key-tcard"]:hover .t-card-icon {
+  transform: scale(1.08) rotate(-4deg);
+  background: rgba(34, 211, 238, 0.16);
+  border-color: rgba(34, 211, 238, 0.5);
+}
+
+/* Arrow links nudge forward on hover. */
+[data-testid="stPageLink"] a [data-testid="stIconMaterial"] { transition: transform 0.2s ease; color: var(--t-cyan); }
+[data-testid="stPageLink"] a:hover [data-testid="stIconMaterial"] { transform: translateX(4px); }
+
+/* ---------- Buttons ---------- */
+.stButton > button [data-testid="stIconMaterial"] { transition: transform 0.2s ease; }
+.stButton > button:hover [data-testid="stIconMaterial"] { transform: scale(1.12); }
+.stButton > button:active { transform: scale(0.98) !important; }
+
+/* ---------- Sidebar navigation ---------- */
+[data-testid="stSidebarNav"] a [data-testid="stIconMaterial"] {
+  color: var(--t-ink-muted);
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+[data-testid="stSidebarNav"] a:hover [data-testid="stIconMaterial"] { color: var(--t-cyan); transform: scale(1.1); }
+[data-testid="stSidebarNav"] a[aria-current="page"] { position: relative; }
+[data-testid="stSidebarNav"] a[aria-current="page"] [data-testid="stIconMaterial"] { color: var(--t-cyan); }
+[data-testid="stSidebarNav"] a[aria-current="page"]::before {
+  content: ""; position: absolute; left: 0; top: 22%; bottom: 22%; width: 3px;
+  border-radius: 3px; background: var(--t-cyan);
+  box-shadow: 0 0 10px rgba(34, 211, 238, 0.7);
+  animation: t-grow 0.35s ease-out both;
+}
+@keyframes t-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+/* ---------- Home amulet: the check mark draws itself in ---------- */
+.t-amulet-check {
+  stroke-dasharray: 46;
+  stroke-dashoffset: 46;
+  animation: t-draw 0.9s 0.35s cubic-bezier(.65, 0, .35, 1) forwards;
+}
+@keyframes t-draw { to { stroke-dashoffset: 0; } }
+
+/* ---------- Empty-state illustration: a radar standing watch ---------- */
+.t-radar {
+  position: relative; width: 88px; height: 88px; margin: 0 auto 0.9rem;
+  display: grid; place-items: center;
+}
+.t-radar-ring {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 1px solid rgba(34, 211, 238, 0.28);
+}
+.t-radar-ring.r2 { inset: 18px; border-color: rgba(34, 211, 238, 0.18); }
+.t-radar-sweep {
+  position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(from 0deg, rgba(34, 211, 238, 0.32), rgba(34, 211, 238, 0) 70deg, transparent 360deg);
+  mask-image: radial-gradient(circle, transparent 0 24%, #000 25%);
+  -webkit-mask-image: radial-gradient(circle, transparent 0 24%, #000 25%);
+  animation: t-spin 4.5s linear infinite;
+}
+.t-radar-icon {
+  position: relative; z-index: 1;
+  width: 44px; height: 44px; border-radius: 50%;
+  display: grid; place-items: center;
+  font-size: 24px !important; color: var(--t-cyan);
+  background: var(--t-bg-raise);
+  border: 1px solid rgba(34, 211, 238, 0.35);
+  box-shadow: var(--t-glow);
+}
+@keyframes t-spin { to { transform: rotate(360deg); } }
 
 /* ---------- Responsive ---------- */
 

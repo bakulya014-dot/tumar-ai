@@ -42,6 +42,9 @@ html, body, .stApp,
   font-feature-settings: "ss01", "cv11";
 }
 
+/* Streamlit's icons are spans too: keep their icon font (see styles.css). */
+.stApp span[translate="no"] { font-family: 'Material Symbols Rounded' !important; }
+
 [data-testid="stMainBlockContainer"] {
   max-width: 1120px !important;
   padding: 1.2rem 16px 0 !important;

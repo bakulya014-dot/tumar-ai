@@ -14,7 +14,7 @@ from pathlib import Path
 import streamlit as st
 
 import auth
-from components import load_styles
+from components import icon, labeled, load_styles
 from i18n import LANGUAGES, t
 
 # Provider keys are read from the environment, so that services stay
@@ -54,7 +54,7 @@ APP_DIR = Path(__file__).parent
 # Global settings, applied once and shared by every page.
 st.set_page_config(
     page_title="Tumar.AI",
-    page_icon="🛡️",
+    page_icon=icon("brand"),
     # Wide, so the dashboard can lay out real columns. styles.css caps
     # the container at a readable width and caps prose lines, so wide
     # buys dashboard room without producing 130-character text lines.
@@ -92,7 +92,7 @@ if "language" in st.session_state:
 # see only the public landing page — no sidebar, no tools yet.
 if not auth.has_access():
     st.navigation(
-        [st.Page("views/landing.py", title="Tumar.AI", icon="🛡️", default=True)],
+        [st.Page("views/landing.py", title="Tumar.AI", icon=icon("brand"), default=True)],
         position="hidden",
     ).run()
     st.stop()
@@ -105,33 +105,33 @@ st.logo(str(APP_DIR / "assets" / "logo.svg"), size="large")
 # greet them once.
 _new_user = auth.record_registration()
 if _new_user is not None:
-    _first_name = (auth.user_display()[0] or "").split(" ")[0] or "👋"
+    _first_name = (auth.user_display()[0] or "").split(" ")[0] or "Tumar.AI"
     st.toast(
         t("account.welcome_new" if _new_user else "account.welcome_back", name=_first_name),
-        icon="🛡️",
+        icon=icon("brand"),
     )
 
 pages = {
     t("nav.section_overview"): [
-        st.Page("views/home.py", title=t("nav.home"), icon="🏠", default=True),
+        st.Page("views/home.py", title=t("nav.home"), icon=icon("home"), default=True),
     ],
     t("nav.section_analyze"): [
-        st.Page("views/scam_analyzer.py", title=t("nav.scam"), icon="🔍"),
-        st.Page("views/url_scanner.py", title=t("nav.url"), icon="🔗"),
-        st.Page("views/image_scanner.py", title=t("nav.image"), icon="🖼️"),
+        st.Page("views/scam_analyzer.py", title=t("nav.scam"), icon=icon("scam")),
+        st.Page("views/url_scanner.py", title=t("nav.url"), icon=icon("url")),
+        st.Page("views/image_scanner.py", title=t("nav.image"), icon=icon("image")),
     ],
     t("nav.section_monitor"): [
-        st.Page("views/breach_checker.py", title=t("nav.breach"), icon="📧"),
-        st.Page("views/password_checker.py", title=t("nav.password"), icon="🔑"),
+        st.Page("views/breach_checker.py", title=t("nav.breach"), icon=icon("breach")),
+        st.Page("views/password_checker.py", title=t("nav.password"), icon=icon("password")),
     ],
     t("nav.section_platform"): [
         st.Page(
             "views/launch_film.py",
             title="Launch Film",
-            icon="🎬",
+            icon=icon("film"),
             url_path="launch-film",
         ),
-        st.Page("views/about.py", title=t("nav.about"), icon="ℹ️"),
+        st.Page("views/about.py", title=t("nav.about"), icon=icon("about")),
     ],
 }
 
@@ -151,12 +151,18 @@ with st.sidebar:
             on_click=auth.sign_in,
             use_container_width=True,
             type="primary",
+            icon=icon("person_add"),
         )
         if st.session_state.pop("tumar_auth_missing", False):
             st.warning(t("landing.auth_missing"))
-    st.button(t("account.sign_out"), on_click=auth.sign_out, use_container_width=True)
+    st.button(
+        t("account.sign_out"),
+        on_click=auth.sign_out,
+        use_container_width=True,
+        icon=icon("logout"),
+    )
     st.selectbox(
-        t("app.language_label"),
+        labeled("language", t("app.language_label")),
         options=list(LANGUAGES),
         format_func=LANGUAGES.get,
         key="language",

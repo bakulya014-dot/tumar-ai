@@ -58,7 +58,7 @@ _STAGES = (
     ("ai", "ai_status"),
 )
 
-page_header(t("image.title"), t("image.subtitle"))
+page_header(t("image.title"), t("image.subtitle"), "image")
 
 # The privacy decision comes first, above the uploader.
 allow_external = st.toggle(
@@ -67,7 +67,7 @@ allow_external = st.toggle(
     key="allow_external_ai",
     help=t("image.allow_external_help"),
 )
-st.caption(t("image.privacy_note"))
+st.caption(components.labeled("privacy", t("image.privacy_note")))
 
 has_vision = vision_provider() is not None
 has_text_ai = text_provider() is not None or bool(components.get_gemini_api_key())
@@ -96,6 +96,7 @@ analyze_clicked = st.button(
     t("image.analyze_button"),
     type="primary",
     use_container_width=True,
+    icon=components.icon("image"),
     disabled=upload is None,
 )
 
@@ -122,7 +123,7 @@ if analyze_clicked and upload is not None:
                 ),
             )
         except ServiceError as error:
-            components.error_view(f"😕 {t(f'errors.{error.code}')}")
+            components.error_view(t(f'errors.{error.code}'))
         else:
             report_store.remember(st.session_state, report)
 
@@ -188,4 +189,4 @@ if remembered:
     if extracted:
         contribution_box(extracted, remembered)
 else:
-    components.empty_state("🖼️", t("image.empty_title"), t("image.empty_text"))
+    components.empty_state("image", t("image.empty_title"), t("image.empty_text"))

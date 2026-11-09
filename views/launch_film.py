@@ -9,7 +9,7 @@ from pathlib import Path
 
 import streamlit as st
 
-from components import page_header
+from components import icon, page_header
 
 
 APP_DIR = Path(__file__).resolve().parent.parent
@@ -18,8 +18,9 @@ ANIMATION = APP_DIR / "assets" / "tumar-launch-animation.mp4"
 
 
 page_header(
-    "🎬 Tumar.AI Launch Film",
+    "Tumar.AI Launch Film",
     "See the product story, then try the live cybersecurity assistant.",
+    "film",
 )
 
 st.caption("No account required. These videos are presentation assets only.")
@@ -35,4 +36,4 @@ if ANIMATION.exists():
 if not FILM.exists() and not ANIMATION.exists():
     st.info("The launch videos are being prepared. Please check back soon.")
 
-st.page_link("views/home.py", label="Try Tumar.AI", icon="🛡️")
+st.page_link("views/home.py", label="Try Tumar.AI", icon=icon("brand"))
