@@ -6,9 +6,25 @@ __pycache__/
 venv/
 .venv/
 
-# Secrets — never commit API keys
+# Secrets — never commit API keys. Matched anywhere in the tree, so a
+# copied folder ("X - Copy", "X (1)") cannot carry them in by accident.
 .env
-.streamlit/secrets.toml
+.env.*
+!.env.example
+secrets.toml
+*.pem
+*.key
+**/.streamlit/secrets.toml
+
+# Explorer/OneDrive folder copies are stale snapshots, sometimes with
+# old credentials inside. Never track them.
+* - Copy/
+* - Copy (*)/
+* (1)/
+* (2)/
+
+# Untracked duplicate of app/news (the bot imports app/news).
+telegram_bot/app/
 
 # Evaluation runs — one machine at one moment. The corpus is what
 # belongs in history, not the output of a particular run.

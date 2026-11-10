@@ -28,6 +28,7 @@ from aiogram.types import Message
 
 from services.image_scanner import ImageScanResult, ImageValidationError, scan_image
 from services.image_scanner.validator import max_bytes
+from telegram_bot.handlers.commands import quota_allows
 
 logger = logging.getLogger(__name__)
 
@@ -202,6 +203,9 @@ async def _scan_and_reply(message: Message, source: Message, bot: Bot) -> None:
             "⚠️ <b>Usage:</b> send a screenshot, or reply to one with <code>/screenshot</code>.",
             parse_mode=ParseMode.HTML,
         )
+        return
+
+    if not await quota_allows(message, "image"):
         return
 
     file_id, size = found

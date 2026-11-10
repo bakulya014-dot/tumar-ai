@@ -14,6 +14,7 @@ specialized pages remain for the detail-rich version of each module.
 import streamlit as st
 
 import components
+import quota_ui
 import report_store
 from components import feature_card, render_hero, section_header
 from contribution_ui import contribution_box
@@ -75,15 +76,16 @@ if st.button(
             st.caption(
                 t("home.quick_detected", kind=t(f"trust.kind.{analyzer.kind}"))
             )
-        with st.spinner(t("home.quick_spinner")):
-            try:
-                report = engine.analyze(
-                    subject, AnalysisContext(api_key=api_key)
-                )
-            except ServiceError as error:
-                components.error_view(t(f'errors.{error.code}'))
-            else:
-                report_store.remember(st.session_state, report)
+        if quota_ui.allow_check(analyzer.kind if analyzer else "message"):
+            with st.spinner(t("home.quick_spinner")):
+                try:
+                    report = engine.analyze(
+                        subject, AnalysisContext(api_key=api_key)
+                    )
+                except ServiceError as error:
+                    components.error_view(t(f'errors.{error.code}'))
+                else:
+                    report_store.remember(st.session_state, report)
 
 # Rendered from the store so the verdict survives later re-runs.
 latest = report_store.latest(st.session_state)

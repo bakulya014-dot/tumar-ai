@@ -8,6 +8,7 @@ in services/url_scanner.py.
 import streamlit as st
 
 import components
+import quota_ui
 import report_store
 from components import page_header
 from contribution_ui import contribution_box
@@ -53,6 +54,8 @@ if check_clicked:
     cleaned = url.strip()
     if not cleaned:
         st.warning(t("url.empty_warning"))
+    elif not quota_ui.allow_check("url"):
+        pass
     else:
         with st.spinner(t("url.spinner")):
             try:

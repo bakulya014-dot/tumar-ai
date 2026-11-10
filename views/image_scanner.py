@@ -18,6 +18,7 @@ Two privacy rules are enforced here rather than described:
 import streamlit as st
 
 import components
+import quota_ui
 import report_store
 from components import page_header
 from contribution_ui import contribution_box
@@ -100,7 +101,7 @@ analyze_clicked = st.button(
     disabled=upload is None,
 )
 
-if analyze_clicked and upload is not None:
+if analyze_clicked and upload is not None and quota_ui.allow_check("image"):
     payload = upload.getvalue()
     # The declared type is only a routing hint; the scanner verifies
     # the real format from the bytes and refuses anything else.

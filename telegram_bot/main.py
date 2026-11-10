@@ -16,9 +16,15 @@ import sys
 from aiogram import Bot, Dispatcher
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
+from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from dotenv import load_dotenv
 
-from telegram_bot.handlers import commands_router, screenshot_router
+from telegram_bot.handlers import (
+    commands_router,
+    community_router,
+    screenshot_router,
+    send_daily_broadcast,
+)
 from telegram_bot.middlewares.anti_spam import AntiSpamMiddleware
 
 load_dotenv(override=False)  # a variable already set in the shell wins
@@ -45,9 +51,17 @@ async def main():
     # Register anti-spam on outer scope so blocked floods stop before handler execution
     dp.message.outer_middleware(AntiSpamMiddleware(rate_limit_seconds=1.25))
 
-    # Register routers
+    # Register routers. Community goes last: its private-chat text hint
+    # must only see messages no command or screenshot handler took.
     dp.include_router(commands_router)
     dp.include_router(screenshot_router)
+    dp.include_router(community_router)
+
+    # Daily dispatch to registered groups, as the legacy bot did:
+    # every day at 09:00 in the server's time zone.
+    scheduler = AsyncIOScheduler()
+    scheduler.add_job(send_daily_broadcast, "cron", hour=9, minute=0, args=[bot])
+    scheduler.start()
 
     logging.info("Starting Tumar.AI Bot...")
     await bot.delete_webhook(drop_pending_updates=True)
