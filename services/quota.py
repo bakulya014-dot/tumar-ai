@@ -13,11 +13,14 @@ is honest for one instance and resets on restart; the QuotaStore
 interface is where a shared store (Redis) plugs in when the app runs on
 several instances. Limits come from the environment:
 
-    TUMAR_DAILY_LIMIT_GUEST   web visitors without an account (default 20)
-    TUMAR_DAILY_LIMIT_USER    signed-in web users              (default 60)
-    TUMAR_DAILY_LIMIT_BOT     Telegram users                   (default 30)
+    TUMAR_DAILY_LIMIT_GUEST       one web guest                 (default 20)
+    TUMAR_DAILY_LIMIT_GUEST_POOL  all web guests together       (default 1000)
+    TUMAR_DAILY_LIMIT_USER        one signed-in web user        (default 60)
+    TUMAR_DAILY_LIMIT_BOT         one Telegram user             (default 30)
 
-A limit of 0 switches that tier's quota off.
+A limit of 0 switches that tier's quota off. The guest pool is the
+cost ceiling: a guest who resets their own count (a new browser
+session) still draws from the same shared daily pool.
 """
 
 from __future__ import annotations
@@ -29,9 +32,10 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Protocol
 
-DEFAULT_LIMITS = {"guest": 20, "user": 60, "bot": 30}
+DEFAULT_LIMITS = {"guest": 20, "guest_pool": 1000, "user": 60, "bot": 30}
 _ENV = {
     "guest": "TUMAR_DAILY_LIMIT_GUEST",
+    "guest_pool": "TUMAR_DAILY_LIMIT_GUEST_POOL",
     "user": "TUMAR_DAILY_LIMIT_USER",
     "bot": "TUMAR_DAILY_LIMIT_BOT",
 }

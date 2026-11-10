@@ -1,7 +1,8 @@
 """The web app's quota gate (quota_ui.py), run in Streamlit's AppTest.
 
-A guest with a daily limit of 1 gets the first check and a translated
-warning on the second; password checks are never counted.
+Guests are counted per browser session by default (each AppTest run is
+a new session), and all guests together draw from a shared daily pool
+that caps total cost. Password checks are never counted.
 
     venv\\Scripts\\python.exe tests\\test_quota_ui.py
 """
@@ -13,6 +14,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+import services.quota as quota_module  # noqa: E402
+from i18n import translate  # noqa: E402
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
 
@@ -24,34 +27,78 @@ def _app() -> None:
     _sys.path.insert(0, st.session_state["root"])  # AppTest runs the function standalone
     import quota_ui
 
-    results = [quota_ui.allow_check(kind) for kind in st.session_state["kinds"]]
-    st.session_state["results"] = results
+    st.session_state["results"] = [quota_ui.allow_check(kind) for kind in st.session_state["kinds"]]
 
 
-def _run(kinds: list[str]) -> AppTest:
+def _session(kinds: list[str]) -> AppTest:
+    """One fresh browser session that runs the given checks in order."""
     at = AppTest.from_function(_app, default_timeout=30)
     at.session_state["root"] = str(ROOT)
     at.session_state["kinds"] = kinds
-    return at.run()
+    at.run()
+    assert not at.exception, at.exception
+    return at
+
+
+class _Env:
+    def __init__(self, **values: str):
+        self.values, self.saved = values, {}
+
+    def __enter__(self):
+        for name, value in self.values.items():
+            self.saved[name] = os.environ.get(name)
+            os.environ[name] = value
+        quota_module._default = None  # fresh counters for each scenario
+        return self
+
+    def __exit__(self, *exc):
+        for name, old in self.saved.items():
+            if old is None:
+                os.environ.pop(name, None)
+            else:
+                os.environ[name] = old
+        quota_module._default = None
 
 
 def test_guest_gets_a_warning_after_the_limit() -> None:
-    os.environ["TUMAR_DAILY_LIMIT_GUEST"] = "1"
-    import services.quota as quota_module
-
-    quota_module._default = None
-    try:
-        at = _run(["message", "url", "password"])
-        assert not at.exception, at.exception
+    with _Env(TUMAR_DAILY_LIMIT_GUEST="1"):
+        at = _session(["message", "url", "password"])
         assert at.session_state["results"] == [True, False, True], at.session_state["results"]
         warnings = [w.value for w in at.warning]
-        assert len(warnings) == 1 and "1" in warnings[0] and "00:00 UTC" in warnings[0], warnings
-    finally:
-        os.environ.pop("TUMAR_DAILY_LIMIT_GUEST", None)
-        quota_module._default = None
+        assert warnings == [translate("quota.exceeded_guest", "en", limit=1)], warnings
     print("test_guest_gets_a_warning_after_the_limit PASSED")
+
+
+def test_each_guest_session_has_its_own_allowance() -> None:
+    # Behind a hosting proxy every guest can share one IP; per-session
+    # counting keeps one guest from using up everyone's allowance.
+    with _Env(TUMAR_DAILY_LIMIT_GUEST="1"):
+        first, second = _session(["message"]), _session(["message"])
+        assert first.session_state["results"] == [True]
+        assert second.session_state["results"] == [True]
+    print("test_each_guest_session_has_its_own_allowance PASSED")
+
+
+def test_shared_guest_pool_caps_total_use() -> None:
+    with _Env(TUMAR_DAILY_LIMIT_GUEST="5", TUMAR_DAILY_LIMIT_GUEST_POOL="2"):
+        first = _session(["message", "url"])
+        second = _session(["message"])
+        assert first.session_state["results"] == [True, True]
+        assert second.session_state["results"] == [False]
+        assert [w.value for w in second.warning] == [translate("quota.exceeded_pool", "en")]
+    print("test_shared_guest_pool_caps_total_use PASSED")
+
+
+def test_ip_mode_falls_back_to_session_without_an_ip() -> None:
+    with _Env(TUMAR_GUEST_QUOTA_KEY="ip", TUMAR_DAILY_LIMIT_GUEST="1"):
+        at = _session(["message", "message"])  # AppTest has no client IP
+        assert at.session_state["results"] == [True, False]
+    print("test_ip_mode_falls_back_to_session_without_an_ip PASSED")
 
 
 if __name__ == "__main__":
     test_guest_gets_a_warning_after_the_limit()
+    test_each_guest_session_has_its_own_allowance()
+    test_shared_guest_pool_caps_total_use()
+    test_ip_mode_falls_back_to_session_without_an_ip()
     print("All quota UI tests passed.")

@@ -35,7 +35,7 @@ from services.breach_checker import is_valid_email
 from services.common import ServiceError
 from services.heuristics import scan_message, url_reasons
 from services.quota import default_quota
-from services.trust_engine import AnalysisContext, TrustEngine, TrustSubject
+from services.trust_engine import AnalysisContext, TrustEngine, TrustSubject, UrlAnalyzer
 from services.url_scanner import normalize_url
 from telegram_bot.report_format import format_report
 
@@ -49,6 +49,9 @@ commands_router = Router(name="commands_router")
 # bot's own heuristics below remain only as the offline fallback for
 # when no AI provider is reachable, and say so in their reply.
 _ENGINE = TrustEngine()
+# The engine's own link test, so "/scan" decides link-or-text exactly as
+# the web app's Quick Check does.
+_LINK_DETECTOR = UrlAnalyzer()
 
 
 def _ai_key() -> str:
@@ -331,13 +334,20 @@ def _perform_scan(target: str, language: str = "en") -> str:
     except ValueError:
         pass  # Not an IP address, proceed to domain/URL evaluation
 
-    # 2. URL or domain: the shared Trust Engine, as on the web.
+    # 2. Not a link at all — a pasted message or sentence. The legacy bot
+    # advertised "/scan text", so people send text here; checking it as
+    # a URL would wrongly report "no malicious signals". Run the message
+    # check instead, the same analysis /audit gives.
+    if not _LINK_DETECTOR.can_handle(TrustSubject(content=candidate)):
+        return _perform_audit(candidate, language)
+
+    # 3. URL or domain: the shared Trust Engine, as on the web.
     try:
         return _engine_report(candidate, "url", language, "TUMAR THREAT INTELLIGENCE SCAN")
     except ServiceError as exc:
         logger.info("Engine URL scan unavailable (%s); using the offline check.", exc.code)
 
-    # 3. Deterministic Heuristic Scanner (offline fallback)
+    # 4. Deterministic Heuristic Scanner (offline fallback)
     try:
         normalized = normalize_url(candidate)
     except Exception:
@@ -393,7 +403,7 @@ async def cmd_scan(message: Message) -> None:
 
     if not target:
         await message.answer(
-            "⚠️ <b>Usage:</b> <code>/scan &lt;url/domain/IP&gt;</code>\n\n"
+            "⚠️ <b>Usage:</b> <code>/scan &lt;link, domain, IP or message&gt;</code>\n\n"
             "<i>Examples:</i>\n"
             "• <code>/scan https://suspicious-verify.xyz</code>\n"
             "• <code>/scan 185.220.101.5</code>\n"

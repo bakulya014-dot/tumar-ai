@@ -506,6 +506,7 @@
   "quota": {
     "exceeded_guest": "You've used today's {limit} free checks. They renew at 00:00 UTC — or sign in with Google for more.",
     "exceeded_user": "You've used today's {limit} checks. They renew at 00:00 UTC.",
-    "exceeded_bot": "You've used today's {limit} checks. They renew at 00:00 UTC."
+    "exceeded_bot": "You've used today's {limit} checks. They renew at 00:00 UTC.",
+    "exceeded_pool": "Tumar.AI has reached today's limit for guest checks. Sign in with Google to continue, or try again after 00:00 UTC."
   }
 }

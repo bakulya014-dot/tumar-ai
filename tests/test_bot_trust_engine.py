@@ -134,6 +134,27 @@ def test_audit_and_scan_fall_back_offline_and_say_so() -> None:
     print("test_audit_and_scan_fall_back_offline_and_say_so PASSED")
 
 
+def test_scan_of_plain_text_runs_the_message_check() -> None:
+    # The legacy bot advertised "/scan text"; a sentence must never be
+    # judged as a URL and reported "no malicious signals".
+    original = commands._ENGINE
+    commands._ENGINE = FakeEngine(report=_report())
+    try:
+        text = commands._perform_scan("send me your SMS code", "en")
+        kinds = [s.declared_kind for s in commands._ENGINE.calls]
+        commands._ENGINE = FakeEngine(report=_report(subject_type="url", verdict="caution"))
+        commands._perform_scan("kaspi-bank-login.xyz", "en")
+        link_kinds = [s.declared_kind for s in commands._ENGINE.calls]
+        commands._ENGINE = FakeEngine(error=ServiceError("not_configured"))
+        offline = commands._perform_scan("send me your SMS code now, your account is blocked", "en")
+    finally:
+        commands._ENGINE = original
+    assert kinds == ["message"] and "TUMAR CONTEXTUAL SECURITY AUDIT" in text
+    assert link_kinds == ["url"]
+    assert "NO MALICIOUS SIGNALS" not in offline and "Offline check" in offline
+    print("test_scan_of_plain_text_runs_the_message_check PASSED")
+
+
 def test_ip_addresses_never_reach_the_engine() -> None:
     original = commands._ENGINE
     commands._ENGINE = FakeEngine(error=AssertionError("engine must not be called"))
@@ -224,6 +245,7 @@ if __name__ == "__main__":
     test_locale_mapping()
     test_audit_uses_the_shared_engine()
     test_audit_and_scan_fall_back_offline_and_say_so()
+    test_scan_of_plain_text_runs_the_message_check()
     test_ip_addresses_never_reach_the_engine()
     test_breach_check_uses_engine_for_emails()
     test_bot_quota_blocks_and_explains_in_users_language()
