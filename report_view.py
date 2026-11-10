@@ -29,38 +29,10 @@ import streamlit as st
 
 import components
 from i18n import t
+from report_labels import METHOD_LABELS as _METHOD_LABELS
+from report_labels import SIGNAL_LABELS as _SIGNAL_LABELS  # noqa: F401  (re-exported for tests)
+from report_labels import signal_label_key
 from services.trust_report import Evidence, TrustReport
-
-# Heuristic signal families -> existing i18n label keys. These five
-# predate the shared vocabulary and keep their original keys; every
-# other code resolves by convention (see signal_label_key), so a new
-# module's evidence appears without touching this file.
-_SIGNAL_LABELS = {
-    "urgency": "scam.signal_urgency",
-    "credential": "scam.signal_credential",
-    "financial": "scam.signal_financial",
-    "manipulation": "scam.signal_manipulation",
-}
-
-
-def signal_label_key(code: str) -> str:
-    """The i18n key that labels one heuristic evidence code.
-
-    Unknown codes resolve to "trust.signal.<code>" rather than being
-    dropped. Silently discarding evidence would be the worst possible
-    failure mode for this product: the verdict would still appear, but
-    the reasons behind it would quietly go missing.
-    """
-    return _SIGNAL_LABELS.get(code, f"trust.signal.{code}")
-
-# Evidence origin -> the label shown to the user. Naming the method is
-# a trust signal: a pattern match and an AI judgement are not the same
-# kind of claim, and users deserve to know which they are reading.
-_METHOD_LABELS = {
-    "heuristic": "trust.evidence_scanner",
-    "ai": "trust.evidence_ai",
-    "external": "trust.evidence_external",
-}
 
 
 def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> None:

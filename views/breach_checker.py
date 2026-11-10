@@ -14,6 +14,7 @@ always produce one answer.
 import streamlit as st
 
 import components
+import quota_ui
 import report_store
 from components import page_header
 from i18n import t
@@ -45,6 +46,8 @@ if check_clicked:
         st.warning(t("breach.empty_warning"))
     elif not is_valid_email(cleaned.lower()):
         st.warning(t("breach.invalid_warning"))
+    elif not quota_ui.allow_check("email"):
+        pass
     else:
         with st.spinner(t("breach.spinner")):
             try:

@@ -58,7 +58,21 @@ def t(key: str, **placeholders: object) -> str:
     translation gap never crashes the app. Placeholders are filled
     with str.format, e.g. t("breach.safe_banner", email="a@b.c").
     """
-    text = _load(current_language()).get(key)
+    return translate(key, current_language(), **placeholders)
+
+
+def translate(key: str, language: str, **placeholders: object) -> str:
+    """Translate into an explicit language — for callers with no
+    Streamlit session, such as the Telegram bot. Same fallbacks as t()."""
+    if language not in LANGUAGES:
+        language = DEFAULT_LANGUAGE
+    text = _load(language).get(key)
     if text is None:
         text = _load(DEFAULT_LANGUAGE).get(key, key)
     return text.format(**placeholders) if placeholders else text
+
+
+def language_from_locale(code: str | None) -> str:
+    """Map a client locale such as "ru-RU" or "kk" to a supported language."""
+    base = (code or "").split("-")[0].split("_")[0].lower()
+    return base if base in LANGUAGES else DEFAULT_LANGUAGE

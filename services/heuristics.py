@@ -85,12 +85,33 @@ _OTP_DELIVERY_PATTERNS = (
 # Word-order-independent detection of "hand the code over". Kazakh and
 # Russian inflect both the noun and the verb and place them freely, so
 # fixed phrases miss constructions that a human reads instantly.
-_CODE_WORDS = ("код", "code", "otp")
+_CODE_WORDS = ("код", "code", "otp", "one-time password", "passcode")
 _DISCLOSURE_VERBS = (
     "айт", "жібер", "хабарла", "оператор",
     "назов", "сообщ", "продикт", "скаж", "отправ", "пришл", "переда",
     "reply", "tell", "share", "forward", "dictate", "give us",
 )
+# English requests to hand the code to the sender ("send me the code",
+# "text me your OTP"). English word order is fixed, so these count only
+# when they come shortly BEFORE the code word — "send me the meeting
+# notes and the code review link" is not a request for a code.
+# Deliberately not a bare "send": "we will send you a code" is what
+# every real service writes, and is delivery, not disclosure.
+_EN_REQUEST_VERBS = (
+    "send me", "send us", "send it to", "send it back", "send back",
+    "text me", "text us", "give me", "read me", "read out",
+)
+_EN_REQUEST_WINDOW = 30
+
+# English compounds where "code" is not a one-time code. A request to
+# "send me the source code" or a note about the dress code is ordinary
+# conversation, not an attempt to take over an account.
+_NON_OTP_CODE_BEFORE = (
+    "source ", "dress ", "zip ", "postal ", "post ", "promo ", "discount ",
+    "coupon ", "qr ", "bar", "country ", "area ", "error ", "status ",
+    "color ", "colour ", "morse ", "cheat ", "secret santa ",
+)
+_NON_OTP_CODE_AFTER = (" review", " of conduct", "base", " snippet", " editor")
 # How far apart the code word and the verb may sit and still be read
 # as one instruction.
 _DISCLOSURE_WINDOW = 45
@@ -101,6 +122,7 @@ _DISCLOSURE_WINDOW = 45
 _NEVER_ASK_PATTERNS = (
     "we will never ask", "never share this code", "do not share this code",
     "never share your", "we never call", "do not share it",
+    "do not share your", "don't share your", "dont share your",
     "никогда не просим", "никогда не спрашиваем", "никому не сообщайте",
     "не сообщайте его", "никому не говорите код",
     "ешқашан сұрамайды", "ешқашан сұрамаймыз", "оны ешкімге айтпаңыз",
@@ -338,10 +360,22 @@ def _code_near_disclosure_verb(lowered: str) -> list[str]:
             window = lowered[
                 max(0, start - _DISCLOSURE_WINDOW) : start + _DISCLOSURE_WINDOW
             ]
+            if code_word == "code" and (
+                lowered[:start].endswith(_NON_OTP_CODE_BEFORE)
+                or lowered[start + 4 :].startswith(_NON_OTP_CODE_AFTER)
+            ):
+                start = lowered.find(code_word, start + 1)
+                continue
+            before = lowered[max(0, start - _EN_REQUEST_WINDOW) : start]
             for verb in _DISCLOSURE_VERBS:
                 if verb in window:
                     matches.append(f"{code_word}…{verb}")
                     break
+            else:
+                for verb in _EN_REQUEST_VERBS:
+                    if verb in before:
+                        matches.append(f"{verb}…{code_word}")
+                        break
             start = lowered.find(code_word, start + 1)
     return matches
 
