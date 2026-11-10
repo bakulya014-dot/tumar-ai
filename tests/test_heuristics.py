@@ -76,7 +76,46 @@ def test_official_domain_not_flagged() -> None:
     print("test_official_domain_not_flagged PASSED")
 
 
+def test_english_code_requests_are_disclosure() -> None:
+    """English ways of asking for the code (found missing in the Phase 1
+    review: "send me your SMS code" was read as an ordinary delivery)."""
+    requests = [
+        "send me your SMS code",
+        "Hi mom, it's me. Send me the code that just came to your phone",
+        "Please share your one-time password to confirm the refund",
+        "Bank security here. Read me the code we just sent.",
+        "Text me the 6-digit code you received",
+        "Give me your verification code so I can unlock your card",
+        "Send us your OTP to cancel the transaction",
+    ]
+    for text in requests:
+        assert scan_message(text).otp_signal == "disclosure", text
+    print("test_english_code_requests_are_disclosure PASSED")
+
+
+def test_ordinary_code_messages_stay_calm() -> None:
+    """Delivery, entry, warnings and non-security "code" are not requests."""
+    calm = [
+        "Your SMS code is 482913. Do not share it with anyone.",
+        "We will send you a verification code by SMS.",
+        "We'll send a code to your phone to finish signing in.",
+        "Your one-time password is 552310. Don't share your one-time password with anyone.",
+        "Never share your OTP. Halyk Bank will never ask for it.",
+        "Enter the code we sent to your email to continue.",
+        "Can you send me the meeting notes and the code review link?",
+        "Please send me the source code by Friday.",
+        "Give me a call when the dress code is decided.",
+        "Send me the promo code for the store",
+        "Please give me the ZIP code for the delivery",
+    ]
+    for text in calm:
+        assert scan_message(text).otp_signal != "disclosure", text
+    print("test_ordinary_code_messages_stay_calm PASSED")
+
+
 if __name__ == "__main__":
+    test_english_code_requests_are_disclosure()
+    test_ordinary_code_messages_stay_calm()
     test_clean_message()
     test_english_scam_signals()
     test_russian_scam_signals()
