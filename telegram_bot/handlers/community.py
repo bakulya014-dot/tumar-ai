@@ -1,4 +1,4 @@
-"""Groups, broadcasts and the daily dispatch — moved from telegram_bot/bot.py.
+"""Groups, broadcasts and the daily dispatch — moved from the legacy bot.py (since removed).
 
 Behaviour is unchanged from the legacy bot so that switching the
 Procfile to telegram_bot.main loses nothing:
@@ -81,7 +81,7 @@ def admin_user_id() -> int:
         return 0
 
 
-# Curated Tech & Cyber Industry Updates Pool (unchanged from bot.py)
+# Curated Tech & Cyber Industry Updates Pool (unchanged from the legacy bot)
 TECH_NEWS_FEED = [
     "🌐 <b>Tech & Cyber Morning Digest</b>\n\n• <b>Zero-Day Alert:</b> Critical vulnerabilities patched in major Chromium-based browsers. Update your apps today.\n• <b>Defense Tip:</b> Review third-party OAuth app authorizations in your Google and Telegram accounts.",
     "🚀 <b>Tech Industry Update</b>\n\n• <b>AI Infrastructure:</b> Advancements in local LLM deployments allow smaller edge devices to run inference with reduced latency.\n• <b>Security Note:</b> Never approve unexpected two-factor push prompts on your phone.",
