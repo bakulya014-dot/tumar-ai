@@ -64,7 +64,9 @@ Incident during testing: while checking fix 3, the bot entry point
 loaded a real `BOT_TOKEN` from `.env` and polled the live bot for about
 90 seconds before it was stopped. Any updates queued at that moment
 were dropped, and if the deployed bot was running, both polled at once.
-Production uses polling (`bot.py`), so no webhook was removed.
+Production uses polling (`bot.py` at the time), so no webhook was removed.
+(Update 2026-11-11: the entry point is now `telegram_bot.main`, and the
+legacy `bot.py` has been removed.)
 
 ## 4. Tests executed (2026-11-09)
 
@@ -216,5 +218,5 @@ image-scanner accuracy figure has been validated.**
 5. Front-end: fix the icon-font CSS; translate "Launch Film"; re-capture shots 03/03b/06.
 6. Run `pip-audit`.
 7. Collect and label 30–50 screenshots (consented / synthetic) for a first image-scanner evaluation.
-8. Guard `urlparse` in the bot's `/scan`; decide which bot entry point is the real one (`bot.py` vs `main.py`).
+8. Guard `urlparse` in the bot's `/scan`; decide which bot entry point is the real one (`bot.py` vs `main.py`). *Resolved 2026-11-11: `main.py`; `bot.py` removed.*
 9. Rehearse `docs/DEMO_SCRIPT.md` twice with the network you will have on stage.
