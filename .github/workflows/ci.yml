@@ -35,8 +35,15 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt -r requirements-api.txt
 
+      # Every tracked Python file, so new modules (the bot, scripts,
+      # news pipeline) are covered without editing this list.
       - name: Check every source file parses
-        run: python -m compileall -q app.py components.py report_view.py report_store.py services views evals api tests
+        run: git ls-files -z '*.py' | xargs -0 python -m compileall -q
+
+      # Catches a broken import in a process entry point, which a
+      # syntax check cannot see. Runs with no secrets set.
+      - name: Check the bot and API entry points import
+        run: python -c "import telegram_bot.main, api.main"
 
       - name: Run offline test suites
         run: python run_tests.py
