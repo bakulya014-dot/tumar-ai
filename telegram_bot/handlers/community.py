@@ -30,6 +30,8 @@ from aiogram.enums import ChatMemberStatus, ChatType, ParseMode
 from aiogram.filters import Command
 from aiogram.types import ChatMemberUpdated, Message
 
+from i18n import language_from_locale, translate
+
 logger = logging.getLogger(__name__)
 
 community_router = Router(name="community_router")
@@ -144,8 +146,5 @@ async def on_group_join_or_leave(event: ChatMemberUpdated) -> None:
 async def private_text_hint(message: Message) -> None:
     if (message.text or "").startswith("/"):
         return
-    await message.answer(
-        "Message received. Analyze it using <code>/audit text</code> for messages "
-        "or <code>/scan link</code> for links — or just send a screenshot.",
-        parse_mode=ParseMode.HTML,
-    )
+    language = language_from_locale(message.from_user.language_code if message.from_user else None)
+    await message.answer(translate("bot.private_hint", language), parse_mode=ParseMode.HTML)

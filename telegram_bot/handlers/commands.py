@@ -112,50 +112,32 @@ async def quota_allows(message: Message, kind: str) -> bool:
 
 # ----------------- Onboarding & Dashboards -----------------
 
-def get_onboarding_keyboard() -> InlineKeyboardMarkup:
+def get_onboarding_keyboard(language: str = "en") -> InlineKeyboardMarkup:
     """Build interactive dashboard inline buttons."""
+
+    def button(name: str, callback: str) -> InlineKeyboardButton:
+        return InlineKeyboardButton(text=translate(f"bot.button.{name}", language), callback_data=callback)
+
     return InlineKeyboardMarkup(
         inline_keyboard=[
-            [
-                InlineKeyboardButton(text="📰 Live Threat News", callback_data="act_news"),
-                InlineKeyboardButton(text="💡 OpSec Tip", callback_data="act_tip"),
-            ],
-            [
-                InlineKeyboardButton(text="🔍 Check Account", callback_data="act_check_help"),
-                InlineKeyboardButton(text="🌐 Scan Target", callback_data="act_scan_help"),
-            ],
-            [
-                InlineKeyboardButton(text="🧠 Deep AI Audit", callback_data="act_audit_help"),
-            ],
+            [button("news", "act_news"), button("tip", "act_tip")],
+            [button("check", "act_check_help"), button("scan", "act_scan_help")],
+            [button("audit", "act_audit_help")],
         ]
     )
 
 
-ONBOARDING_TEXT = (
-    "🛡️ <b>Tumar.AI Cyber Defense Hub</b>\n\n"
-    "Welcome! Tumar.AI is an AI-augmented cybersecurity defense and intelligence engine "
-    "designed to protect students, developers, and digital citizens from modern cyber threats.\n\n"
-    "<b>Available Commands:</b>\n"
-    "• <code>/check &lt;email/user&gt;</code> — Data breach & exposed credential lookup\n"
-    "• <code>/scan &lt;url/domain/IP&gt;</code> — Rapid threat scanner & malicious link evaluator\n"
-    "• <code>/audit &lt;text/snippet&gt;</code> — Deep contextual scam & phishing risk audit\n"
-    "• <b>Send a screenshot</b> — Reads its text, QR codes and links and rates the risk "
-    "(in groups: reply to it with <code>/screenshot</code>)\n"
-    "• <code>/news</code> — Real-time AI synthesized cyber threat intel digest\n"
-    "• <code>/tip</code> — Curated student OpSec & endpoint hardening advice\n"
-    "• <code>/help</code> — Open this interactive capabilities guide\n\n"
-    "<i>Tap any button below to get started or run a test:</i>"
-)
 
 
 @commands_router.message(CommandStart())
 @commands_router.message(Command("help"))
 async def cmd_start_and_help(message: Message) -> None:
     """Send interactive onboarding dashboard."""
+    language = message_language(message)
     await message.answer(
-        text=ONBOARDING_TEXT,
+        text=translate("bot.onboarding", language),
         parse_mode=ParseMode.HTML,
-        reply_markup=get_onboarding_keyboard(),
+        reply_markup=get_onboarding_keyboard(language),
         disable_web_page_preview=True,
     )
 
@@ -163,12 +145,10 @@ async def cmd_start_and_help(message: Message) -> None:
 # ----------------- /news Handler -----------------
 
 @commands_router.message(Command("news"))
-async def cmd_news(message: Message) -> None:
+async def cmd_news(message: Message, language: str | None = None) -> None:
     """Deliver fresh live cybersecurity news filtered by AI."""
-    status = await message.answer(
-        "📡 <i>Scanning live cybersecurity threat feeds & synthesizing with AI...</i>",
-        parse_mode=ParseMode.HTML,
-    )
+    language = language or message_language(message)
+    status = await message.answer(translate("bot.news.progress", language), parse_mode=ParseMode.HTML)
 
     try:
         digest = await asyncio.to_thread(run_news_pipeline, limit=3)
@@ -179,10 +159,7 @@ async def cmd_news(message: Message) -> None:
         )
     except Exception as exc:
         logger.exception("Failed delivering /news: %s", exc)
-        await status.edit_text(
-            "⚠️ <b>Error:</b> Unable to deliver news intelligence at this moment. Please try again later.",
-            parse_mode=ParseMode.HTML,
-        )
+        await status.edit_text(translate("bot.news.error", language), parse_mode=ParseMode.HTML)
 
 
 # ----------------- /check Handler -----------------
@@ -226,17 +203,15 @@ def _perform_breach_check(target: str, language: str = "en", user_id: int | None
 
     if is_valid_email(clean_target):
         try:
-            text = _engine_report(clean_target, "email", language, "TUMAR BREACH INTELLIGENCE REPORT", user_id)
+            text = _engine_report(clean_target, "email", language, translate("bot.title.breach", language), user_id)
         except ServiceError as err:
             refund_check(user_id, "email")
             logger.warning("Email check failed: %s", err.code)
-            return (
-                "⚠️ <b>Lookup Notice:</b> Unable to reach breach registries at this time. "
-                "Please try again shortly."
-            )
+            return translate("bot.check.unavailable", language)
         exposed_fields = _extract_exposed_fields(_query_breach_analytics(clean_target))
         if exposed_fields:
-            text += f"\n\n🔓 <b>Exposed data types:</b> <code>{html.escape(', '.join(exposed_fields[:6]))}</code>"
+            fields = html.escape(", ".join(exposed_fields[:6]))
+            text += "\n\n" + translate("bot.check.exposed_fields", language, fields=fields)
         return text
 
     # If target is a username (no domain provided)
@@ -259,23 +234,10 @@ def _perform_breach_check(target: str, language: str = "en", user_id: int | None
         breach_count = 0
 
     if has_hits:
-        return (
-            f"🚨 <b>TUMAR USERNAME EXPOSURE NOTICE</b>\n\n"
-            f"🎯 <b>Target Username:</b> <code>{html.escape(masked_user)}</code>\n"
-            f"⚠️ <b>Incident Count:</b> <code>{breach_count} breaches</code>\n"
-            f"⚡ <b>Risk Level:</b> 🟡 <b>ELEVATED</b>\n\n"
-            f"💡 <b>Recommendation:</b> For an exhaustive exposure analysis with detailed fields, "
-            f"run <code>/check your_email@domain.com</code>."
+        return translate(
+            "bot.check.username_exposed", language, user=html.escape(masked_user), count=breach_count
         )
-
-    return (
-        f"🛡️ <b>TUMAR USERNAME REPUTATION CHECK</b>\n\n"
-        f"🎯 <b>Target:</b> <code>{html.escape(masked_user)}</code>\n"
-        f"🟢 <b>Exposure Status:</b> <b>NO PUBLIC EXPOSURE FOUND</b>\n"
-        f"🔒 <b>Risk Level:</b> <b>Minimal</b>\n\n"
-        f"💡 <i>Tip: For comprehensive exposure & breach analysis, please specify your full email address "
-        f"(e.g. <code>/check student@university.edu</code>).</i>"
-    )
+    return translate("bot.check.username_clear", language, user=html.escape(masked_user))
 
 
 @commands_router.message(Command("check"))
@@ -287,36 +249,22 @@ async def cmd_check(message: Message) -> None:
     if not target and message.reply_to_message:
         target = (message.reply_to_message.text or message.reply_to_message.caption or "").strip()
 
+    language = message_language(message)
     if not target:
-        await message.answer(
-            "⚠️ <b>Usage:</b> <code>/check &lt;email or username&gt;</code>\n\n"
-            "<i>Examples:</i>\n"
-            "• <code>/check student@example.com</code>\n"
-            "• <code>/check username</code>",
-            parse_mode=ParseMode.HTML,
-        )
+        await message.answer(translate("bot.check.usage", language), parse_mode=ParseMode.HTML)
         return
 
     if not await quota_allows(message, "email"):
         return
 
-    status = await message.answer(
-        "🔍 <i>Querying known breach registries & exposure indexes...</i>",
-        parse_mode=ParseMode.HTML,
-    )
+    status = await message.answer(translate("bot.check.progress", language), parse_mode=ParseMode.HTML)
 
     try:
-        report = await asyncio.to_thread(
-            _perform_breach_check, target, message_language(message), _user_id(message)
-        )
+        report = await asyncio.to_thread(_perform_breach_check, target, language, _user_id(message))
         await status.edit_text(report, parse_mode=ParseMode.HTML)
     except Exception as exc:
         logger.exception("Breach check encountered failure: %s", exc)
-        await status.edit_text(
-            "⚠️ <b>Lookup Notice:</b> Unable to reach breach registries at this time. "
-            "Please try again shortly.",
-            parse_mode=ParseMode.HTML,
-        )
+        await status.edit_text(translate("bot.check.unavailable", language), parse_mode=ParseMode.HTML)
 
 
 # ----------------- /scan Handler -----------------
@@ -328,26 +276,11 @@ def _perform_scan(target: str, language: str = "en", user_id: int | None = None)
     # 1. Check if target is an IP address
     try:
         ip = ipaddress.ip_address(candidate)
+        target_html = html.escape(candidate)
         if ip.is_private or ip.is_loopback:
-            return (
-                f"🛡️ <b>TUMAR IP THREAT INTELLIGENCE</b>\n\n"
-                f"🎯 <b>Target:</b> <code>{html.escape(candidate)}</code>\n"
-                f"📌 <b>Classification:</b> <b>Private / Internal RFC1918 Address</b>\n"
-                f"✅ <b>Verdict:</b> <b>LOCAL / NON-ROUTABLE</b>\n"
-                f"💡 <b>Info:</b> This address is reserved for local network routing and cannot be accessed "
-                f"directly from the public internet."
-            )
+            return translate("bot.scan.private_ip", language, target=target_html)
         # Public IP direct address
-        return (
-            f"⚠️ <b>TUMAR IP THREAT INTELLIGENCE</b>\n\n"
-            f"🎯 <b>Target:</b> <code>{html.escape(candidate)}</code>\n"
-            f"📌 <b>Classification:</b> <b>Direct Public IP Host</b>\n"
-            f"🟡 <b>Verdict:</b> <b>CAUTION (Elevated Alert)</b>\n"
-            f"🚩 <b>Indicators:</b>\n"
-            f"• Direct IP access bypasses standard DNS reputation layers.\n"
-            f"• Attackers frequently host temporary phishing sites on direct IPs to evade domain take-downs.\n\n"
-            f"💡 <b>Action:</b> Do not enter passwords, API credentials, or card details on direct IP hosts."
-        )
+        return translate("bot.scan.public_ip", language, target=target_html)
     except ValueError:
         pass  # Not an IP address, proceed to domain/URL evaluation
 
@@ -361,7 +294,7 @@ def _perform_scan(target: str, language: str = "en", user_id: int | None = None)
     # 3. URL or domain: the shared Trust Engine, as on the web. If the AI
     # provider fails, the engine returns the shared offline report.
     try:
-        return _engine_report(candidate, "url", language, "TUMAR THREAT INTELLIGENCE SCAN", user_id)
+        return _engine_report(candidate, "url", language, translate("bot.title.scan", language), user_id)
     except ServiceError as exc:
         logger.info("URL scan failed: %s", exc.code)
         refund_check(user_id, "url")
@@ -377,36 +310,22 @@ async def cmd_scan(message: Message) -> None:
     if not target and message.reply_to_message:
         target = (message.reply_to_message.text or message.reply_to_message.caption or "").strip()
 
+    language = message_language(message)
     if not target:
-        await message.answer(
-            "⚠️ <b>Usage:</b> <code>/scan &lt;link, domain, IP or message&gt;</code>\n\n"
-            "<i>Examples:</i>\n"
-            "• <code>/scan https://suspicious-verify.xyz</code>\n"
-            "• <code>/scan 185.220.101.5</code>\n"
-            "• <code>/scan portal-login.site</code>",
-            parse_mode=ParseMode.HTML,
-        )
+        await message.answer(translate("bot.scan.usage", language), parse_mode=ParseMode.HTML)
         return
 
     if not await quota_allows(message, "url"):
         return
 
-    status = await message.answer(
-        "🛡️ <i>Evaluating threat signals, indicators & reputation...</i>",
-        parse_mode=ParseMode.HTML,
-    )
+    status = await message.answer(translate("bot.scan.progress", language), parse_mode=ParseMode.HTML)
 
     try:
-        report = await asyncio.to_thread(
-            _perform_scan, target, message_language(message), _user_id(message)
-        )
+        report = await asyncio.to_thread(_perform_scan, target, language, _user_id(message))
         await status.edit_text(report, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
     except Exception as exc:
         logger.exception("Scan error: %s", exc)
-        await status.edit_text(
-            "⚠️ <b>Scan Notice:</b> Analysis failed for the provided target. Please verify format.",
-            parse_mode=ParseMode.HTML,
-        )
+        await status.edit_text(translate("bot.scan.failed", language), parse_mode=ParseMode.HTML)
 
 
 # ----------------- /audit Handler -----------------
@@ -420,7 +339,7 @@ def _perform_audit(snippet: str, language: str = "en", user_id: int | None = Non
     """
     clean_text = snippet.strip()
     try:
-        return _engine_report(clean_text, "message", language, "TUMAR CONTEXTUAL SECURITY AUDIT", user_id)
+        return _engine_report(clean_text, "message", language, translate("bot.title.audit", language), user_id)
     except ServiceError as exc:
         logger.info("Audit failed: %s", exc.code)
         refund_check(user_id, "message")
@@ -436,93 +355,50 @@ async def cmd_audit(message: Message) -> None:
     if not snippet and message.reply_to_message:
         snippet = (message.reply_to_message.text or message.reply_to_message.caption or "").strip()
 
+    language = message_language(message)
     if not snippet:
-        await message.answer(
-            "⚠️ <b>Usage:</b> <code>/audit &lt;message or snippet&gt;</code>\n\n"
-            "<i>Example:</i>\n"
-            "<code>/audit Urgent! Your university portal will be deactivated within 1 hour. "
-            "Click here to confirm your credentials.</code>\n\n"
-            "<i>(You can also reply to any message with /audit)</i>",
-            parse_mode=ParseMode.HTML,
-        )
+        await message.answer(translate("bot.audit.usage", language), parse_mode=ParseMode.HTML)
         return
 
     if not await quota_allows(message, "message"):
         return
 
-    status = await message.answer(
-        "🧠 <i>Running contextual security audit & risk evaluation...</i>",
-        parse_mode=ParseMode.HTML,
-    )
+    status = await message.answer(translate("bot.audit.progress", language), parse_mode=ParseMode.HTML)
 
     try:
-        report = await asyncio.to_thread(
-            _perform_audit, snippet, message_language(message), _user_id(message)
-        )
+        report = await asyncio.to_thread(_perform_audit, snippet, language, _user_id(message))
         await status.edit_text(report, parse_mode=ParseMode.HTML)
     except Exception as exc:
         logger.exception("Audit error: %s", exc)
-        await status.edit_text(
-            "⚠️ <b>Audit Notice:</b> Unable to complete analysis at this time. Please try again.",
-            parse_mode=ParseMode.HTML,
-        )
+        await status.edit_text(translate("bot.audit.failed", language), parse_mode=ParseMode.HTML)
 
 
 # ----------------- /tip Handler -----------------
 
-STUDENT_OPSEC_TIPS = (
-    (
-        "🎓 <b>Campus Wi-Fi Defense</b>",
-        "Public university Wi-Fi is shared by thousands of devices. Never access financial accounts "
-        "or internal student portals without verified HTTPS and an encrypted DNS (DoH/DoT) or VPN enabled.",
-    ),
-    (
-        "🔐 <b>Master Your Credentials</b>",
-        "Never reuse passwords between your university portal, social media, and email. Use an open-source "
-        "password manager (like Bitwarden) with a strong, 4-word diceware passphrase.",
-    ),
-    (
-        "🔑 <b>Upgrade Beyond SMS 2FA</b>",
-        "SMS verification codes can be intercepted via SIM-swapping and SS7 attacks. Switch your Google, "
-        "Telegram, and GitHub accounts to hardware security keys (FIDO2) or authenticator apps (Aegis/Yubico).",
-    ),
-    (
-        "💻 <b>Public Terminal Hygiene</b>",
-        "When using library or computer lab workstations, always browse in Incognito/Private mode, never save "
-        "credentials, and explicitly click 'Sign Out' before leaving your seat.",
-    ),
-    (
-        "⚡ <b>Avoid Committing Secrets</b>",
-        "Student developers: never commit <code>.env</code> files, API tokens, or database passwords to public "
-        "GitHub repositories. Use <code>.gitignore</code> and automated secret scanners like <code>git-secrets</code>.",
-    ),
-    (
-        "🎣 <b>Spotting University Phishing</b>",
-        "Beware of emails claiming 'Emergency Financial Aid Refund' or 'Urgent Course Tuition Payment'. "
-        "Always check sender headers and never log in via emailed links.",
-    ),
-    (
-        "📱 <b>Telegram Account Hardening</b>",
-        "In Telegram Settings → Privacy and Security: Enable Two-Step Verification (Cloud Password) and "
-        "restrict 'Who can find me by phone number' to 'My Contacts'.",
-    ),
-    (
-        "🔒 <b>Full Disk Encryption</b>",
-        "Enable BitLocker (Windows) or FileVault (macOS). If your laptop is lost or stolen on campus, "
-        "attackers cannot pull raw files from the hard drive without your encryption key.",
-    ),
+# Keys of the curated tips under bot.tips.* in i18n/*.json.
+TIP_KEYS = (
+    "wifi", "passwords", "twofa", "terminals", "secrets", "phishing", "telegram", "encryption",
 )
 
 
+def opsec_tips(language: str = "en") -> tuple[tuple[str, str], ...]:
+    """(title, advice) for every curated tip, in `language`."""
+    return tuple(
+        (translate(f"bot.tips.{key}.title", language), translate(f"bot.tips.{key}.text", language))
+        for key in TIP_KEYS
+    )
+
+
 @commands_router.message(Command("tip"))
-async def cmd_tip(message: Message) -> None:
+async def cmd_tip(message: Message, language: str | None = None) -> None:
     """Deliver a curated, student-focused operational security (OpSec) tip."""
-    title, advice = random.choice(STUDENT_OPSEC_TIPS)
+    language = language or message_language(message)
+    title, advice = random.choice(opsec_tips(language))
     text = (
-        f"💡 <b>TUMAR OPSEC & HARDENING TIP</b>\n\n"
+        f"{translate('bot.tip.header', language)}\n\n"
         f"{title}\n"
         f"{advice}\n\n"
-        f"🛡️ <i>Stay safe • Tumar 24/7 Shield</i>"
+        f"{translate('bot.tip.footer', language)}"
     )
     await message.answer(text, parse_mode=ParseMode.HTML)
 
@@ -534,32 +410,17 @@ async def handle_dashboard_actions(callback: CallbackQuery) -> None:
     """Handle interactive dashboard inline buttons."""
     await callback.answer()
     data = callback.data or ""
+    # callback.message was sent by the bot, so its sender's locale is the
+    # bot's: take the language from the user who pressed the button.
+    language = language_from_locale(callback.from_user.language_code if callback.from_user else None)
 
     if data == "act_news":
         if callback.message:
-            await cmd_news(callback.message)
+            await cmd_news(callback.message, language)
     elif data == "act_tip":
         if callback.message:
-            await cmd_tip(callback.message)
-    elif data == "act_check_help":
-        await callback.message.answer(
-            "🔍 <b>Check Breach & Exposure</b>\n\n"
-            "Send: <code>/check student@university.edu</code>\n"
-            "Queries global data breach registries for incident counts, exposed passwords, and risk levels.",
-            parse_mode=ParseMode.HTML,
-        )
-    elif data == "act_scan_help":
-        await callback.message.answer(
-            "🌐 <b>Threat & Reputation Scanner</b>\n\n"
-            "Send: <code>/scan https://suspicious-link.com</code>\n"
-            "Evaluates URLs, domains, and IP addresses for malicious indicators and deceptive markers.",
-            parse_mode=ParseMode.HTML,
-        )
-    elif data == "act_audit_help":
-        await callback.message.answer(
-            "🧠 <b>Contextual AI Security Audit</b>\n\n"
-            "Send: <code>/audit &lt;text here&gt;</code>\n"
-            "Runs a deep security evaluation on messages, emails, or snippets to detect social engineering, "
-            "credential harvesting, and calculate risk scores (0–100).",
-            parse_mode=ParseMode.HTML,
-        )
+            await cmd_tip(callback.message, language)
+    elif data in ("act_check_help", "act_scan_help", "act_audit_help"):
+        if callback.message:
+            topic = data.removeprefix("act_").removesuffix("_help")
+            await callback.message.answer(translate(f"bot.help.{topic}", language), parse_mode=ParseMode.HTML)

@@ -116,7 +116,7 @@ def test_audit_uses_the_shared_engine() -> None:
     finally:
         commands._ENGINE = original
     assert subject.declared_kind == "message" and subject.language == "ru"
-    assert "TUMAR CONTEXTUAL SECURITY AUDIT" in text
+    assert translate("bot.title.audit", "ru") in text  # the title follows the user's language
     assert translate("trust.verdict.danger", "ru").upper() in text
     assert "Offline check" not in text
     print("test_audit_uses_the_shared_engine PASSED")

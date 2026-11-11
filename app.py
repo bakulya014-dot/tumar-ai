@@ -127,7 +127,7 @@ pages = {
     t("nav.section_platform"): [
         st.Page(
             "views/launch_film.py",
-            title="Launch Film",
+            title=t("nav.film"),
             icon=icon("film"),
             url_path="launch-film",
         ),

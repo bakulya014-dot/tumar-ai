@@ -26,9 +26,11 @@ from aiogram.enums import ChatType, ParseMode
 from aiogram.filters import Command
 from aiogram.types import Message
 
+from i18n import translate
+
 from services.image_scanner import ImageScanResult, ImageValidationError, scan_image
 from services.image_scanner.validator import max_bytes
-from telegram_bot.handlers.commands import quota_allows
+from telegram_bot.handlers.commands import message_language, quota_allows
 
 logger = logging.getLogger(__name__)
 
@@ -37,66 +39,42 @@ screenshot_router = Router(name="screenshot_router")
 # OCR is CPU-bound; two at a time keeps a small host responsive.
 _SCAN_SLOTS = asyncio.Semaphore(2)
 
-_LEVEL_BADGES = {
-    "low": "🟢 <b>LOW RISK</b>",
-    "moderate": "🟡 <b>MODERATE RISK</b>",
-    "high": "🟠 <b>HIGH RISK</b>",
-    "critical": "🔴 <b>CRITICAL RISK</b>",
-    "inconclusive": "⚪ <b>INCONCLUSIVE</b>",
-}
-
-_CATEGORY_LABELS = {
-    "phishing": "Phishing",
-    "financial_fraud": "Financial fraud",
-    "credential_theft": "Credential theft",
-    "identity_impersonation": "Impersonation",
-    "delivery_scam": "Delivery scam",
-    "investment_scam": "Investment scam",
-    "social_engineering": "Social engineering",
-    "otp_harvesting": "One-time code harvesting",
-    "fake_payment_request": "Fake payment request",
-    "suspicious_authentication": "Suspicious sign-in request",
-}
-
-_LEVEL_ADVICE = {
-    "critical": (
-        "Do not open the links or scan the QR code.",
-        "Never share one-time codes, card details or passwords.",
-        "Block the sender and report the message.",
-    ),
-    "high": (
-        "Do not open the links or scan the QR code.",
-        "Contact the company or person through a channel you already trust.",
-    ),
-    "moderate": (
-        "Treat it with caution and verify it through an official channel first.",
-        "Do not enter codes or passwords from a link in this image.",
-    ),
-    "low": (
-        "No warning signs were found. Stay alert if it asks for money, codes or passwords.",
-    ),
-    "inconclusive": (
-        "Try sending the screenshot as a file (uncompressed) or a sharper capture.",
-        "Or paste the text with /audit and any link with /scan.",
-    ),
-}
-
-_OCR_NOTES = {
-    "unavailable": "Text reading (OCR) is not installed on this server, so only QR codes were checked.",
-    "failed": "Text reading (OCR) failed on this image.",
-}
+_LEVELS = ("low", "moderate", "high", "critical", "inconclusive")
+_CATEGORIES = (
+    "phishing", "financial_fraud", "credential_theft", "identity_impersonation", "delivery_scam",
+    "investment_scam", "social_engineering", "otp_harvesting", "fake_payment_request",
+    "suspicious_authentication",
+)
+# Advice lines per level, as keys under bot.shot.advice.<level>.<n>.
+_ADVICE_COUNT = {"critical": 3, "high": 2, "moderate": 2, "low": 1, "inconclusive": 2}
+_VALIDATION_CODES = frozenset({
+    "empty_image", "image_too_large", "unsupported_image", "image_dimensions",
+    "image_too_small", "image_corrupted",
+})
 
 
-def _validation_message(code: str) -> str:
-    limit_mb = max_bytes() // (1024 * 1024)
-    return {
-        "empty_image": "The file is empty.",
-        "image_too_large": f"The image is larger than {limit_mb} MB. Send a smaller screenshot.",
-        "unsupported_image": "That format isn't supported. Send a PNG, JPEG or WebP screenshot.",
-        "image_dimensions": "The image has too many pixels to scan safely.",
-        "image_too_small": "The image is too small to read.",
-        "image_corrupted": "The file couldn't be opened as an image.",
-    }.get(code, "The image couldn't be checked.")
+def _level_badge(level: str, language: str) -> str:
+    level = level if level in _LEVELS else "inconclusive"
+    return translate(f"bot.shot.level.{level}", language)
+
+
+def _level_advice(level: str, language: str) -> list[str]:
+    level = level if level in _ADVICE_COUNT else "inconclusive"
+    return [translate(f"bot.shot.advice.{level}.{n}", language) for n in range(1, _ADVICE_COUNT[level] + 1)]
+
+
+def _url_reason(code: str, language: str) -> str:
+    """The website's wording for a link-warning code, or the code itself."""
+    key = f"scam.url_reason.{code.removeprefix('url_')}"
+    text = translate(key, language)
+    return code.replace("_", " ") if text == key else text
+
+
+def _validation_message(code: str, language: str = "en") -> str:
+    if code not in _VALIDATION_CODES:
+        return translate("bot.shot.invalid.default", language)
+    # Unused placeholders are ignored, so every message can be given the limit.
+    return translate(f"bot.shot.invalid.{code}", language, mb=max_bytes() // (1024 * 1024))
 
 
 def defang(url: str) -> str:
@@ -113,76 +91,80 @@ def _shorten(text: str, limit: int) -> str:
     return text if len(text) <= limit else text[: limit - 1].rstrip() + "…"
 
 
-def format_scan_report(result: ImageScanResult) -> str:
+def format_scan_report(result: ImageScanResult, language: str = "en") -> str:
     """The bot's reply for one finished scan, as Telegram HTML."""
+    tr = lambda key, **kw: translate(key, language, **kw)  # noqa: E731
     level = result.risk.level
-    lines = ["🖼️ <b>TUMAR SCREENSHOT SCAN</b>", ""]
+    lines = [tr("bot.shot.title"), ""]
 
-    badge = _LEVEL_BADGES.get(level, _LEVEL_BADGES["inconclusive"])
     score = "" if level == "inconclusive" else f" (<code>{result.risk.score}/100</code>)"
-    lines.append(f"⚖️ <b>Risk:</b> {badge}{score}")
+    lines.append(tr("bot.shot.risk", badge=_level_badge(level, language), score=score))
 
     categories = [
-        _CATEGORY_LABELS[c] for c in result.classification.categories if c in _CATEGORY_LABELS
+        tr(f"image.category.{c}") for c in result.classification.categories if c in _CATEGORIES
     ]
     if categories:
-        lines.append(f"🏷️ <b>Signals:</b> {html.escape(', '.join(categories))}")
+        lines.append(tr("bot.shot.signals", categories=html.escape(", ".join(categories))))
     if result.classification.injection_phrases:
-        lines.append("🧩 <b>Hidden instructions aimed at AI tools were found in the image.</b>")
+        lines.append(tr("bot.shot.injection"))
 
     findings = result.urls.findings
     if findings:
-        lines += ["", "🔗 <b>Links found</b> <i>(not opened)</i>:"]
+        lines += ["", tr("bot.shot.links_title")]
         for finding in findings[:5]:
-            source = "QR code" if finding.origin == "qr" else "text"
+            source = tr("bot.shot.source_qr") if finding.origin == "qr" else tr("bot.shot.source_text")
             if finding.invalid:
-                verdict = "malformed link"
+                verdict = tr("bot.shot.link_malformed")
             elif finding.suspicious:
-                reasons = ", ".join(r.replace("_", " ") for r in finding.reasons[:3])
-                verdict = "suspicious" + (f": {reasons}" if reasons else "")
+                reasons = ", ".join(_url_reason(r, language) for r in finding.reasons[:3])
+                verdict = tr("bot.shot.link_suspicious_with", reasons=reasons) if reasons else tr("bot.shot.link_suspicious")
             else:
-                verdict = "no warning signs"
+                verdict = tr("bot.shot.link_clean")
             lines.append(
-                f"• <code>{html.escape(_shorten(defang(finding.url), 120))}</code> — "
-                f"{html.escape(verdict)} <i>(from {source})</i>"
+                tr(
+                    "bot.shot.link_line",
+                    url=html.escape(_shorten(defang(finding.url), 120)),
+                    verdict=html.escape(verdict),
+                    source=html.escape(source),
+                )
             )
         if len(findings) > 5:
-            lines.append(f"• …and {len(findings) - 5} more")
+            lines.append(tr("bot.shot.more_links", count=len(findings) - 5))
 
     other_qr = [code for code in result.qr.codes if not code.is_link]
     if other_qr:
         kinds = ", ".join(sorted({code.kind for code in other_qr}))
-        lines.append(f"📱 <b>Other QR codes:</b> {len(other_qr)} ({html.escape(kinds)})")
+        lines.append(tr("bot.shot.other_qr", count=len(other_qr), kinds=html.escape(kinds)))
 
     ai = result.ai
     if ai is not None and ai.explanation:
-        lines += ["", "💡 <b>Assessment:</b>", html.escape(_shorten(ai.explanation, 700))]
+        lines += ["", tr("bot.shot.assessment"), html.escape(_shorten(ai.explanation, 700))]
 
     if result.text:
-        lines += ["", "📝 <b>Text read from the image:</b>", f"<i>{html.escape(_shorten(result.text, 300))}</i>"]
+        lines += ["", tr("bot.shot.text_title"), f"<i>{html.escape(_shorten(result.text, 300))}</i>"]
     elif not result.anything_read:
-        lines += ["", "I couldn't read any text or QR code in this image."]
+        lines += ["", tr("bot.shot.nothing_read")]
 
     advice = list(ai.recommended_actions[:3]) if ai is not None and ai.recommended_actions else []
     if not advice:
-        advice = list(_LEVEL_ADVICE.get(level, _LEVEL_ADVICE["inconclusive"]))
-    lines += ["", "🛡️ <b>What to do:</b>"]
+        advice = _level_advice(level, language)
+    lines += ["", tr("bot.shot.what_to_do")]
     lines += [f"• {html.escape(item)}" for item in advice]
 
-    note = _OCR_NOTES.get(result.ocr.status)
-    if note:
-        lines += ["", f"<i>{html.escape(note)}</i>"]
-    lines += ["", f"<i>Checked in {result.elapsed_ms / 1000:.1f} s. The image was not stored.</i>"]
+    if result.ocr.status in ("unavailable", "failed"):
+        lines += ["", f"<i>{html.escape(tr(f'bot.shot.ocr_{result.ocr.status}'))}</i>"]
+    lines += ["", tr("bot.shot.checked", seconds=f"{result.elapsed_ms / 1000:.1f}")]
     return "\n".join(lines)
 
 
-def run_scan(data: bytes) -> str:
+def run_scan(data: bytes, language: str = "en") -> str:
     """Scan image bytes and return the reply text (blocking; run in a thread)."""
     try:
-        result = scan_image(data, api_key=os.getenv("GEMINI_API_KEY", "").strip(), language="en")
+        result = scan_image(data, api_key=os.getenv("GEMINI_API_KEY", "").strip(), language=language)
     except ImageValidationError as exc:
-        return f"⚠️ <b>Can't check this image.</b> {html.escape(_validation_message(exc.code))}"
-    return format_scan_report(result)
+        reason = html.escape(_validation_message(exc.code, language))
+        return translate("bot.shot.cant_check", language, reason=reason)
+    return format_scan_report(result, language)
 
 
 def _image_file(message: Message) -> tuple[str, int | None] | None:
@@ -197,12 +179,10 @@ def _image_file(message: Message) -> tuple[str, int | None] | None:
 
 
 async def _scan_and_reply(message: Message, source: Message, bot: Bot) -> None:
+    language = message_language(message)
     found = _image_file(source)
     if found is None:
-        await message.answer(
-            "⚠️ <b>Usage:</b> send a screenshot, or reply to one with <code>/screenshot</code>.",
-            parse_mode=ParseMode.HTML,
-        )
+        await message.answer(translate("bot.shot.usage", language), parse_mode=ParseMode.HTML)
         return
 
     if not await quota_allows(message, "image"):
@@ -210,28 +190,20 @@ async def _scan_and_reply(message: Message, source: Message, bot: Bot) -> None:
 
     file_id, size = found
     if size and size > max_bytes():
-        await message.answer(
-            f"⚠️ <b>Can't check this image.</b> {html.escape(_validation_message('image_too_large'))}",
-            parse_mode=ParseMode.HTML,
-        )
+        reason = html.escape(_validation_message("image_too_large", language))
+        await message.answer(translate("bot.shot.cant_check", language, reason=reason), parse_mode=ParseMode.HTML)
         return
 
-    status = await message.answer(
-        "🖼️ <i>Reading the screenshot: text, QR codes and links…</i>",
-        parse_mode=ParseMode.HTML,
-    )
+    status = await message.answer(translate("bot.shot.progress", language), parse_mode=ParseMode.HTML)
     try:
         buffer = io.BytesIO()
         await bot.download(file_id, destination=buffer)
         async with _SCAN_SLOTS:
-            report = await asyncio.to_thread(run_scan, buffer.getvalue())
+            report = await asyncio.to_thread(run_scan, buffer.getvalue(), language)
         await status.edit_text(report, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
     except Exception as exc:  # never leave the user with a spinner
         logger.exception("Screenshot scan failed: %s", exc)
-        await status.edit_text(
-            "⚠️ <b>Scan Notice:</b> Unable to check this image right now. Please try again.",
-            parse_mode=ParseMode.HTML,
-        )
+        await status.edit_text(translate("bot.shot.failed", language), parse_mode=ParseMode.HTML)
 
 
 _IMAGE_DOCUMENT = F.document.mime_type.startswith("image/")

@@ -15,7 +15,8 @@
     "image": "Screenshot Scanner",
     "breach": "Email Breach Checker",
     "password": "Password Health",
-    "about": "About"
+    "about": "About",
+    "film": "Launch Film"
   },
   "home": {
     "subtitle": "Your digital tumar — a personal AI amulet against online scams.",
@@ -523,5 +524,162 @@
     "exceeded_user": "You've used today's {limit} checks. They renew at 00:00 UTC.",
     "exceeded_bot": "You've used today's {limit} checks. They renew at 00:00 UTC.",
     "exceeded_pool": "Tumar.AI has reached today's limit for guest checks. Sign in with Google to continue, or try again after 00:00 UTC."
+  },
+  "film": {
+    "title": "Tumar.AI Launch Film",
+    "subtitle": "See the product story, then try the live cybersecurity assistant.",
+    "caption": "No account required. These videos are presentation assets only.",
+    "film_heading": "Launch film",
+    "animation_heading": "Product animation",
+    "pending": "The launch videos are being prepared. Please check back soon.",
+    "try_link": "Try Tumar.AI"
+  },
+  "bot": {
+    "button": {
+      "news": "📰 Live Threat News",
+      "tip": "💡 OpSec Tip",
+      "check": "🔍 Check Account",
+      "scan": "🌐 Scan Target",
+      "audit": "🧠 Deep AI Audit"
+    },
+    "onboarding": "🛡️ <b>Tumar.AI Cyber Defense Hub</b>\n\nWelcome! Tumar.AI is an AI-augmented cybersecurity defense and intelligence engine designed to protect students, developers, and digital citizens from modern cyber threats.\n\n<b>Available Commands:</b>\n• <code>/check &lt;email/user&gt;</code> — Data breach & exposed credential lookup\n• <code>/scan &lt;url/domain/IP&gt;</code> — Rapid threat scanner & malicious link evaluator\n• <code>/audit &lt;text/snippet&gt;</code> — Deep contextual scam & phishing risk audit\n• <b>Send a screenshot</b> — Reads its text, QR codes and links and rates the risk (in groups: reply to it with <code>/screenshot</code>)\n• <code>/news</code> — Real-time AI synthesized cyber threat intel digest\n• <code>/tip</code> — Curated student OpSec & endpoint hardening advice\n• <code>/help</code> — Open this interactive capabilities guide\n\n<i>Tap any button below to get started or run a test:</i>",
+    "news": {
+      "progress": "📡 <i>Scanning live cybersecurity threat feeds & synthesizing with AI...</i>",
+      "error": "⚠️ <b>Error:</b> Unable to deliver news intelligence at this moment. Please try again later."
+    },
+    "title": {
+      "breach": "TUMAR BREACH INTELLIGENCE REPORT",
+      "scan": "TUMAR THREAT INTELLIGENCE SCAN",
+      "audit": "TUMAR CONTEXTUAL SECURITY AUDIT"
+    },
+    "check": {
+      "usage": "⚠️ <b>Usage:</b> <code>/check &lt;email or username&gt;</code>\n\n<i>Examples:</i>\n• <code>/check student@example.com</code>\n• <code>/check username</code>",
+      "progress": "🔍 <i>Querying known breach registries & exposure indexes...</i>",
+      "unavailable": "⚠️ <b>Lookup Notice:</b> Unable to reach breach registries at this time. Please try again shortly.",
+      "exposed_fields": "🔓 <b>Exposed data types:</b> <code>{fields}</code>",
+      "username_exposed": "🚨 <b>TUMAR USERNAME EXPOSURE NOTICE</b>\n\n🎯 <b>Target Username:</b> <code>{user}</code>\n⚠️ <b>Incident Count:</b> <code>{count} breaches</code>\n⚡ <b>Risk Level:</b> 🟡 <b>ELEVATED</b>\n\n💡 <b>Recommendation:</b> For an exhaustive exposure analysis with detailed fields, run <code>/check your_email@domain.com</code>.",
+      "username_clear": "🛡️ <b>TUMAR USERNAME REPUTATION CHECK</b>\n\n🎯 <b>Target:</b> <code>{user}</code>\n🟢 <b>Exposure Status:</b> <b>NO PUBLIC EXPOSURE FOUND</b>\n🔒 <b>Risk Level:</b> <b>Minimal</b>\n\n💡 <i>Tip: For comprehensive exposure & breach analysis, please specify your full email address (e.g. <code>/check student@university.edu</code>).</i>"
+    },
+    "scan": {
+      "usage": "⚠️ <b>Usage:</b> <code>/scan &lt;link, domain, IP or message&gt;</code>\n\n<i>Examples:</i>\n• <code>/scan https://suspicious-verify.xyz</code>\n• <code>/scan 185.220.101.5</code>\n• <code>/scan portal-login.site</code>",
+      "progress": "🛡️ <i>Evaluating threat signals, indicators & reputation...</i>",
+      "failed": "⚠️ <b>Scan Notice:</b> Analysis failed for the provided target. Please verify format.",
+      "private_ip": "🛡️ <b>TUMAR IP THREAT INTELLIGENCE</b>\n\n🎯 <b>Target:</b> <code>{target}</code>\n📌 <b>Classification:</b> <b>Private / Internal RFC1918 Address</b>\n✅ <b>Verdict:</b> <b>LOCAL / NON-ROUTABLE</b>\n💡 <b>Info:</b> This address is reserved for local network routing and cannot be accessed directly from the public internet.",
+      "public_ip": "⚠️ <b>TUMAR IP THREAT INTELLIGENCE</b>\n\n🎯 <b>Target:</b> <code>{target}</code>\n📌 <b>Classification:</b> <b>Direct Public IP Host</b>\n🟡 <b>Verdict:</b> <b>CAUTION (Elevated Alert)</b>\n🚩 <b>Indicators:</b>\n• Direct IP access bypasses standard DNS reputation layers.\n• Attackers frequently host temporary phishing sites on direct IPs to evade domain take-downs.\n\n💡 <b>Action:</b> Do not enter passwords, API credentials, or card details on direct IP hosts."
+    },
+    "audit": {
+      "usage": "⚠️ <b>Usage:</b> <code>/audit &lt;message or snippet&gt;</code>\n\n<i>Example:</i>\n<code>/audit Urgent! Your university portal will be deactivated within 1 hour. Click here to confirm your credentials.</code>\n\n<i>(You can also reply to any message with /audit)</i>",
+      "progress": "🧠 <i>Running contextual security audit & risk evaluation...</i>",
+      "failed": "⚠️ <b>Audit Notice:</b> Unable to complete analysis at this time. Please try again."
+    },
+    "tip": {
+      "header": "💡 <b>TUMAR OPSEC & HARDENING TIP</b>",
+      "footer": "🛡️ <i>Stay safe • Tumar 24/7 Shield</i>"
+    },
+    "tips": {
+      "wifi": {
+        "title": "🎓 <b>Campus Wi-Fi Defense</b>",
+        "text": "Public university Wi-Fi is shared by thousands of devices. Never access financial accounts or internal student portals without verified HTTPS and an encrypted DNS (DoH/DoT) or VPN enabled."
+      },
+      "passwords": {
+        "title": "🔐 <b>Master Your Credentials</b>",
+        "text": "Never reuse passwords between your university portal, social media, and email. Use an open-source password manager (like Bitwarden) with a strong, 4-word diceware passphrase."
+      },
+      "twofa": {
+        "title": "🔑 <b>Upgrade Beyond SMS 2FA</b>",
+        "text": "SMS verification codes can be intercepted via SIM-swapping and SS7 attacks. Switch your Google, Telegram, and GitHub accounts to hardware security keys (FIDO2) or authenticator apps (Aegis/Yubico)."
+      },
+      "terminals": {
+        "title": "💻 <b>Public Terminal Hygiene</b>",
+        "text": "When using library or computer lab workstations, always browse in Incognito/Private mode, never save credentials, and explicitly click 'Sign Out' before leaving your seat."
+      },
+      "secrets": {
+        "title": "⚡ <b>Avoid Committing Secrets</b>",
+        "text": "Student developers: never commit <code>.env</code> files, API tokens, or database passwords to public GitHub repositories. Use <code>.gitignore</code> and automated secret scanners like <code>git-secrets</code>."
+      },
+      "phishing": {
+        "title": "🎣 <b>Spotting University Phishing</b>",
+        "text": "Beware of emails claiming 'Emergency Financial Aid Refund' or 'Urgent Course Tuition Payment'. Always check sender headers and never log in via emailed links."
+      },
+      "telegram": {
+        "title": "📱 <b>Telegram Account Hardening</b>",
+        "text": "In Telegram Settings → Privacy and Security: Enable Two-Step Verification (Cloud Password) and restrict 'Who can find me by phone number' to 'My Contacts'."
+      },
+      "encryption": {
+        "title": "🔒 <b>Full Disk Encryption</b>",
+        "text": "Enable BitLocker (Windows) or FileVault (macOS). If your laptop is lost or stolen on campus, attackers cannot pull raw files from the hard drive without your encryption key."
+      }
+    },
+    "help": {
+      "check": "🔍 <b>Check Breach & Exposure</b>\n\nSend: <code>/check student@university.edu</code>\nQueries global data breach registries for incident counts, exposed passwords, and risk levels.",
+      "scan": "🌐 <b>Threat & Reputation Scanner</b>\n\nSend: <code>/scan https://suspicious-link.com</code>\nEvaluates URLs, domains, and IP addresses for malicious indicators and deceptive markers.",
+      "audit": "🧠 <b>Contextual AI Security Audit</b>\n\nSend: <code>/audit &lt;text here&gt;</code>\nRuns a deep security evaluation on messages, emails, or snippets to detect social engineering, credential harvesting, and calculate risk scores (0–100)."
+    },
+    "private_hint": "Message received. Analyze it using <code>/audit text</code> for messages or <code>/scan link</code> for links — or just send a screenshot.",
+    "shot": {
+      "title": "🖼️ <b>TUMAR SCREENSHOT SCAN</b>",
+      "risk": "⚖️ <b>Risk:</b> {badge}{score}",
+      "level": {
+        "low": "🟢 <b>LOW RISK</b>",
+        "moderate": "🟡 <b>MODERATE RISK</b>",
+        "high": "🟠 <b>HIGH RISK</b>",
+        "critical": "🔴 <b>CRITICAL RISK</b>",
+        "inconclusive": "⚪ <b>INCONCLUSIVE</b>"
+      },
+      "signals": "🏷️ <b>Signals:</b> {categories}",
+      "injection": "🧩 <b>Hidden instructions aimed at AI tools were found in the image.</b>",
+      "links_title": "🔗 <b>Links found</b> <i>(not opened)</i>:",
+      "source_qr": "QR code",
+      "source_text": "text",
+      "link_malformed": "malformed link",
+      "link_suspicious": "suspicious",
+      "link_suspicious_with": "suspicious: {reasons}",
+      "link_clean": "no warning signs",
+      "link_line": "• <code>{url}</code> — {verdict} <i>(from {source})</i>",
+      "more_links": "• …and {count} more",
+      "other_qr": "📱 <b>Other QR codes:</b> {count} ({kinds})",
+      "assessment": "💡 <b>Assessment:</b>",
+      "text_title": "📝 <b>Text read from the image:</b>",
+      "nothing_read": "I couldn't read any text or QR code in this image.",
+      "what_to_do": "🛡️ <b>What to do:</b>",
+      "advice": {
+        "critical": {
+          "1": "Do not open the links or scan the QR code.",
+          "2": "Never share one-time codes, card details or passwords.",
+          "3": "Block the sender and report the message."
+        },
+        "high": {
+          "1": "Do not open the links or scan the QR code.",
+          "2": "Contact the company or person through a channel you already trust."
+        },
+        "moderate": {
+          "1": "Treat it with caution and verify it through an official channel first.",
+          "2": "Do not enter codes or passwords from a link in this image."
+        },
+        "low": {
+          "1": "No warning signs were found. Stay alert if it asks for money, codes or passwords."
+        },
+        "inconclusive": {
+          "1": "Try sending the screenshot as a file (uncompressed) or a sharper capture.",
+          "2": "Or paste the text with /audit and any link with /scan."
+        }
+      },
+      "ocr_unavailable": "Text reading (OCR) is not installed on this server, so only QR codes were checked.",
+      "ocr_failed": "Text reading (OCR) failed on this image.",
+      "checked": "<i>Checked in {seconds} s. The image was not stored.</i>",
+      "cant_check": "⚠️ <b>Can't check this image.</b> {reason}",
+      "invalid": {
+        "empty_image": "The file is empty.",
+        "image_too_large": "The image is larger than {mb} MB. Send a smaller screenshot.",
+        "unsupported_image": "That format isn't supported. Send a PNG, JPEG or WebP screenshot.",
+        "image_dimensions": "The image has too many pixels to scan safely.",
+        "image_too_small": "The image is too small to read.",
+        "image_corrupted": "The file couldn't be opened as an image.",
+        "default": "The image couldn't be checked."
+      },
+      "usage": "⚠️ <b>Usage:</b> send a screenshot, or reply to one with <code>/screenshot</code>.",
+      "progress": "🖼️ <i>Reading the screenshot: text, QR codes and links…</i>",
+      "failed": "⚠️ <b>Scan Notice:</b> Unable to check this image right now. Please try again."
+    }
   }
 }
