@@ -11,6 +11,9 @@ URL scanner) appeared — shared plumbing belongs to the platform, not
 to whichever module happened to be written first.
 """
 
+import time
+
+import httpx
 from google import genai
 from google.genai import errors as genai_errors
 from pydantic import BaseModel, ValidationError
@@ -31,7 +34,20 @@ MODEL_CANDIDATES: tuple[str, ...] = (
 TEMPERATURE = 0.2
 
 # Give up on requests that take longer than this (milliseconds).
+# Kept at 30 s until telemetry gives us a measured p95 to tune against:
+# raising it blindly only makes a stuck request keep the user waiting.
 REQUEST_TIMEOUT_MS = 30_000
+
+# A dropped connection that fails fast (DNS blip, stale keep-alive,
+# reset) is retried once on the same model after a short pause. A slow
+# failure is not: the user has already waited, and a timeout is not
+# retried at all. The SDK's own retries stay off, so these are the
+# only ones and they cannot multiply.
+FAST_FAILURE_S = 5.0
+RETRY_DELAY_S = 0.5
+_RETRIABLE_NETWORK_ERRORS = (httpx.ConnectError, httpx.RemoteProtocolError)
+
+_sleep = time.sleep  # replaced in tests
 
 
 class GeminiError(ServiceError):
@@ -67,31 +83,50 @@ def generate_structured[ModelT: BaseModel](
 
     response = None
     last_error: genai_errors.APIError | None = None
-    for attempt, model in enumerate(MODEL_CANDIDATES, start=1):
-        timer = telemetry.Timer()
-        try:
-            response = client.models.generate_content(
-                model=model,
-                contents=contents,
-                config=genai.types.GenerateContentConfig(
-                    system_instruction=system_prompt,
-                    response_mime_type="application/json",
-                    response_schema=schema,
-                    temperature=TEMPERATURE,
-                ),
-            )
-            _record_call(model, attempt, timer, "ok", response=response)
+    attempt = 0
+    for model in MODEL_CANDIDATES:
+        network_retried = False
+        while True:
+            attempt += 1
+            timer = telemetry.Timer()
+            try:
+                response = client.models.generate_content(
+                    model=model,
+                    contents=contents,
+                    config=genai.types.GenerateContentConfig(
+                        system_instruction=system_prompt,
+                        response_mime_type="application/json",
+                        response_schema=schema,
+                        temperature=TEMPERATURE,
+                    ),
+                )
+                _record_call(model, attempt, timer, "ok", response=response)
+                break
+            except genai_errors.APIError as exc:
+                code = _api_error_code(exc)
+                _record_call(model, attempt, timer, "error", code, getattr(exc, "code", None))
+                if _is_retriable(exc):
+                    last_error = exc
+                    break  # A different model may still succeed.
+                raise GeminiError(code) from exc
+            except httpx.TimeoutException as exc:
+                # Slow, not down: say so, and do not make the user wait
+                # another full timeout on a second model.
+                _record_call(model, attempt, timer, "error", "timeout")
+                raise GeminiError("timeout") from exc
+            except _RETRIABLE_NETWORK_ERRORS as exc:
+                fast = timer.ms < FAST_FAILURE_S * 1000
+                _record_call(model, attempt, timer, "error", "unreachable")
+                if fast and not network_retried:
+                    network_retried = True
+                    _sleep(RETRY_DELAY_S)
+                    continue
+                raise GeminiError("unreachable") from exc
+            except Exception as exc:  # anything else the SDK or network raises
+                _record_call(model, attempt, timer, "error", "unreachable")
+                raise GeminiError("unreachable") from exc
+        if response is not None:
             break
-        except genai_errors.APIError as exc:
-            code = _api_error_code(exc)
-            _record_call(model, attempt, timer, "error", code, getattr(exc, "code", None))
-            if _is_retriable(exc):
-                last_error = exc
-                continue  # A different model may still succeed.
-            raise GeminiError(code) from exc
-        except Exception as exc:  # Network failures, timeouts, DNS errors…
-            _record_call(model, attempt, timer, "error", "unreachable")
-            raise GeminiError("unreachable") from exc
 
     if response is None:
         code = _api_error_code(last_error) if last_error else "unavailable"
