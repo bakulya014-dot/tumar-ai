@@ -19,11 +19,12 @@ from app.news.collector import FALLBACK_ARTICLES, NewsArticle, _strip_html
 from app.news.summarizer import _format_rule_based
 from aiogram.types import Message
 from telegram_bot.handlers.commands import (
-    STUDENT_OPSEC_TIPS,
+    TIP_KEYS,
     _extract_exposed_fields,
     _perform_audit,
     _perform_scan,
     get_onboarding_keyboard,
+    opsec_tips,
 )
 from telegram_bot.middlewares.anti_spam import AntiSpamMiddleware
 from i18n import translate
@@ -126,9 +127,12 @@ def test_commands_dashboard_and_tips() -> None:
     assert "act_scan_help" in callbacks
     assert "act_audit_help" in callbacks
 
-    assert len(STUDENT_OPSEC_TIPS) >= 5
-    for title, advice in STUDENT_OPSEC_TIPS:
-        assert title and advice
+    assert len(TIP_KEYS) >= 5
+    for language in ("en", "ru", "kk"):
+        tips = opsec_tips(language)
+        assert len(tips) == len(TIP_KEYS)
+        for title, advice in tips:
+            assert title and advice and not title.startswith("bot.tips."), (language, title)
     print("test_commands_dashboard_and_tips PASSED")
 
 
