@@ -14,7 +14,8 @@ from components import page_header
 from contribution_ui import contribution_box
 from i18n import current_language, t
 from report_view import render_trust_report
-from services.url_scanner import UrlScanError, scan_url
+from services.common import ServiceError
+from services.trust_engine import AnalysisContext, TrustEngine, TrustSubject
 
 MAX_URL_LENGTH = 500
 SOURCE = "url_scanner"
@@ -29,8 +30,8 @@ page_header(t("url.title"), t("url.subtitle"), "url")
 
 api_key = components.get_gemini_api_key()
 if not api_key:
-    components.error_view(t("scam.not_configured"))
-    st.stop()
+    # No key: checks still run, as clearly labelled rules-only reports.
+    st.info(t("scam.not_configured"), icon=components.icon("info"))
 
 url = st.text_input(
     t("url.input_label"),
@@ -59,12 +60,17 @@ if check_clicked:
     else:
         with st.spinner(t("url.spinner")):
             try:
-                report = scan_url(
-                    cleaned, api_key=api_key, language=current_language()
+                # Shared Trust Engine, with the labelled rules-only
+                # fallback when the AI provider fails.
+                report = TrustEngine().analyze(
+                    TrustSubject(content=cleaned, declared_kind="url", language=current_language()),
+                    AnalysisContext(api_key=api_key, offline_fallback=True),
                 )
-            except UrlScanError as error:
+            except ServiceError as error:
+                quota_ui.settle("url", failed=True)
                 components.error_view(t(f'errors.{error.code}'))
             else:
+                quota_ui.settle("url", report)
                 report_store.remember(st.session_state, report)
 
 # Rendered from the store so the verdict survives later re-runs.

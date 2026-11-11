@@ -87,6 +87,11 @@ def test_english_code_requests_are_disclosure() -> None:
         "Text me the 6-digit code you received",
         "Give me your verification code so I can unlock your card",
         "Send us your OTP to cancel the transaction",
+        # Imperatives at the start of a sentence ("Send your …").
+        "URGENT: Your account is blocked. Send your password and one-time code immediately.",
+        "Send your one-time code to this number",
+        "Please send the code we just texted you.",
+        "Your card is frozen. Forward your SMS code to our agent.",
     ]
     for text in requests:
         assert scan_message(text).otp_signal == "disclosure", text
@@ -107,6 +112,10 @@ def test_ordinary_code_messages_stay_calm() -> None:
         "Give me a call when the dress code is decided.",
         "Send me the promo code for the store",
         "Please give me the ZIP code for the delivery",
+        # A service announcing delivery, and an imperative in another sentence.
+        "We will send your verification code by SMS.",
+        "We'll send your one-time code to the number on file.",
+        "Send your feedback by Friday. The access code for the room is on the door.",
     ]
     for text in calm:
         assert scan_message(text).otp_signal != "disclosure", text

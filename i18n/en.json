@@ -174,6 +174,21 @@
       "email": "Email address",
       "message": "Message text",
       "password": "Password"
+    },
+    "offline": {
+      "banner": "Offline check: the AI analysis could not run, so this verdict comes from Tumar.AI's built-in rules only. It is less complete than a full check.",
+      "bot_note": "Offline check: the AI analysis is unavailable right now, so this verdict comes from Tumar.AI's built-in rules only.",
+      "confidence": "Rules only: there is no AI analysis to corroborate the result, so confidence and trust are capped at 60.",
+      "rec_do_not_act": "Do not reply, open the link, or share any code or password.",
+      "rec_verify": "Before you act, contact the sender through a channel you already trust.",
+      "rec_retry": "Run the check again when the AI analysis is available for a fuller verdict.",
+      "explain": {
+        "inconclusive": "There is too little text for the rules to judge, and the AI check could not run.",
+        "low": "The offline rules found no known scam pattern. Without the AI check this is not a clean bill of health, so stay careful.",
+        "moderate": "The offline rules found weak warning signs, such as pressure or talk of money, but no strong scam signal. Treat it with caution.",
+        "high": "The offline rules found a strong scam signal, such as a request for a one-time code, login details or a lookalike link.",
+        "critical": "The offline rules found several strong, independent scam signals."
+      }
     }
   },
   "contribute": {

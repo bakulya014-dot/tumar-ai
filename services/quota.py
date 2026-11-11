@@ -85,6 +85,9 @@ class QuotaStore(Protocol):
     def increment_if_below(self, key: str, day: str, limit: int) -> tuple[bool, int]:
         """Atomically add one use if below `limit`. Returns (added, count)."""
 
+    def decrement(self, key: str, day: str) -> None:
+        """Take back one use counted today (never below zero)."""
+
 
 class MemoryQuotaStore:
     """Thread-safe in-process counters, pruned when the day changes."""
@@ -104,6 +107,11 @@ class MemoryQuotaStore:
             self._counts[key] = count + 1
             return True, count + 1
 
+    def decrement(self, key: str, day: str) -> None:
+        with self._lock:
+            if day == self._day and self._counts.get(key, 0) > 0:
+                self._counts[key] -= 1
+
 
 class DailyQuota:
     def __init__(self, store: QuotaStore | None = None) -> None:
@@ -122,6 +130,21 @@ class DailyQuota:
         day = _today(now or datetime.now(timezone.utc))
         added, count = self.store.increment_if_below(identity_key(f"{tier}:{identity}"), day, limit)
         return QuotaDecision(added, count, limit)
+
+    def refund(
+        self, identity: str, tier: str, kind: str = "message", now: datetime | None = None
+    ) -> None:
+        """Give back one check that `consume` counted but that cost nothing.
+
+        Used when the paid service failed (provider unreachable, rate
+        limited, no key…): the user should not lose an allowance to our
+        outage. Mirrors consume(): uncounted kinds and switched-off
+        tiers are no-ops.
+        """
+        if kind not in COUNTED_KINDS or limit_for(tier) == 0:
+            return
+        day = _today(now or datetime.now(timezone.utc))
+        self.store.decrement(identity_key(f"{tier}:{identity}"), day)
 
 
 _default: DailyQuota | None = None

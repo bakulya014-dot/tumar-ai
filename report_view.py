@@ -37,6 +37,13 @@ from services.trust_report import Evidence, TrustReport
 
 def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> None:
     """Render one Trust Report in the platform's standard layout."""
+    if is_offline(report):
+        # Above the verdict, so nobody reads a rules-only result as a
+        # full AI-backed check.
+        st.warning(t("trust.offline.banner"), icon=components.icon("warning"))
+        reason = report.analysis_metadata.get("offline_reason", "")
+        if reason:
+            st.caption(t(f"errors.{reason}"))
     components.verdict_card(
         components.TRUST_CSS_VARIANTS[report.verdict],
         t(f"trust.verdict.{report.verdict}"),
@@ -59,6 +66,11 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
 
     _render_evidence(report, expand_evidence)
     _render_footer(report)
+
+
+def is_offline(report: TrustReport) -> bool:
+    """True for a rules-only report produced while the AI layer failed."""
+    return report.analysis_metadata.get("mode") == "offline"
 
 
 def _text(free_text: str, key: str) -> str:

@@ -5,6 +5,7 @@ and command processing logic without making live external network calls.
 """
 
 import asyncio
+import html
 from dataclasses import dataclass
 import sys
 import time
@@ -25,6 +26,23 @@ from telegram_bot.handlers.commands import (
     get_onboarding_keyboard,
 )
 from telegram_bot.middlewares.anti_spam import AntiSpamMiddleware
+from i18n import translate
+import os
+
+_PROVIDER_VARS = (
+    "GEMINI_API_KEY", "TUMAR_TEXT_PROVIDER", "TUMAR_VISION_PROVIDER",
+    "DEEPSEEK_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "KIMI_API_KEY",
+)
+
+
+def _no_ai_provider() -> dict:
+    return {name: os.environ.pop(name, None) for name in _PROVIDER_VARS}
+
+
+def _restore(saved: dict) -> None:
+    for name, value in saved.items():
+        if value is not None:
+            os.environ[name] = value
 
 
 def test_anti_spam_middleware_rate_limiting() -> None:
@@ -125,13 +143,20 @@ def test_scan_logic_for_ip_and_domains() -> None:
     res_public = _perform_scan("8.8.8.8")
     assert "Direct Public IP Host" in res_public
 
-    # Suspicious domain with suspicious TLD
-    res_domain = _perform_scan("kaspi-bank-login.xyz")
-    assert "SUSPICIOUS / THREAT DETECTED" in res_domain or "CAUTION" in res_domain
-
-    # Legitimate standard domain
-    res_clean = _perform_scan("https://github.com")
-    assert "NO MALICIOUS SIGNALS DETECTED" in res_clean or "LIKELY SAFE" in res_clean
+    # Domains go through the shared Trust Engine. With no AI key the
+    # engine returns its labelled rules-only report (the same one the
+    # website shows), so this exercises the offline path on purpose.
+    saved = _no_ai_provider()
+    try:
+        res_domain = _perform_scan("kaspi-bank-login.xyz")
+        res_clean = _perform_scan("https://github.com")
+    finally:
+        _restore(saved)
+    assert translate("trust.verdict.danger", "en").upper() in res_domain
+    # Offline never certifies "safe", and an ordinary site is not "dangerous".
+    assert translate("trust.verdict.safe", "en").upper() not in res_clean
+    assert translate("trust.verdict.danger", "en").upper() not in res_clean
+    assert html.escape(translate("trust.offline.bot_note", "en")) in res_clean
     print("test_scan_logic_for_ip_and_domains PASSED")
 
 
@@ -140,13 +165,17 @@ def test_audit_heuristic_scoring() -> None:
     malicious_text = (
         "URGENT: Your account is blocked. Send your password and one-time code immediately."
     )
-    res_bad = _perform_audit(malicious_text)
-    assert "DANGEROUS" in res_bad or "SUSPICIOUS" in res_bad
-    assert "Risk Score" in res_bad or "Calculated Risk Score" in res_bad
-
     benign_text = "Hi team, please find the class notes attached for tomorrow's lecture."
-    res_good = _perform_audit(benign_text)
-    assert "BENIGN" in res_good or "SAFE" in res_good
+    saved = _no_ai_provider()
+    try:
+        res_bad = _perform_audit(malicious_text)
+        res_good = _perform_audit(benign_text)
+    finally:
+        _restore(saved)
+    danger = translate("trust.verdict.danger", "en").upper()
+    assert danger in res_bad
+    assert translate("trust.score_label", "en") in res_bad
+    assert danger not in res_good
     print("test_audit_heuristic_scoring PASSED")
 
 
