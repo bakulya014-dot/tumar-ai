@@ -8,6 +8,7 @@ features moved from the legacy bot (registry, daily dispatch, /broadcast).
 """
 
 import asyncio
+import html
 import os
 import sys
 import tempfile
@@ -121,17 +122,60 @@ def test_audit_uses_the_shared_engine() -> None:
     print("test_audit_uses_the_shared_engine PASSED")
 
 
+_PROVIDER_VARS = (
+    "GEMINI_API_KEY", "TUMAR_TEXT_PROVIDER", "TUMAR_VISION_PROVIDER",
+    "DEEPSEEK_API_KEY", "OPENAI_API_KEY", "ANTHROPIC_API_KEY", "KIMI_API_KEY",
+)
+
+
+def _no_ai_provider() -> dict:
+    """Remove every AI key so the real engine hits a provider failure."""
+    return {name: os.environ.pop(name, None) for name in _PROVIDER_VARS}
+
+
+def _restore(saved: dict) -> None:
+    for name, value in saved.items():
+        if value is not None:
+            os.environ[name] = value
+
+
 def test_audit_and_scan_fall_back_offline_and_say_so() -> None:
-    original = commands._ENGINE
-    commands._ENGINE = FakeEngine(error=ServiceError("not_configured"))
+    # The REAL engine with no AI key: the provider fails, the engine
+    # returns the shared rules-only report, and the bot labels it —
+    # the same report the website shows, not a bot-only score.
+    saved = _no_ai_provider()
     try:
         audit = commands._perform_audit("URGENT: send your password and one-time code now")
         scan = commands._perform_scan("kaspi-bank-login.xyz")
+        calm = commands._perform_audit("Hi team, the class notes for tomorrow are attached.")
     finally:
-        commands._ENGINE = original
-    assert "Offline check" in audit and ("DANGEROUS" in audit or "SUSPICIOUS" in audit)
-    assert "Offline check" in scan and ("SUSPICIOUS" in scan or "CAUTION" in scan)
+        _restore(saved)
+    note = html.escape(translate("trust.offline.bot_note", "en"))  # as sent to Telegram
+    danger = translate("trust.verdict.danger", "en").upper()
+    for text in (audit, scan, calm):
+        assert note in text, text
+    assert danger in audit and danger in scan
+    # Offline never certifies "safe": no rule matched is not proof.
+    assert translate("trust.verdict.safe", "en").upper() not in calm
+    assert danger not in calm
     print("test_audit_and_scan_fall_back_offline_and_say_so PASSED")
+
+
+def test_offline_checks_are_refunded() -> None:
+    os.environ["TUMAR_DAILY_LIMIT_BOT"] = "1"
+    quota_module._default = DailyQuota()
+    saved = _no_ai_provider()
+    try:
+        msg = _message(user_id=321)
+        object.__setattr__(msg, "answer", AsyncMock())
+        for _ in range(3):  # limit 1, yet every offline check is given back
+            assert _run(commands.quota_allows(msg, "message"))
+            commands._perform_audit("send me your SMS code", "en", user_id=321)
+    finally:
+        _restore(saved)
+        os.environ.pop("TUMAR_DAILY_LIMIT_BOT", None)
+        quota_module._default = None
+    print("test_offline_checks_are_refunded PASSED")
 
 
 def test_scan_of_plain_text_runs_the_message_check() -> None:
@@ -145,13 +189,17 @@ def test_scan_of_plain_text_runs_the_message_check() -> None:
         commands._ENGINE = FakeEngine(report=_report(subject_type="url", verdict="caution"))
         commands._perform_scan("kaspi-bank-login.xyz", "en")
         link_kinds = [s.declared_kind for s in commands._ENGINE.calls]
-        commands._ENGINE = FakeEngine(error=ServiceError("not_configured"))
-        offline = commands._perform_scan("send me your SMS code now, your account is blocked", "en")
     finally:
         commands._ENGINE = original
+    saved = _no_ai_provider()
+    try:
+        offline = commands._perform_scan("send me your SMS code now, your account is blocked", "en")
+    finally:
+        _restore(saved)
     assert kinds == ["message"] and "TUMAR CONTEXTUAL SECURITY AUDIT" in text
     assert link_kinds == ["url"]
-    assert "NO MALICIOUS SIGNALS" not in offline and "Offline check" in offline
+    assert html.escape(translate("trust.offline.bot_note", "en")) in offline
+    assert translate("trust.verdict.danger", "en").upper() in offline
     print("test_scan_of_plain_text_runs_the_message_check PASSED")
 
 
@@ -245,6 +293,7 @@ if __name__ == "__main__":
     test_locale_mapping()
     test_audit_uses_the_shared_engine()
     test_audit_and_scan_fall_back_offline_and_say_so()
+    test_offline_checks_are_refunded()
     test_scan_of_plain_text_runs_the_message_check()
     test_ip_addresses_never_reach_the_engine()
     test_breach_check_uses_engine_for_emails()

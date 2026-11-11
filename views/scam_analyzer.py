@@ -14,9 +14,10 @@ import report_store
 from components import page_header
 from contribution_ui import contribution_box
 from report_view import render_trust_report
-from services.scam_analysis import ScamAnalysisError, analyze_message
-from services.trust_report import TrustReport, from_scam_report
-from i18n import t
+from services.common import ServiceError
+from services.trust_engine import AnalysisContext, TrustEngine, TrustSubject
+from services.trust_report import TrustReport
+from i18n import current_language, t
 
 MAX_MESSAGE_LENGTH = 5000
 SOURCE = "scam_analyzer"
@@ -41,8 +42,8 @@ page_header(t("scam.title"), t("scam.subtitle"), "scam")
 
 api_key = components.get_gemini_api_key()
 if not api_key:
-    components.error_view(t("scam.not_configured"))
-    st.stop()
+    # No key: checks still run, as clearly labelled rules-only reports.
+    st.info(t("scam.not_configured"), icon=components.icon("info"))
 
 message = st.text_area(
     t("scam.input_label"),
@@ -72,13 +73,19 @@ if analyze_clicked:
     else:
         with st.spinner(t("scam.spinner")):
             try:
-                result = analyze_message(cleaned, api_key=api_key)
-            except ScamAnalysisError as error:
+                # The shared Trust Engine: same analysis as Quick Check,
+                # the API and the Telegram bot, with the labelled
+                # rules-only fallback when the AI provider fails.
+                report = TrustEngine().analyze(
+                    TrustSubject(content=cleaned, declared_kind="message", language=current_language()),
+                    AnalysisContext(api_key=api_key, offline_fallback=True),
+                )
+            except ServiceError as error:
+                quota_ui.settle("message", failed=True)
                 components.error_view(t(f'errors.{error.code}'))
             else:
-                report_store.remember(
-                    st.session_state, from_scam_report(result, cleaned)
-                )
+                quota_ui.settle("message", report)
+                report_store.remember(st.session_state, report)
 
 # Rendered from the store, not from the click: a result must survive
 # every later re-run (language switch, typing, any other widget).

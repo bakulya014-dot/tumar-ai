@@ -124,6 +124,7 @@ if analyze_clicked and upload is not None and quota_ui.allow_check("image"):
                 ),
             )
         except ServiceError as error:
+            quota_ui.settle("image", failed=True)
             components.error_view(t(f'errors.{error.code}'))
         else:
             report_store.remember(st.session_state, report)

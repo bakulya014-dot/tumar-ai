@@ -53,6 +53,7 @@ if check_clicked:
             try:
                 result = check_email(cleaned)
             except BreachCheckError as error:
+                quota_ui.settle("email", failed=True)
                 components.error_view(t(f'errors.{error.code}'))
             else:
                 report_store.remember(

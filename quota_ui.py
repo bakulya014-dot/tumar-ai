@@ -56,3 +56,24 @@ def allow_check(kind: str) -> bool:
         st.warning(t("quota.exceeded_pool"))
         return False
     return True
+
+
+def refund(kind: str) -> None:
+    """Return one check counted by allow_check() that cost nothing —
+    the provider failed, so the user got an offline result or an error.
+    Guests get both their own count and the shared pool back."""
+    quota = default_quota()
+    _name, email = auth.user_display()
+    if email:
+        quota.refund(f"user:{email}", "user", kind)
+        return
+    quota.refund(_guest_identity(), "guest", kind)
+    quota.refund("all-guests", "guest_pool", kind)
+
+
+def settle(kind: str, report=None, failed: bool = False) -> None:
+    """Refund the check when it did not reach the paid service:
+    a ServiceError (failed=True) or a rules-only offline report."""
+    offline = report is not None and report.analysis_metadata.get("mode") == "offline"
+    if failed or offline:
+        refund(kind)

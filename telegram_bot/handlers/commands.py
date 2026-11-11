@@ -15,8 +15,6 @@ import ipaddress
 import logging
 import os
 import random
-import re
-from urllib.parse import urlparse
 
 from aiogram import F, Router
 from aiogram.enums import ParseMode
@@ -33,10 +31,8 @@ from app.news.pipeline import run_news_pipeline
 from i18n import language_from_locale, translate
 from services.breach_checker import is_valid_email
 from services.common import ServiceError
-from services.heuristics import scan_message, url_reasons
 from services.quota import default_quota
 from services.trust_engine import AnalysisContext, TrustEngine, TrustSubject, UrlAnalyzer
-from services.url_scanner import normalize_url
 from telegram_bot.report_format import format_report
 
 logger = logging.getLogger(__name__)
@@ -45,9 +41,10 @@ commands_router = Router(name="commands_router")
 
 # One engine for every channel: the bot reaches the same analyzers, the
 # same scoring and the same evidence as the web app and the REST API, so
-# a message cannot get one verdict here and another on the website. The
-# bot's own heuristics below remain only as the offline fallback for
-# when no AI provider is reachable, and say so in their reply.
+# a message cannot get one verdict here and another on the website —
+# online or offline. When the AI provider fails, the engine itself
+# returns the shared rules-only report (services/offline_report.py),
+# exactly as the website shows it.
 _ENGINE = TrustEngine()
 # The engine's own link test, so "/scan" decides link-or-text exactly as
 # the web app's Quick Check does.
@@ -58,17 +55,38 @@ def _ai_key() -> str:
     return os.getenv("GEMINI_API_KEY", "").strip()
 
 
-def _engine_report(content: str, kind: str, language: str, title: str) -> str:
+def _engine_report(
+    content: str, kind: str, language: str, title: str, user_id: int | None = None
+) -> str:
     """Analyze through the shared Trust Engine and format for Telegram.
 
-    Raises ServiceError when the analyzer cannot run (for messages and
-    links: usually no AI provider configured or reachable).
+    A provider failure comes back as the engine's labelled offline
+    report: the reply then says so, and the user's check is refunded
+    because it never reached the paid service. Raises ServiceError only
+    for problems an offline check cannot fix (invalid input, breach
+    database down).
     """
     report = _ENGINE.analyze(
         TrustSubject(content=content, declared_kind=kind, language=language),
-        AnalysisContext(api_key=_ai_key()),
+        AnalysisContext(api_key=_ai_key(), offline_fallback=True),
     )
-    return format_report(report, title, language)
+    text = format_report(report, title, language)
+    if report.analysis_metadata.get("mode") == "offline":
+        logger.info("Offline report for kind=%s (reason=%s)", kind, report.analysis_metadata.get("offline_reason"))
+        refund_check(user_id, kind)
+        note = html.escape(translate("trust.offline.bot_note", language))
+        text = f"⚠️ <i>{note}</i>\n\n{text}"
+    return text
+
+
+def refund_check(user_id: int | None, kind: str) -> None:
+    """Give back a check that did not reach the paid service."""
+    if user_id is not None:
+        default_quota().refund(f"tg:{user_id}", "bot", kind)
+
+
+def _user_id(message: Message) -> int | None:
+    return message.from_user.id if message.from_user else None
 
 
 def message_language(message: Message) -> str:
@@ -89,8 +107,6 @@ async def quota_allows(message: Message, kind: str) -> bool:
     await message.answer(f"⏳ {html.escape(text)}", parse_mode=ParseMode.HTML)
     return False
 
-
-_OFFLINE_NOTE = "\n\n<i>Offline check: the AI analysis is unavailable right now, so this verdict comes from Tumar.AI's built-in rules only.</i>"
 
 # ----------------- Onboarding & Dashboards -----------------
 
@@ -197,7 +213,7 @@ def _extract_exposed_fields(analytics: dict) -> list[str]:
     return sorted(fields)
 
 
-def _perform_breach_check(target: str, language: str = "en") -> str:
+def _perform_breach_check(target: str, language: str = "en", user_id: int | None = None) -> str:
     """Core breach intelligence lookup logic.
 
     Email addresses go through the shared Trust Engine (the same breach
@@ -208,8 +224,9 @@ def _perform_breach_check(target: str, language: str = "en") -> str:
 
     if is_valid_email(clean_target):
         try:
-            text = _engine_report(clean_target, "email", language, "TUMAR BREACH INTELLIGENCE REPORT")
+            text = _engine_report(clean_target, "email", language, "TUMAR BREACH INTELLIGENCE REPORT", user_id)
         except ServiceError as err:
+            refund_check(user_id, "email")
             logger.warning("Email check failed: %s", err.code)
             return (
                 "⚠️ <b>Lookup Notice:</b> Unable to reach breach registries at this time. "
@@ -287,7 +304,9 @@ async def cmd_check(message: Message) -> None:
     )
 
     try:
-        report = await asyncio.to_thread(_perform_breach_check, target, message_language(message))
+        report = await asyncio.to_thread(
+            _perform_breach_check, target, message_language(message), _user_id(message)
+        )
         await status.edit_text(report, parse_mode=ParseMode.HTML)
     except Exception as exc:
         logger.exception("Breach check encountered failure: %s", exc)
@@ -300,11 +319,7 @@ async def cmd_check(message: Message) -> None:
 
 # ----------------- /scan Handler -----------------
 
-_SUSPICIOUS_TLDS = {".xyz", ".top", ".tk", ".ml", ".ga", ".cf", ".gq", ".buzz", ".work", ".click", ".icu", ".cam"}
-_PHISHING_KEYWORDS = {"login", "verify", "secure", "banking", "account", "update", "support", "wallet", "recovery", "kaspi"}
-
-
-def _perform_scan(target: str, language: str = "en") -> str:
+def _perform_scan(target: str, language: str = "en", user_id: int | None = None) -> str:
     """Analyze a URL, domain, or IP address for threats and reputation."""
     candidate = target.strip()
 
@@ -339,57 +354,16 @@ def _perform_scan(target: str, language: str = "en") -> str:
     # a URL would wrongly report "no malicious signals". Run the message
     # check instead, the same analysis /audit gives.
     if not _LINK_DETECTOR.can_handle(TrustSubject(content=candidate)):
-        return _perform_audit(candidate, language)
+        return _perform_audit(candidate, language, user_id)
 
-    # 3. URL or domain: the shared Trust Engine, as on the web.
+    # 3. URL or domain: the shared Trust Engine, as on the web. If the AI
+    # provider fails, the engine returns the shared offline report.
     try:
-        return _engine_report(candidate, "url", language, "TUMAR THREAT INTELLIGENCE SCAN")
+        return _engine_report(candidate, "url", language, "TUMAR THREAT INTELLIGENCE SCAN", user_id)
     except ServiceError as exc:
-        logger.info("Engine URL scan unavailable (%s); using the offline check.", exc.code)
-
-    # 4. Deterministic Heuristic Scanner (offline fallback)
-    try:
-        normalized = normalize_url(candidate)
-    except Exception:
-        normalized = "https://" + candidate if "://" not in candidate else candidate
-
-    reasons = url_reasons(normalized)
-    parsed = urlparse(normalized)
-    domain = parsed.hostname or ""
-
-    red_flags: list[str] = []
-    for reason in reasons:
-        red_flags.append(f"Heuristic pattern: {reason}")
-
-    if any(domain.endswith(tld) for tld in _SUSPICIOUS_TLDS):
-        red_flags.append(f"High-risk top-level domain ({domain.split('.')[-1]})")
-
-    keyword_hits = [kw for kw in _PHISHING_KEYWORDS if kw in domain.lower()]
-    if keyword_hits and not domain.endswith(".kz") and not domain.endswith(".gov"):
-        red_flags.append(f"High-value target impersonation keywords ({', '.join(keyword_hits)})")
-
-    if red_flags:
-        verdict = "🚨 <b>SUSPICIOUS / THREAT DETECTED</b>" if len(red_flags) >= 2 else "⚠️ <b>CAUTION ADVISED</b>"
-        risk_score = min(95, 30 + len(red_flags) * 25)
-        flags_text = "\n".join(f"• {html.escape(f)}" for f in red_flags)
-        return (
-            f"🛡️ <b>TUMAR THREAT INTELLIGENCE SCAN</b>\n\n"
-            f"🎯 <b>Target:</b> <code>{html.escape(candidate[:100])}</code>\n"
-            f"⚖️ <b>Verdict:</b> {verdict}\n"
-            f"⚡ <b>Estimated Risk Score:</b> <code>{risk_score}/100</code>\n\n"
-            f"🚩 <b>Identified Threat Indicators:</b>\n{flags_text}\n\n"
-            f"💡 <b>Mitigation:</b> Avoid opening or authenticating via this link. Verify official portal URLs directly."
-        ) + _OFFLINE_NOTE
-
-    return (
-        f"🛡️ <b>TUMAR THREAT INTELLIGENCE SCAN</b>\n\n"
-        f"🎯 <b>Target:</b> <code>{html.escape(candidate[:100])}</code>\n"
-        f"⚖️ <b>Verdict:</b> ✅ <b>NO MALICIOUS SIGNALS DETECTED</b>\n"
-        f"📈 <b>Trust Score:</b> <code>90/100</code>\n\n"
-        f"• Verified standard protocol structure.\n"
-        f"• No deceptive TLDs or common phishing indicators flagged.\n\n"
-        f"💡 <i>Tip: Always check SSL certificates and domain spelling before entering credentials.</i>"
-    ) + _OFFLINE_NOTE
+        logger.info("URL scan failed: %s", exc.code)
+        refund_check(user_id, "url")
+        return f"⚠️ {html.escape(translate(f'errors.{exc.code}', language))}"
 
 
 @commands_router.message(Command("scan"))
@@ -421,7 +395,9 @@ async def cmd_scan(message: Message) -> None:
     )
 
     try:
-        report = await asyncio.to_thread(_perform_scan, target, message_language(message))
+        report = await asyncio.to_thread(
+            _perform_scan, target, message_language(message), _user_id(message)
+        )
         await status.edit_text(report, parse_mode=ParseMode.HTML, disable_web_page_preview=True)
     except Exception as exc:
         logger.exception("Scan error: %s", exc)
@@ -433,66 +409,20 @@ async def cmd_scan(message: Message) -> None:
 
 # ----------------- /audit Handler -----------------
 
-def _perform_audit(snippet: str, language: str = "en") -> str:
-    """Execute contextual security evaluation on text, messages, or configurations."""
+def _perform_audit(snippet: str, language: str = "en", user_id: int | None = None) -> str:
+    """Execute contextual security evaluation on text, messages, or configurations.
+
+    One path for online and offline alike: the shared Trust Engine. If
+    the AI provider fails, the engine's rules-only report is shown,
+    labelled — the same report the website shows.
+    """
     clean_text = snippet.strip()
-
-    # The shared Trust Engine: same analysis and verdict as the web app.
     try:
-        return _engine_report(clean_text, "message", language, "TUMAR CONTEXTUAL SECURITY AUDIT")
+        return _engine_report(clean_text, "message", language, "TUMAR CONTEXTUAL SECURITY AUDIT", user_id)
     except ServiceError as exc:
-        logger.info("Engine audit unavailable (%s); using the offline check.", exc.code)
-
-    # Deterministic Heuristic Engine Fallback (offline)
-    heuristics = scan_message(clean_text)
-    risk_score = 10
-    red_flags: list[str] = []
-
-    if heuristics.urgency_score > 0:
-        risk_score += min(35, heuristics.urgency_score)
-        red_flags.append(f"Artificial urgency patterns ({', '.join(heuristics.urgency_matches[:3])})")
-
-    if heuristics.credential_indicators:
-        risk_score += 35
-        red_flags.append(f"Credential collection cues ({', '.join(heuristics.credential_indicators[:3])})")
-
-    if heuristics.otp_signal in ("disclosure", "entry"):
-        risk_score += 40
-        red_flags.append("One-Time Password (OTP) solicitation detected")
-
-    if heuristics.financial_indicators:
-        risk_score += 25
-        red_flags.append(f"Financial transaction bait ({', '.join(heuristics.financial_indicators[:3])})")
-
-    if heuristics.manipulation_indicators:
-        risk_score += 20
-        red_flags.append(f"Social engineering manipulation ({', '.join(heuristics.manipulation_indicators[:3])})")
-
-    if heuristics.suspicious_urls:
-        risk_score += 30
-        red_flags.append("Contains suspicious links or deceptive domain structures")
-
-    risk_score = min(100, risk_score)
-
-    if risk_score >= 60:
-        verdict = "🔴 <b>DANGEROUS / HIGH RISK</b>"
-    elif risk_score >= 30:
-        verdict = "🟡 <b>SUSPICIOUS / ELEVATED RISK</b>"
-    else:
-        verdict = "🟢 <b>LIKELY BENIGN</b>"
-
-    flags_text = "\n".join(f"• {html.escape(f)}" for f in red_flags) or "• No aggressive manipulation signals detected."
-
-    return (
-        f"🧠 <b>TUMAR CONTEXTUAL SECURITY AUDIT</b>\n\n"
-        f"⚖️ <b>Verdict:</b> {verdict}\n"
-        f"📊 <b>Calculated Risk Score:</b> <code>{risk_score}/100</code>\n\n"
-        f"🚩 <b>Detected Indicators:</b>\n{flags_text}\n\n"
-        f"🛡️ <b>Actionable Mitigations:</b>\n"
-        f"• Do not disclose one-time passwords, seed phrases, or credentials.\n"
-        f"• Verify sender identity through known, out-of-band communication channels.\n"
-        f"• Discard messages that insist on immediate, panic-driven action."
-    ) + _OFFLINE_NOTE
+        logger.info("Audit failed: %s", exc.code)
+        refund_check(user_id, "message")
+        return f"⚠️ {html.escape(translate(f'errors.{exc.code}', language))}"
 
 
 @commands_router.message(Command("audit"))
@@ -524,7 +454,9 @@ async def cmd_audit(message: Message) -> None:
     )
 
     try:
-        report = await asyncio.to_thread(_perform_audit, snippet, message_language(message))
+        report = await asyncio.to_thread(
+            _perform_audit, snippet, message_language(message), _user_id(message)
+        )
         await status.edit_text(report, parse_mode=ParseMode.HTML)
     except Exception as exc:
         logger.exception("Audit error: %s", exc)

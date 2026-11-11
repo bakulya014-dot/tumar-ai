@@ -76,15 +76,19 @@ if st.button(
             st.caption(
                 t("home.quick_detected", kind=t(f"trust.kind.{analyzer.kind}"))
             )
-        if quota_ui.allow_check(analyzer.kind if analyzer else "message"):
+        kind = analyzer.kind if analyzer else "message"
+        if quota_ui.allow_check(kind):
             with st.spinner(t("home.quick_spinner")):
                 try:
                     report = engine.analyze(
-                        subject, AnalysisContext(api_key=api_key)
+                        subject,
+                        AnalysisContext(api_key=api_key, offline_fallback=True),
                     )
                 except ServiceError as error:
+                    quota_ui.settle(kind, failed=True)
                     components.error_view(t(f'errors.{error.code}'))
                 else:
+                    quota_ui.settle(kind, report)
                     report_store.remember(st.session_state, report)
 
 # Rendered from the store so the verdict survives later re-runs.

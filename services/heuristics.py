@@ -103,6 +103,14 @@ _EN_REQUEST_VERBS = (
 )
 _EN_REQUEST_WINDOW = 30
 
+# "Send your code…" is a command only at the start of a sentence: "we
+# will send your code by SMS" is a real service delivering one. So these
+# count when the imperative opens a sentence (optionally after "please"),
+# shortly before the code word.
+_EN_IMPERATIVE_REQUEST = re.compile(
+    r"(?:^|[.!?:;\n]\s*)(?:please\s+|pls\s+)?(?:send|forward|text|share)\s+(?:your|the|us\s+your|me\s+your)\b"
+)
+
 # English compounds where "code" is not a one-time code. A request to
 # "send me the source code" or a note about the dress code is ordinary
 # conversation, not an attempt to take over an account.
@@ -354,6 +362,7 @@ def _classify_otp(lowered: str) -> tuple[str, list[str]]:
 def _code_near_disclosure_verb(lowered: str) -> list[str]:
     """Find "code … hand it over" wording regardless of word order."""
     matches: list[str] = []
+    imperatives = list(_EN_IMPERATIVE_REQUEST.finditer(lowered))
     for code_word in _CODE_WORDS:
         start = lowered.find(code_word)
         while start != -1:
@@ -376,6 +385,17 @@ def _code_near_disclosure_verb(lowered: str) -> list[str]:
                     if verb in before:
                         matches.append(f"{verb}…{code_word}")
                         break
+                else:
+                    for imperative in imperatives:
+                        if (
+                            imperative.end() <= start
+                            and start - imperative.start() <= _DISCLOSURE_WINDOW
+                            # same sentence: "Send your feedback. The
+                            # access code is…" is not a request for it
+                            and not any(p in lowered[imperative.end():start] for p in ".!?\n")
+                        ):
+                            matches.append(f"{imperative.group(0).strip(' .!?:;')}…{code_word}")
+                            break
             start = lowered.find(code_word, start + 1)
     return matches
 

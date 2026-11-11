@@ -38,6 +38,11 @@ from pydantic import BaseModel
 from services.breach_checker import check_email, is_valid_email
 from services.common import ServiceError
 from services.image_scanner import SUPPORTED_MIME_TYPES, scan_image, to_trust_report
+from services.offline_report import (
+    is_provider_failure,
+    offline_message_report,
+    offline_url_report,
+)
 from services.password_check import check_password
 from services.scam_analysis import analyze_message
 from services.trust_report import (
@@ -73,6 +78,12 @@ class AnalysisContext(BaseModel):
     # sent to external AI providers? False keeps every analysis local
     # (OCR, QR, URL heuristics, the message scanner, risk scoring).
     allow_external_ai: bool = True
+    # When the AI provider fails (unreachable, timeout, rate limit, no
+    # valid key), answer message and link checks with a rules-only
+    # report labelled "offline" instead of raising. Off by default so
+    # API clients keep receiving the provider error they can act on;
+    # the web app and the Telegram bot turn it on.
+    offline_fallback: bool = False
 
 
 class EngineError(ServiceError):
@@ -283,4 +294,23 @@ class TrustEngine:
         analyzer = self.detect(subject)
         if analyzer is None:
             raise EngineError("unsupported_input")
-        return analyzer.analyze(subject, context)
+        try:
+            return analyzer.analyze(subject, context)
+        except ServiceError as exc:
+            fallback = _OFFLINE_BUILDERS.get(analyzer.kind)
+            if (
+                context.offline_fallback
+                and fallback is not None
+                and isinstance(subject.content, str)
+                and is_provider_failure(exc.code)
+            ):
+                return fallback(subject.content, exc.code)
+            raise
+
+
+# Analyzers whose AI layer has a rules-only stand-in. Email, image and
+# password checks need no AI to reach a verdict, so they have none.
+_OFFLINE_BUILDERS = {
+    "message": offline_message_report,
+    "url": offline_url_report,
+}
