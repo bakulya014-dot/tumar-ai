@@ -269,7 +269,7 @@ def test_registry_and_daily_dispatch() -> None:
     bot.send_message = AsyncMock(side_effect=[Exception("blocked"), None])
     sent = _run(community.send_daily_broadcast(bot, targets={-5, -6}))
     assert sent == 1 and bot.send_message.await_count == 2
-    assert "TUMAR.AI TECH DISPATCH" in bot.send_message.await_args.kwargs["text"]
+    assert translate("bot.daily.header", "en") in bot.send_message.await_args.kwargs["text"]
     assert _run(community.send_daily_broadcast(MagicMock(), targets=set())) == 0
     print("test_registry_and_daily_dispatch PASSED")
 

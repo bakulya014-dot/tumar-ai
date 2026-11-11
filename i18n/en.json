@@ -680,6 +680,10 @@
       "usage": "⚠️ <b>Usage:</b> send a screenshot, or reply to one with <code>/screenshot</code>.",
       "progress": "🖼️ <i>Reading the screenshot: text, QR codes and links…</i>",
       "failed": "⚠️ <b>Scan Notice:</b> Unable to check this image right now. Please try again."
+    },
+    "daily": {
+      "header": "📢 <b>TUMAR.AI DAILY SAFETY TIP</b>",
+      "footer": "🛡️ <i>A curated safety tip, not a news alert. For today's security news, send /news to the bot.</i>"
     }
   }
 }

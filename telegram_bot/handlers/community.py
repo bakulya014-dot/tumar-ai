@@ -9,8 +9,12 @@ Procfile to telegram_bot.main loses nothing:
   carry over.
 - /broadcast <message> sends an alert to every registered chat; only
   the admin (TELEGRAM_ADMIN_ID) may use it.
-- send_daily_broadcast() posts one curated update to every registered
-  chat; telegram_bot.main schedules it daily at 09:00, server time.
+- send_daily_broadcast() posts one curated safety tip to every
+  registered chat; telegram_bot.main schedules it daily at 09:00
+  Asia/Almaty. It is labelled as a curated tip, not news: live news
+  is /news, which runs the news pipeline on request. The legacy bot's
+  hard-coded "news" items (e.g. a "Zero-Day Alert") were not real
+  current events and are gone.
 - Plain text in a private chat gets a hint about the commands. Groups
   get no reply, so the bot never talks over a conversation.
 
@@ -21,22 +25,34 @@ messages that a command handler should get.
 import asyncio
 import logging
 import os
-import random
 import sqlite3
+from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 from aiogram import Bot, F, Router
 from aiogram.enums import ChatMemberStatus, ChatType, ParseMode
+from aiogram.exceptions import TelegramForbiddenError, TelegramRetryAfter
 from aiogram.filters import Command
 from aiogram.types import ChatMemberUpdated, Message
 
 from i18n import language_from_locale, translate
+from services import telemetry
+from telegram_bot.handlers.commands import opsec_tips
 
 logger = logging.getLogger(__name__)
 
 community_router = Router(name="community_router")
 
-DB_PATH = Path(__file__).resolve().parent.parent / "broadcast.db"
+# The registry must live on a persistent disk in production: hosts with
+# ephemeral storage wipe it on every deploy, and the daily dispatch then
+# silently reaches nobody. TUMAR_BROADCAST_DB points it there.
+DB_PATH = Path(
+    os.getenv("TUMAR_BROADCAST_DB", "").strip()
+    or Path(__file__).resolve().parent.parent / "broadcast.db"
+)
+TIMEZONE = ZoneInfo("Asia/Almaty")
 
 
 class TargetRegistry:
@@ -83,37 +99,72 @@ def admin_user_id() -> int:
         return 0
 
 
-# Curated Tech & Cyber Industry Updates Pool (unchanged from the legacy bot)
-TECH_NEWS_FEED = [
-    "🌐 <b>Tech & Cyber Morning Digest</b>\n\n• <b>Zero-Day Alert:</b> Critical vulnerabilities patched in major Chromium-based browsers. Update your apps today.\n• <b>Defense Tip:</b> Review third-party OAuth app authorizations in your Google and Telegram accounts.",
-    "🚀 <b>Tech Industry Update</b>\n\n• <b>AI Infrastructure:</b> Advancements in local LLM deployments allow smaller edge devices to run inference with reduced latency.\n• <b>Security Note:</b> Never approve unexpected two-factor push prompts on your phone.",
-    "🛡️ <b>Tumar Cyber Intelligence Brief</b>\n\n• <b>Supply Chain Security:</b> Malicious packages identified in public repositories. Developers should pin dependency hashes.\n• <b>Best Practice:</b> Enable hardware-backed security keys or authenticators where available.",
-]
+
+@dataclass
+class Delivery:
+    """What happened to one broadcast. Chat ids are not logged."""
+
+    sent: int = 0
+    failed: int = 0
+    removed: int = 0  # chats that blocked or removed the bot, deregistered
 
 
-async def _send_to_all(bot: Bot, text: str, targets: set[int]) -> int:
-    sent = 0
+async def _send_one(bot: Bot, chat_id: int, text: str) -> None:
+    try:
+        await bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.HTML)
+    except TelegramRetryAfter as exc:  # flood control: wait as told, retry once
+        await asyncio.sleep(exc.retry_after)
+        await bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.HTML)
+
+
+async def _send_to_all(bot: Bot, text: str, targets: set[int], kind: str = "admin") -> Delivery:
+    result = Delivery()
     for chat_id in targets:
         try:
-            await bot.send_message(chat_id=chat_id, text=text, parse_mode=ParseMode.HTML)
-            sent += 1
+            await _send_one(bot, chat_id, text)
+            result.sent += 1
             await asyncio.sleep(0.05)  # stay well under Telegram's flood limits
-        except Exception as exc:  # a chat that blocked the bot must not stop the rest
-            logger.info("Broadcast to %s failed: %s", chat_id, exc)
-    return sent
+        except TelegramForbiddenError:
+            # Kicked or blocked: it will never succeed, so stop trying.
+            registry().remove(chat_id)
+            result.removed += 1
+        except Exception as exc:  # one chat must not stop the rest
+            result.failed += 1
+            logger.warning("Broadcast delivery failed: %s", type(exc).__name__)
+    logger.info(
+        "Broadcast (%s): sent=%d failed=%d removed=%d", kind, result.sent, result.failed, result.removed
+    )
+    telemetry.emit(
+        "broadcast", kind=kind, sent=result.sent, failed=result.failed, removed=result.removed
+    )
+    return result
+
+
+def broadcast_language() -> str:
+    """Groups have no single user locale; TUMAR_BROADCAST_LANGUAGE picks one."""
+    return language_from_locale(os.getenv("TUMAR_BROADCAST_LANGUAGE", "en"))
+
+
+def daily_tip_text(language: str, day: datetime | None = None) -> str:
+    """Today's curated tip. Rotates by date, so no tip repeats on consecutive days."""
+    day = day or datetime.now(TIMEZONE)
+    tips = opsec_tips(language)
+    title, advice = tips[day.toordinal() % len(tips)]
+    return (
+        f"{translate('bot.daily.header', language)}\n\n"
+        f"{title}\n{advice}\n\n"
+        f"{translate('bot.daily.footer', language)}"
+    )
 
 
 async def send_daily_broadcast(bot: Bot, targets: set[int] | None = None) -> int:
-    """Post one curated update to every registered chat. Returns how many got it."""
+    """Post today's curated tip to every registered chat. Returns how many got it."""
     targets = registry().get_all() if targets is None else targets
     if not targets:
+        logger.info("Daily dispatch: no registered chats")
         return 0
-    text = (
-        "📢 <b>AUTOMATED TUMAR.AI TECH DISPATCH</b>\n\n"
-        f"{random.choice(TECH_NEWS_FEED)}\n\n"
-        "🛡️ <i>Delivered automatically • Tumar 24/7 Shield</i>"
-    )
-    return await _send_to_all(bot, text, targets)
+    text = daily_tip_text(broadcast_language())
+    return (await _send_to_all(bot, text, targets, kind="daily")).sent
 
 
 @community_router.message(Command("broadcast"))
@@ -128,8 +179,11 @@ async def cmd_broadcast(message: Message, bot: Bot) -> None:
         await message.answer("⚠️ <b>Usage:</b> <code>/broadcast message</code>", parse_mode=ParseMode.HTML)
         return
 
-    sent = await _send_to_all(bot, f"🚨 <b>TUMAR ALERT:</b>\n\n{parts[1]}", registry().get_all())
-    await message.answer(f"✅ Dispatched to {sent} active channels/groups.")
+    result = await _send_to_all(bot, f"🚨 <b>TUMAR ALERT:</b>\n\n{parts[1]}", registry().get_all())
+    await message.answer(
+        f"✅ Dispatched to {result.sent} active channels/groups."
+        f" Failed: {result.failed}. Removed (bot blocked or kicked): {result.removed}."
+    )
 
 
 @community_router.my_chat_member()

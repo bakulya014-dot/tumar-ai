@@ -72,6 +72,9 @@ _FIELDS = frozenset(
         "tier",
         "action",
         "limit",
+        "sent",
+        "failed",
+        "removed",
     }
 )
 _SAFE_STRING = re.compile(r"^[A-Za-z0-9_.:\-]{1,64}$")
