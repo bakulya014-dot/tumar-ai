@@ -51,6 +51,7 @@ from api.schemas import (  # noqa: E402
     WithdrawalResponse,
 )
 from api.security import RateLimiter, key_fingerprint, verify_key  # noqa: E402
+from services import telemetry  # noqa: E402
 from services.common import ServiceError  # noqa: E402
 from services.trust_engine import (  # noqa: E402
     AnalysisContext,
@@ -196,6 +197,7 @@ async def observability(request: Request, call_next):
     """
     request_id = uuid.uuid4().hex[:16]
     request.state.request_id = request_id
+    telemetry.begin_request(request_id)  # engine and model events share it
     started = time.monotonic()
     try:
         response = await call_next(request)
@@ -394,7 +396,7 @@ def analyze(
 
     try:
         report = engine.analyze(
-            subject, AnalysisContext(api_key=settings.gemini_api_key)
+            subject, AnalysisContext(api_key=settings.gemini_api_key, channel="api")
         )
     except ServiceError as error:
         status = _STATUS_BY_CODE.get(error.code, 502)

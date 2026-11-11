@@ -121,6 +121,7 @@ if analyze_clicked and upload is not None and quota_ui.allow_check("image"):
                 AnalysisContext(
                     api_key=components.get_gemini_api_key(),
                     allow_external_ai=allow_external,
+                    channel="web",
                 ),
             )
         except ServiceError as error:

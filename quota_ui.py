@@ -21,6 +21,7 @@ import streamlit as st
 
 import auth
 from i18n import t
+from services import telemetry
 from services.quota import default_quota
 
 
@@ -38,7 +39,13 @@ def _guest_identity() -> str:
 
 
 def allow_check(kind: str) -> bool:
-    """Count one check of `kind`; show why and return False when over quota."""
+    """Count one check of `kind`; show why and return False when over quota.
+
+    Every web check starts here, so this is where its request id begins:
+    the quota events, the engine's analysis event and the model calls
+    that follow on this script run all carry it.
+    """
+    telemetry.begin_request()
     quota = default_quota()
     _name, email = auth.user_display()
     if email:

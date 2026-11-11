@@ -35,6 +35,7 @@ from typing import Sequence
 
 from pydantic import BaseModel
 
+from services import telemetry
 from services.breach_checker import check_email, is_valid_email
 from services.common import ServiceError
 from services.image_scanner import SUPPORTED_MIME_TYPES, scan_image, to_trust_report
@@ -84,6 +85,9 @@ class AnalysisContext(BaseModel):
     # API clients keep receiving the provider error they can act on;
     # the web app and the Telegram bot turn it on.
     offline_fallback: bool = False
+    # Where the request came from (web, telegram, api), for telemetry
+    # only. Never affects the analysis.
+    channel: str = "unknown"
 
 
 class EngineError(ServiceError):
@@ -291,21 +295,48 @@ class TrustEngine:
                 claims the subject.
             ServiceError: whatever the chosen analyzer raises.
         """
-        analyzer = self.detect(subject)
-        if analyzer is None:
-            raise EngineError("unsupported_input")
-        try:
-            return analyzer.analyze(subject, context)
-        except ServiceError as exc:
-            fallback = _OFFLINE_BUILDERS.get(analyzer.kind)
-            if (
-                context.offline_fallback
-                and fallback is not None
-                and isinstance(subject.content, str)
-                and is_provider_failure(exc.code)
-            ):
-                return fallback(subject.content, exc.code)
-            raise
+        with telemetry.request_scope():
+            timer = telemetry.Timer()
+            analyzer = self.detect(subject)
+            kind = analyzer.kind if analyzer else "unknown"
+
+            def record(outcome: str, error_code: str | None = None, report: TrustReport | None = None) -> None:
+                # Content-free by construction: kind, outcome, codes, timings.
+                telemetry.emit(
+                    "analysis",
+                    channel=context.channel,
+                    kind=kind,
+                    outcome=outcome,
+                    error_code=error_code,
+                    mode=report.analysis_metadata.get("mode", "full") if report else None,
+                    verdict=report.verdict if report else None,
+                    risk_level=(report.risk_level or None) if report else None,
+                    duration_ms=timer.ms,
+                )
+
+            if analyzer is None:
+                record("error", "unsupported_input")
+                raise EngineError("unsupported_input")
+            try:
+                report = analyzer.analyze(subject, context)
+            except ServiceError as exc:
+                fallback = _OFFLINE_BUILDERS.get(analyzer.kind)
+                if (
+                    context.offline_fallback
+                    and fallback is not None
+                    and isinstance(subject.content, str)
+                    and is_provider_failure(exc.code)
+                ):
+                    report = fallback(subject.content, exc.code)
+                    record("offline", exc.code, report)
+                    return report
+                record("error", exc.code)
+                raise
+            except Exception:
+                record("error", "internal_error")
+                raise
+            record("ok", report=report)
+            return report
 
 
 # Analyzers whose AI layer has a rules-only stand-in. Email, image and
