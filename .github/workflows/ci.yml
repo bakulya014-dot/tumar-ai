@@ -50,3 +50,10 @@ jobs:
 
       - name: Run offline evaluation (scanner and URL heuristics)
         run: python evals/runner.py
+
+      # Reports precision/recall/F1/FPR on the held-out set, which no
+      # rule is tuned on. Fails only on malformed data or overlap with
+      # the tuning corpus, never on a score: a threshold would make the
+      # held-out set a tuning target.
+      - name: Run held-out evaluation (reported, not gated on scores)
+        run: python evals/heldout_runner.py

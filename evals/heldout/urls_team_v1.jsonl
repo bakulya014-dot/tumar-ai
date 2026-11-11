@@ -1,0 +1,16 @@
+{"id": "ho-url-kaspi-lookalike", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "brand_lookalike", "label": "malicious", "url": "http://kaspi-kz-bonus.online/account"}
+{"id": "ho-url-halyk-lookalike", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "brand_lookalike", "label": "malicious", "url": "https://halyk-bank-kz.net/sign-in"}
+{"id": "ho-url-egov-subdomain", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "misleading_subdomain", "label": "malicious", "url": "http://egov.kz.account-check.top/sign"}
+{"id": "ho-url-ip-login", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "raw_ip", "label": "malicious", "url": "http://185.199.44.12/bank/login.php"}
+{"id": "ho-url-shortener", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "shortener", "label": "malicious", "url": "https://bit.ly/3kZpQx9"}
+{"id": "ho-url-punycode", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "homoglyph", "label": "malicious", "url": "https://xn--kaspi-9ya.kz/verify"}
+{"id": "ho-url-trust-bait", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "phishing", "label": "malicious", "url": "https://secure-verify-account-update.com/confirm"}
+{"id": "ho-url-telegram-fake", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "brand_lookalike", "label": "malicious", "url": "https://telegram-premium-gift.ru/claim"}
+{"id": "ho-url-legit-kaspi", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "none", "label": "legitimate", "url": "https://kaspi.kz/shop/"}
+{"id": "ho-url-legit-govkz", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "none", "label": "legitimate", "url": "https://www.gov.kz/memleket/entities"}
+{"id": "ho-url-legit-kimep", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "none", "label": "legitimate", "url": "https://www.kimep.kz/"}
+{"id": "ho-url-legit-github", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "none", "label": "legitimate", "url": "https://github.com/bakulya014-dot"}
+{"id": "ho-url-legit-wikipedia", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "none", "label": "legitimate", "url": "https://ru.wikipedia.org/wiki/Алматы"}
+{"id": "ho-url-legit-gov-stat", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "none", "label": "legitimate", "url": "https://stat.gov.kz/"}
+{"id": "ho-url-legit-telegram", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "none", "label": "legitimate", "url": "https://t.me/durov"}
+{"id": "ho-url-legit-youtube", "source": "team_authored", "language": "none", "input_type": "url", "attack_type": "none", "label": "legitimate", "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"}
