@@ -78,7 +78,7 @@ if analyze_clicked:
                 # rules-only fallback when the AI provider fails.
                 report = TrustEngine().analyze(
                     TrustSubject(content=cleaned, declared_kind="message", language=current_language()),
-                    AnalysisContext(api_key=api_key, offline_fallback=True),
+                    AnalysisContext(api_key=api_key, offline_fallback=True, channel="web"),
                 )
             except ServiceError as error:
                 quota_ui.settle("message", failed=True)

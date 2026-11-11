@@ -32,6 +32,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from typing import Protocol
 
+from services import telemetry
+
 DEFAULT_LIMITS = {"guest": 20, "guest_pool": 1000, "user": 60, "bot": 30}
 _ENV = {
     "guest": "TUMAR_DAILY_LIMIT_GUEST",
@@ -129,6 +131,8 @@ class DailyQuota:
             return QuotaDecision(True, 0, limit)
         day = _today(now or datetime.now(timezone.utc))
         added, count = self.store.increment_if_below(identity_key(f"{tier}:{identity}"), day, limit)
+        # No identity is logged, hashed or not: tier, kind and the outcome only.
+        telemetry.emit("quota", tier=tier, kind=kind, action="allowed" if added else "denied", limit=limit)
         return QuotaDecision(added, count, limit)
 
     def refund(
@@ -145,6 +149,7 @@ class DailyQuota:
             return
         day = _today(now or datetime.now(timezone.utc))
         self.store.decrement(identity_key(f"{tier}:{identity}"), day)
+        telemetry.emit("quota", tier=tier, kind=kind, action="refund", limit=limit_for(tier))
 
 
 _default: DailyQuota | None = None

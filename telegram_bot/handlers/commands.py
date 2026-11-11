@@ -31,6 +31,7 @@ from app.news.pipeline import run_news_pipeline
 from i18n import language_from_locale, translate
 from services.breach_checker import is_valid_email
 from services.common import ServiceError
+from services import telemetry
 from services.quota import default_quota
 from services.trust_engine import AnalysisContext, TrustEngine, TrustSubject, UrlAnalyzer
 from telegram_bot.report_format import format_report
@@ -68,7 +69,7 @@ def _engine_report(
     """
     report = _ENGINE.analyze(
         TrustSubject(content=content, declared_kind=kind, language=language),
-        AnalysisContext(api_key=_ai_key(), offline_fallback=True),
+        AnalysisContext(api_key=_ai_key(), offline_fallback=True, channel="telegram"),
     )
     text = format_report(report, title, language)
     if report.analysis_metadata.get("mode") == "offline":
@@ -100,6 +101,7 @@ async def quota_allows(message: Message, kind: str) -> bool:
     user = message.from_user
     if user is None:
         return True
+    telemetry.begin_request()  # one id for this check, from quota to model call
     decision = default_quota().consume(f"tg:{user.id}", "bot", kind)
     if decision.allowed:
         return True

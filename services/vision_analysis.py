@@ -22,6 +22,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
+from services import telemetry
 from services.common import ServiceError
 from services.providers import AIProvider, ProviderError
 
@@ -95,6 +96,8 @@ def analyze_image(
     if not provider.supports_vision() or not provider.available():
         raise VisionAnalysisError("vision_unavailable")
 
+    timer = telemetry.Timer()
+    model = getattr(provider, "model", None)
     try:
         finding = provider.analyze_image(
             image_bytes=image_bytes,
@@ -104,7 +107,15 @@ def analyze_image(
             instruction=f"Answer in JSON. Write `summary` in {language}.",
         )
     except ProviderError as exc:
+        telemetry.emit(
+            "provider_call", provider=provider.name, model=model, kind="vision",
+            outcome="error", error_code=exc.code, duration_ms=timer.ms,
+        )
         raise VisionAnalysisError(exc.code) from exc
+    telemetry.emit(
+        "provider_call", provider=provider.name, model=model, kind="vision",
+        outcome="ok", duration_ms=timer.ms,
+    )
 
     return _tidy(finding)
 

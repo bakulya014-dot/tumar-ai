@@ -15,6 +15,7 @@ from google import genai
 from google.genai import errors as genai_errors
 from pydantic import BaseModel, ValidationError
 
+from services import telemetry
 from services.common import ServiceError
 
 # Models to try, in order. Availability, quotas, and retirement are
@@ -66,7 +67,8 @@ def generate_structured[ModelT: BaseModel](
 
     response = None
     last_error: genai_errors.APIError | None = None
-    for model in MODEL_CANDIDATES:
+    for attempt, model in enumerate(MODEL_CANDIDATES, start=1):
+        timer = telemetry.Timer()
         try:
             response = client.models.generate_content(
                 model=model,
@@ -78,13 +80,17 @@ def generate_structured[ModelT: BaseModel](
                     temperature=TEMPERATURE,
                 ),
             )
+            _record_call(model, attempt, timer, "ok", response=response)
             break
         except genai_errors.APIError as exc:
+            code = _api_error_code(exc)
+            _record_call(model, attempt, timer, "error", code, getattr(exc, "code", None))
             if _is_retriable(exc):
                 last_error = exc
                 continue  # A different model may still succeed.
-            raise GeminiError(_api_error_code(exc)) from exc
+            raise GeminiError(code) from exc
         except Exception as exc:  # Network failures, timeouts, DNS errors…
+            _record_call(model, attempt, timer, "error", "unreachable")
             raise GeminiError("unreachable") from exc
 
     if response is None:
@@ -129,3 +135,38 @@ def _api_error_code(exc: genai_errors.APIError) -> str:
     if code is not None and code >= 500:
         return "service_down"
     return "ai_error"
+
+
+def _record_call(
+    model: str,
+    attempt: int,
+    timer: telemetry.Timer,
+    outcome: str,
+    error_code: str | None = None,
+    http_status: int | None = None,
+    response: object = None,
+) -> None:
+    """One telemetry event per model attempt: timing, tokens, cost.
+
+    Only counts and codes are logged; prompts and answers never are.
+    """
+    usage = getattr(response, "usage_metadata", None)
+    input_tokens = _int_or_none(getattr(usage, "prompt_token_count", None))
+    output_tokens = _int_or_none(getattr(usage, "candidates_token_count", None))
+    telemetry.emit(
+        "provider_call",
+        provider="gemini",
+        model=model,
+        attempt=attempt,
+        outcome=outcome,
+        error_code=error_code,
+        http_status=http_status if isinstance(http_status, int) else None,
+        duration_ms=timer.ms,
+        input_tokens=input_tokens,
+        output_tokens=output_tokens,
+        cost_usd=telemetry.approximate_cost(model, input_tokens, output_tokens),
+    )
+
+
+def _int_or_none(value: object) -> int | None:
+    return value if isinstance(value, int) and not isinstance(value, bool) else None

@@ -64,7 +64,7 @@ if check_clicked:
                 # fallback when the AI provider fails.
                 report = TrustEngine().analyze(
                     TrustSubject(content=cleaned, declared_kind="url", language=current_language()),
-                    AnalysisContext(api_key=api_key, offline_fallback=True),
+                    AnalysisContext(api_key=api_key, offline_fallback=True, channel="web"),
                 )
             except ServiceError as error:
                 quota_ui.settle("url", failed=True)
