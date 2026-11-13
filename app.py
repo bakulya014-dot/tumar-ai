@@ -54,7 +54,7 @@ APP_DIR = Path(__file__).parent
 # Global settings, applied once and shared by every page.
 st.set_page_config(
     page_title="Tumar.AI",
-    page_icon=icon("brand"),
+    page_icon=str(APP_DIR / "assets" / "brand" / "tumar-favicon.png"),
     # Wide, so the dashboard can lay out real columns. styles.css caps
     # the container at a readable width and caps prose lines, so wide
     # buys dashboard room without producing 130-character text lines.
@@ -99,7 +99,11 @@ if not auth.has_access():
 
 # Logo shown at the top of the sidebar on every app page (the landing
 # page draws its own).
-st.logo(str(APP_DIR / "assets" / "logo.svg"), size="large")
+st.logo(
+    str(APP_DIR / "assets" / "brand" / "tumar-logo.svg"),
+    size="large",
+    icon_image=str(APP_DIR / "assets" / "brand" / "tumar-symbol.svg"),
+)
 
 # First run after Google sign-in: register (or refresh) the user and
 # greet them once.

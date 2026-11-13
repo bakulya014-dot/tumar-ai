@@ -1,28 +1,30 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=Pixelify+Sans:wght@500;600;700&display=swap');
 
 /* ============================================================
    Tumar.AI — public landing page (loaded only on views/landing.py)
-   Institutional palette: midnight navy, hairline borders, one
-   electric-cyan accent. No emoji, no pictogram tiles; every marker
+   Brand palette: midnight navy, hairline borders, electric blue to
+   violet accents, pixel display type as on the brand poster. No emoji, no pictogram tiles; every marker
    is a CSS shape. Overrides the Aura tokens from styles.css for
    this page only, since this stylesheet is injected only here.
    ============================================================ */
 
 :root {
-  --t-bg: #0B0F17;
+  --t-bg: #080B14;
   --t-bg-raise: #111827;
-  --t-border: #1F2937;
-  --t-border-strong: #334155;
-  --t-ink: #F1F5F9;
-  --t-ink-muted: #94A3B8;
-  --t-ink-faint: #64748B;
-  --t-cyan: #00F0FF;
-  --t-cyan-soft: rgba(0, 240, 255, 0.10);
-  --t-cyan-line: rgba(0, 240, 255, 0.45);
+  --t-border: #263249;
+  --t-border-strong: #34425E;
+  --t-ink: #F8FAFC;
+  --t-ink-muted: #A1AFC2;
+  --t-ink-faint: #6B7A93;
+  --t-cyan: #00B8FF;
+  --t-cyan-soft: rgba(0, 184, 255, 0.10);
+  --t-cyan-line: rgba(0, 184, 255, 0.45);
   --t-glass: #111827;
-  --t-glass-border: #1F2937;
-  --l-sans: 'Geist', 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --l-mono: 'Geist Mono', 'SFMono-Regular', ui-monospace, Consolas, monospace;
+  --t-glass-border: #263249;
+  --l-sans: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --l-display: 'Space Grotesk', 'Inter', 'Segoe UI', system-ui, sans-serif;
+  --l-pixel: 'Pixelify Sans', 'Space Grotesk', monospace;
+  --l-mono: 'SFMono-Regular', ui-monospace, Consolas, monospace;
 }
 
 /* No app chrome or ambient effects before sign-in. */
@@ -53,8 +55,7 @@ html, body, .stApp,
 
 /* ---------- Top bar ---------- */
 .l-brand { display: flex; align-items: center; gap: 10px; }
-.l-brand svg { width: 28px; height: 28px; }
-.l-brand span { font-weight: 600; font-size: 1.08rem; color: var(--t-ink); letter-spacing: -0.02em; }
+.l-brand .t-logo { height: 34px; width: auto; display: block; }
 
 [data-baseweb="select"] > div {
   background: transparent !important;
@@ -75,11 +76,12 @@ html, body, .stApp,
 .st-key-top_signin button p { font-weight: 500 !important; font-size: .95rem !important; letter-spacing: -0.005em; }
 
 [class*="st-key-cta_google"] button {
-  background: var(--t-cyan) !important;
-  border: 1px solid var(--t-cyan) !important;
+  background: linear-gradient(110deg, #00B8FF 0%, #397BFF 45%, #8855FF 100%) !important;
+  border: 1px solid rgba(167, 139, 250, 0.55) !important;
+  box-shadow: 0 8px 26px rgba(57, 123, 255, 0.28) !important;
 }
-[class*="st-key-cta_google"] button p { color: #0B0F17 !important; font-weight: 600 !important; }
-[class*="st-key-cta_google"] button:hover { background: #5CF6FF !important; border-color: #5CF6FF !important; }
+[class*="st-key-cta_google"] button p { color: #FFFFFF !important; font-weight: 600 !important; }
+[class*="st-key-cta_google"] button:hover { filter: brightness(1.08); box-shadow: 0 10px 32px rgba(136, 85, 255, 0.34) !important; }
 [class*="st-key-cta_google"] button::before {
   content: "";
   width: 18px; height: 18px; margin-right: 10px; flex: none;
@@ -125,7 +127,7 @@ html, body, .stApp,
 .l-hero::after {
   content: ""; position: absolute; z-index: 0; pointer-events: none;
   left: 50%; top: -120px; width: min(760px, 100%); height: 420px; transform: translateX(-50%);
-  background: radial-gradient(closest-side, rgba(0, 240, 255, 0.11), transparent);
+  background: radial-gradient(closest-side, rgba(0, 184, 255, 0.11), transparent);
 }
 .l-hero > *, .l-final > * { position: relative; z-index: 1; }
 
@@ -137,7 +139,7 @@ html, body, .stApp,
 }
 .l-pill > i {
   width: 6px; height: 6px; border-radius: 50%; background: var(--t-cyan);
-  box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.18);
+  box-shadow: 0 0 0 3px rgba(0, 184, 255, 0.18);
 }
 .l-rotator {
   height: 1.4em; overflow: hidden; text-align: left;
@@ -157,17 +159,30 @@ html, body, .stApp,
   100%      { transform: translateY(-8.4em); }
 }
 
-.l-title {
+.stApp .l-title {
   margin: 0 !important; padding: 0 !important;
-  font-size: clamp(2.4rem, 6.2vw, 4.25rem) !important;
+  font-family: var(--l-pixel) !important;
+  font-size: clamp(2rem, 5.6vw, 3.9rem) !important;
   font-weight: 600 !important;
-  line-height: 1.02 !important;
-  letter-spacing: -0.045em !important;
+  line-height: 1.08 !important;
+  letter-spacing: 0.01em !important;
+  text-transform: uppercase;
   color: var(--t-ink) !important;
 }
-.l-title span { display: block; }
-.l-title span:nth-child(2) { color: var(--t-ink-muted); }
-.l-accent { color: var(--t-cyan) !important; }
+.stApp .l-title span { display: block; font-family: inherit !important; }
+.l-title span:nth-child(2) { color: var(--t-lilac, #A78BFA); }
+.l-accent {
+  background: linear-gradient(100deg, #00B8FF 0%, #397BFF 40%, #8855FF 100%);
+  -webkit-background-clip: text; background-clip: text;
+  color: transparent !important; -webkit-text-fill-color: transparent;
+}
+/* The poster's line: "Your digital amulet / against online scams." */
+.stApp .l-amulet {
+  margin: 1.4rem 0 0 !important;
+  font: 600 clamp(.9rem, 2.2vw, 1.15rem)/1.35 var(--l-pixel) !important;
+  letter-spacing: .06em; text-transform: uppercase; color: var(--t-ink) !important;
+}
+.stApp .l-amulet span { color: #8855FF; font-family: inherit !important; }
 .l-sub {
   margin: 1.5rem auto 2rem !important;
   max-width: 600px !important;
@@ -181,9 +196,9 @@ html, body, .stApp,
 
 /* ---------- Marquee ---------- */
 .l-band { margin: 4.5rem 0 1rem; text-align: center; }
-.l-eyebrow {
-  font: 500 .72rem/1 var(--l-mono) !important;
-  letter-spacing: .16em; color: var(--t-cyan) !important;
+.stApp .l-eyebrow {
+  font: 600 .8rem/1 var(--l-pixel) !important;
+  letter-spacing: .14em; color: var(--t-cyan) !important;
   text-transform: uppercase; margin-bottom: 1rem !important;
 }
 .l-marquee {
@@ -201,9 +216,10 @@ html, body, .stApp,
 
 /* ---------- Sections ---------- */
 .l-section { margin: 6rem 0 0; text-align: center; }
-.l-h2 {
+.stApp .l-h2 {
+  font-family: var(--l-display) !important;
   font-size: clamp(1.9rem, 4vw, 2.75rem) !important;
-  font-weight: 600 !important;
+  font-weight: 700 !important;
   line-height: 1.08 !important;
   letter-spacing: -0.04em !important;
   margin: 0 0 2.6rem !important;
@@ -238,7 +254,7 @@ html, body, .stApp,
 .l-scatter { display: flex; flex-wrap: wrap; gap: 10px 8px; padding: .25rem 0 .5rem; }
 .l-scatter span {
   padding: .38rem .75rem; border-radius: 999px; font-size: .84rem;
-  background: #1F2937; color: var(--t-ink-muted);
+  background: #263249; color: var(--t-ink-muted);
   border: 1px solid #273244;
 }
 .l-scatter span:nth-child(3n+1) { transform: translate(-2px, 3px); }
@@ -262,9 +278,9 @@ html, body, .stApp,
 .l-new {
   border-color: var(--t-cyan-line);
   background:
-    linear-gradient(180deg, rgba(0, 240, 255, 0.05), transparent 140px),
+    linear-gradient(180deg, rgba(0, 184, 255, 0.05), transparent 140px),
     var(--t-bg-raise);
-  box-shadow: 0 0 0 1px rgba(0, 240, 255, 0.06), 0 24px 60px -30px rgba(0, 240, 255, 0.25);
+  box-shadow: 0 0 0 1px rgba(0, 184, 255, 0.06), 0 24px 60px -30px rgba(0, 184, 255, 0.25);
 }
 .l-new .l-card-tag { color: var(--t-cyan) !important; }
 .l-stack {
@@ -274,13 +290,13 @@ html, body, .stApp,
 .l-stack li {
   display: grid; grid-template-columns: 2.2rem 1fr; gap: 0 .5rem;
   padding: .95rem 1rem; margin: 0 !important; max-width: none !important;
-  background: rgba(11, 15, 23, 0.55);
+  background: rgba(8, 11, 20, 0.55);
   transition: background .15s ease;
 }
 .l-stack li + li { border-top: 1px solid var(--t-border); }
-.l-stack li:hover { background: rgba(0, 240, 255, 0.04); }
-.l-stack em {
-  font: 500 .74rem/1.6 var(--l-mono) !important; font-style: normal;
+.l-stack li:hover { background: rgba(0, 184, 255, 0.04); }
+.stApp .l-stack em {
+  font: 600 .82rem/1.6 var(--l-pixel) !important; font-style: normal;
   color: var(--t-cyan); padding-top: .1rem;
 }
 .l-stack b {
@@ -310,8 +326,8 @@ html, body, .stApp,
   padding: 1.5rem; border-radius: 12px;
   background: var(--t-bg-raise); border: 1px solid var(--t-border);
 }
-.l-step em {
-  font: 500 .74rem/1 var(--l-mono) !important; font-style: normal;
+.stApp .l-step em {
+  font: 600 .85rem/1 var(--l-pixel) !important; font-style: normal;
   letter-spacing: .12em; color: var(--t-cyan);
 }
 .l-step h3 {
@@ -344,12 +360,12 @@ html, body, .stApp,
 .l-final {
   margin-top: 6rem; padding-top: 4.5rem;
   border-top: 1px solid var(--t-border);
-  background: radial-gradient(560px 220px at 50% 0%, rgba(0, 240, 255, 0.08), transparent 70%);
+  background: radial-gradient(560px 220px at 50% 0%, rgba(0, 184, 255, 0.08), transparent 70%);
 }
 .l-final .l-h2 { margin-bottom: 0 !important; }
 .l-horizon { margin-top: 2rem; line-height: 0; }
 .l-horizon svg { width: 100%; height: 64px; display: block; }
-.l-horizon path { stroke: rgba(0, 240, 255, 0.28); stroke-width: 1; }
+.l-horizon path { stroke: rgba(0, 184, 255, 0.28); stroke-width: 1; }
 .l-footer {
   display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
   padding: 1.2rem 0 2rem; color: var(--t-ink-faint); font-size: .8rem;
@@ -370,4 +386,64 @@ html, body, .stApp,
 
 @media (prefers-reduced-motion: reduce) {
   .l-rotator > div, .l-marquee > div { animation: none !important; }
+}
+
+
+/* ---------- Tools: the poster's numbered list ---------- */
+.l-tools {
+  margin: 0 auto !important; padding: 0 !important;
+  display: grid; gap: 12px; max-width: 760px; text-align: left;
+}
+.l-tool {
+  position: relative; display: grid; grid-template-columns: 3.2rem 1fr; gap: 0 1rem;
+  align-items: center; padding: 1.05rem 1.25rem; margin: 0 !important;
+  border-radius: 12px; background: rgba(13, 18, 32, 0.85);
+  border: 1px solid transparent;
+  background-image: linear-gradient(rgba(13, 18, 32, 0.95), rgba(13, 18, 32, 0.95)),
+    linear-gradient(110deg, rgba(57, 123, 255, 0.75), rgba(136, 85, 255, 0.75));
+  background-origin: border-box; background-clip: padding-box, border-box;
+  transition: transform .18s ease, box-shadow .18s ease;
+}
+.l-tool:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(57, 123, 255, 0.14); }
+.l-tool-icon {
+  width: 3.2rem; height: 3.2rem; display: grid; place-items: center; border-radius: 10px;
+  background: rgba(57, 123, 255, 0.08); border: 1px solid rgba(122, 150, 255, 0.22);
+}
+.stApp .l-tool-icon span {
+  font-family: 'Material Symbols Rounded' !important; font-size: 1.7rem !important;
+  color: #7FA2FF; line-height: 1;
+}
+.stApp .l-tool-title {
+  margin: 0 !important; display: flex; gap: .75rem; align-items: baseline; flex-wrap: wrap;
+  font: 600 1.02rem/1.3 var(--l-pixel) !important; letter-spacing: .05em !important;
+  text-transform: uppercase; color: var(--t-ink) !important;
+}
+.stApp .l-tool-title em, .stApp .l-tool-title span { font-family: var(--l-pixel) !important; font-style: normal; }
+.stApp .l-tool-title em { color: #397BFF; }
+.l-tool-desc {
+  margin: .3rem 0 0 !important; font-size: .9rem; line-height: 1.55;
+  color: var(--t-ink-muted) !important;
+}
+
+/* ---------- Feature strip ---------- */
+.l-strip {
+  margin: 1.5rem auto 0 !important; max-width: 760px; padding: .9rem 1rem !important;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+  border-radius: 12px; border: 1px solid rgba(122, 150, 255, 0.32);
+  background: rgba(13, 18, 32, 0.7);
+}
+.l-strip > div {
+  margin: 0 !important; padding: .35rem .8rem; display: flex; gap: .6rem; align-items: center;
+  font-size: .78rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+  color: var(--t-ink); text-align: left; line-height: 1.3;
+}
+.l-strip > div + div { border-left: 1px solid var(--t-border); }
+.stApp .l-strip span.t-ms { font-size: 1.35rem; color: #8F7BFF; flex: none; }
+
+@media (max-width: 640px) {
+  .l-tool { grid-template-columns: 2.6rem 1fr; padding: .9rem 1rem; }
+  .l-tool-icon { width: 2.6rem; height: 2.6rem; }
+  .l-tool-icon span { font-size: 1.4rem !important; }
+  .l-strip { grid-template-columns: 1fr 1fr; gap: .4rem 0; }
+  .l-strip > div:nth-child(3) { border-left: 0; }
 }

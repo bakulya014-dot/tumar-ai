@@ -15,6 +15,7 @@ from pathlib import Path
 import streamlit as st
 
 import auth
+import branding
 from i18n import LANGUAGES, t
 
 _ASSETS = Path(__file__).resolve().parent.parent / "assets"
@@ -30,6 +31,12 @@ _FEATURES = ("threat", "kanon", "xon", "bot")
 _TUMAR_WINS = ("verdict", "plain", "private")
 _STEPS = ("paste", "check", "act")
 _PRIVACY = ("redact", "never_sold", "k_anon")
+# The five tools, in the brand poster's order, with their Material icon.
+_TOOLS = (
+    ("scam", "psychology"), ("url", "link"), ("image", "image_search"),
+    ("breach", "mail"), ("trust", "verified_user"),
+)
+_STRIP = (("ai", "memory"), ("rules", "policy"), ("lang", "translate"), ("api", "api"))
 
 
 def _plain(text: str) -> str:
@@ -74,14 +81,7 @@ _html(f"<style>{(_ASSETS / 'landing.css').read_text(encoding='utf-8')}</style>")
 # ---------- Top bar: logo · language · sign in ----------
 logo, lang, signin = st.columns([3, 1.1, 0.9], vertical_alignment="center")
 with logo:
-    _html(
-        '<div class="l-brand"><svg viewBox="0 0 48 48" aria-hidden="true">'
-        '<path d="M24 6 L42 38 A3 3 0 0 1 39.4 42.5 H8.6 A3 3 0 0 1 6 38 Z" '
-        'fill="rgba(0,240,255,0.06)" stroke="#00F0FF" stroke-width="2.25" '
-        'stroke-linejoin="round"/><path d="M17 27 l5.5 5.5 l10.5 -13" fill="none" '
-        'stroke="#F1F5F9" stroke-width="2.75" stroke-linecap="round" '
-        'stroke-linejoin="round"/></svg><span>Tumar.AI</span></div>'
-    )
+    _html(f'<div class="l-brand">{branding.inline_logo_html("lbar")}</div>')
 with lang:
     st.selectbox(
         t("app.language_label"),
@@ -114,6 +114,7 @@ _html(f"""
     <span>{e('landing.h1_b')}</span>
     <span class="l-accent">{e('landing.h1_c')}</span>
   </h1>
+  <p class="l-amulet">{e('landing.amulet_a')}<br><span>{e('landing.amulet_b')}</span></p>
   <p class="l-sub">{e('landing.sub')}</p>
 </section>
 """)
@@ -126,6 +127,26 @@ _html(f"""
 <section class="l-band">
   <p class="l-eyebrow">{e('landing.marquee_title')}</p>
   <div class="l-marquee"><div>{items}{items}</div></div>
+</section>
+""")
+
+# ---------- The five tools (numbered, as on the brand poster) ----------
+tools = "".join(
+    f'<div class="l-tool" role="listitem"><div class="l-tool-icon"><span translate="no" aria-hidden="true">{glyph}</span></div>'
+    f"<div><p class='l-tool-title'><em>0{i}</em><span>{e('landing.tool_' + k + '_t')}</span></p>"
+    f"<p class='l-tool-desc'>{e('landing.tool_' + k + '_d')}</p></div></div>"
+    for i, (k, glyph) in enumerate(_TOOLS, start=1)
+)
+strip = "".join(
+    f'<div role="listitem"><span class="t-ms" translate="no" aria-hidden="true">{glyph}</span>{e("landing.strip_" + k)}</div>'
+    for k, glyph in _STRIP
+)
+_html(f"""
+<section class="l-section">
+  <p class="l-eyebrow">{e('landing.tools_eyebrow')}</p>
+  <h2 class="l-h2">{e('landing.tools_title')}</h2>
+  <div class="l-tools" role="list">{tools}</div>
+  <div class="l-strip" role="list">{strip}</div>
 </section>
 """)
 

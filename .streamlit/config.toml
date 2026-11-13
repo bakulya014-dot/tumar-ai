@@ -4,12 +4,12 @@
 
 [theme]
 base = "dark"
-primaryColor = "#22D3EE"
-backgroundColor = "#070D1A"
-secondaryBackgroundColor = "#0C1424"
-textColor = "#E8EEF9"
-linkColor = "#7DD3FC"
-borderColor = "#1B2740"
+primaryColor = "#397BFF"
+backgroundColor = "#080B14"
+secondaryBackgroundColor = "#0D1220"
+textColor = "#F8FAFC"
+linkColor = "#8FB4FF"
+borderColor = "#263249"
 baseRadius = "12px"
 
 [server]

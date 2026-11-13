@@ -15,6 +15,8 @@ from pathlib import Path
 
 import streamlit as st
 
+import branding
+
 from i18n import t
 
 _APP_DIR = Path(__file__).parent
@@ -257,19 +259,7 @@ def render_hero(title: str, subtitle: str) -> None:
 <div class="t-hero">
   <div class="t-amulet" role="img" aria-label="{html.escape(title)}">
     <span class="t-aura"></span><span class="t-aura a2"></span><span class="t-aura a3"></span>
-    <svg class="t-amulet-svg" viewBox="0 0 96 96" aria-hidden="true">
-      <defs>
-        <linearGradient id="t-amulet-grad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stop-color="#F5C97B"/>
-          <stop offset="1" stop-color="#22D3EE"/>
-        </linearGradient>
-      </defs>
-      <path d="M48 8 L86 74 A6 6 0 0 1 81 83 H15 A6 6 0 0 1 10 74 Z"
-            fill="rgba(34,211,238,0.06)" stroke="url(#t-amulet-grad)"
-            stroke-width="2.5" stroke-linejoin="round"/>
-      <path class="t-amulet-check" d="M34 54 l10 10 l19 -23" fill="none" stroke="#7DE9FF"
-            stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
+    <svg class="t-amulet-svg" viewBox="0 0 64 64" aria-hidden="true">{branding.symbol_markup("hero")}</svg>
   </div>
   <h1 class="t-hero-title">{html.escape(title)}</h1>
   <p class="t-hero-sub">{html.escape(subtitle)}</p>
