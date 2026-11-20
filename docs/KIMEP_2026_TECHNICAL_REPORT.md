@@ -66,9 +66,9 @@ loaded a real `BOT_TOKEN` from `.env` and polled the live bot for about
 were dropped, and if the deployed bot was running, both polled at once.
 Production uses polling (`bot.py`), so no webhook was removed.
 
-## 4. Tests executed (2026-11-09)
+## 4. Tests executed (2026-11-20)
 
-`python run_tests.py` — **24 of 24 suites passed** (≈83 s, offline, no
+`python run_tests.py` — **28 of 28 suites passed** (≈74 s, offline, no
 API keys). Verbatim output: `docs/evaluation-results.txt`.
 
 New this pass:
