@@ -12,10 +12,11 @@ pre { margin:0; white-space:pre-wrap; font:12.5px/1.45 Consolas,ui-monospace,mon
 .pass { color:var(--ok); font-weight:700; } .fail { color:var(--bad); font-weight:700; }
 </style></head><body><main>
 <h1>Tumar.AI — test &amp; evaluation output</h1>
-<p class="meta">Generated 2026-11-09 06:44 UTC by scripts/render_evaluation_report.py · branch feat/demo-readiness @ a030fbc with uncommitted changes ·
+<p class="meta">Generated 2026-11-20 09:55 UTC by scripts/render_evaluation_report.py · branch feat/phase1-stabilization @ 4617bac with uncommitted changes ·
 verbatim console output, nothing edited · AI-mode evaluation not included (costs provider tokens; run separately)</p>
-<section><h2>Automated test suites — python run_tests.py</h2><p class='meta'><span class='pass'>exit code 0</span> · 44.7 s</p><pre>[PASS] test_api.py
+<section><h2>Automated test suites — python run_tests.py</h2><p class='meta'><span class='pass'>exit code 0</span> · 74.3 s</p><pre>[PASS] test_api.py
 [PASS] test_api_contract.py
+[PASS] test_bot_trust_engine.py
 [PASS] test_breach_checker.py
 [PASS] test_corpus_client.py
 [PASS] test_corpus_store.py
@@ -28,17 +29,20 @@ verbatim console output, nothing edited · AI-mode evaluation not included (cost
 [PASS] test_language.py
 [PASS] test_password_check.py
 [PASS] test_providers.py
+[PASS] test_quota.py
+[PASS] test_quota_ui.py
 [PASS] test_redaction.py
 [PASS] test_regressions.py
 [PASS] test_report_store.py
 [PASS] test_report_view.py
 [PASS] test_telegram_bot_features.py
+[PASS] test_telegram_screenshot.py
 [PASS] test_trust_engine.py
 [PASS] test_trust_report.py
 [PASS] test_url_scanner.py
 [PASS] test_user_store.py
 [PASS] test_vision_analysis.py
-All 24 suites passed.</pre></section><section><h2>Offline evaluation (deterministic layer) — python evals/runner.py</h2><p class='meta'><span class='pass'>exit code 0</span> · 2.4 s</p><pre>Corpus: 61 messages, 40 URLs
+All 28 suites passed.</pre></section><section><h2>Offline evaluation (deterministic layer) — python evals/runner.py</h2><p class='meta'><span class='pass'>exit code 0</span> · 2.6 s</p><pre>Corpus: 61 messages, 40 URLs
 
 DETERMINISTIC SCANNER (messages)
   corpus:                    33 scam / 28 legitimate
@@ -59,7 +63,7 @@ URL HEURISTICS
     detection rate:          100.0%
     false positive rate:     0.0%
 
-Saved: evals\results\20261109-064442.json</pre></section><section><h2>Image-scanner evaluation framework — python evals/image_scanner/evaluation.py</h2><p class='meta'><span class='pass'>exit code 0</span> · 2.7 s</p><pre>{
+Saved: evals\results\20261120-095526.json</pre></section><section><h2>Image-scanner evaluation framework — python evals/image_scanner/evaluation.py</h2><p class='meta'><span class='pass'>exit code 0</span> · 3.0 s</p><pre>{
   &quot;validated&quot;: false,
   &quot;note&quot;: &quot;No labelled images present: performance has NOT been validated.&quot;,
   &quot;tesseract_available&quot;: false,
@@ -74,7 +78,7 @@ Saved: evals\results\20261109-064442.json</pre></section><section><h2>Image-scan
   &quot;vision_failure_rate&quot;: null,
   &quot;text_model_failure_rate&quot;: null,
   &quot;refused_uploads&quot;: [],
-  &quot;run_at&quot;: &quot;2026-11-09T06:44:45+00:00&quot;,
+  &quot;run_at&quot;: &quot;2026-11-20T09:55:29+00:00&quot;,
   &quot;label&quot;: &quot;&quot;,
   &quot;labelled_cases&quot;: 1,
   &quot;images_present&quot;: 0
