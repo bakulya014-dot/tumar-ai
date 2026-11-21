@@ -16,7 +16,9 @@
     "breach": "Email Breach Checker",
     "password": "Password Health",
     "about": "About",
-    "film": "Launch Film"
+    "film": "Launch Film",
+    "center": "My Safety Center",
+    "map": "Threat Map"
   },
   "home": {
     "subtitle": "Your digital tumar — a personal AI amulet against online scams.",
@@ -26,7 +28,7 @@
     "quick_input_label": "Message, link, or email",
     "quick_input_placeholder": "Paste a message, URL, or email address…",
     "quick_input_help": "Analyzed in memory and never written to disk.",
-    "quick_no_passwords": "Not for passwords — use Password Health, which checks them without sending them anywhere.",
+    "quick_no_passwords": "Not for passwords — use Password Health, which never sends your password to the breach database or to the AI, and never stores it.",
     "quick_button": "Check it",
     "quick_spinner": "Tumar.AI is running the best check…",
     "quick_empty": "The box is empty — paste something first.",
@@ -190,6 +192,30 @@
         "high": "The offline rules found a strong scam signal, such as a request for a one-time code, login details or a lookalike link.",
         "critical": "The offline rules found several strong, independent scam signals."
       }
+    },
+    "in_short": "In short:",
+    "dont_title": "Don't do this",
+    "summary": {
+      "danger": "strong signs of a scam. Do not act on it.",
+      "caution": "warning signs. Check it through an official channel before you act.",
+      "safe": "no known warning signs. Stay alert if it asks for money, codes or passwords."
+    },
+    "dont": {
+      "message_1": "Don't reply, and don't call any number given in the message.",
+      "message_2": "Don't open its links or scan its QR codes.",
+      "message_3": "Don't share one-time codes, card details or passwords — no real bank or service asks for them this way.",
+      "url_1": "Don't open the link.",
+      "url_2": "Don't enter a login, card details or a one-time code on that page.",
+      "url_3": "Don't forward it to friends or family.",
+      "image_1": "Don't follow the instructions in the screenshot.",
+      "image_2": "Don't scan its QR code or open its links.",
+      "image_3": "Don't send money or codes to the person who sent it.",
+      "email_1": "Don't keep using a password that was exposed in a breach.",
+      "email_2": "Don't reuse that password on any other site.",
+      "email_3": "Don't ignore sign-in alerts for this address — check them in the official app.",
+      "password_1": "Don't keep using this password.",
+      "password_2": "Don't reuse it anywhere else.",
+      "password_3": "Don't type it into pages reached from messages or ads."
     }
   },
   "contribute": {
@@ -437,7 +463,9 @@
     "prompt_missing": "The analysis engine is misconfigured (prompt file missing). Please contact support.",
     "image_corrupted": "That file could not be read as an image. It may be damaged or not really an image.",
     "image_dimensions": "That image is too large in pixels. Crop it to the part that matters.",
-    "image_too_small": "That image is too small to contain anything readable."
+    "image_too_small": "That image is too small to contain anything readable.",
+    "unexpected": "Something went wrong on our side. Your input was not stored. Please try again in a moment.",
+    "too_long": "That text is too long to check. Paste only the suspicious part (up to about 5,000 characters)."
   },
   "landing": {
     "sign_in": "Sign in",
@@ -505,9 +533,9 @@
     "priv_redact_t": "Personal data is masked first",
     "priv_redact_d": "Card numbers, phones and IDs are redacted before anything reaches an AI model.",
     "priv_never_sold_t": "We never sell your data",
-    "priv_never_sold_d": "Signing in with Google only stores your name and email so we can keep your account.",
-    "priv_k_anon_t": "Passwords never leave your device whole",
-    "priv_k_anon_d": "Breach checks use k-anonymity: only a 5-character hash prefix is sent.",
+    "priv_never_sold_d": "Signing in with Google stores only your name, email, language and sign-in dates, to keep your account. You can delete them at any time.",
+    "priv_k_anon_t": "Your password is never shared or stored",
+    "priv_k_anon_d": "Breach checks use k-anonymity: only the first 5 characters of its hash are sent, and the password is never stored.",
     "final_title": "Put on your digital tumar.",
     "final_sub": "Join free with your Google account — it takes ten seconds.",
     "amulet_a": "Your digital amulet",
@@ -535,7 +563,10 @@
     "sign_out": "Sign out",
     "create_account": "Create free account",
     "welcome_new": "Welcome to Tumar.AI, {name}! Your account is ready.",
-    "welcome_back": "Welcome back, {name}."
+    "welcome_back": "Welcome back, {name}.",
+    "delete_data": "Delete my data",
+    "delete_explain": "This erases what Tumar.AI stores about you — your name, email, language and sign-in dates — and this session's check history, then signs you out. It cannot be undone.",
+    "delete_confirm": "Yes, delete everything"
   },
   "quota": {
     "exceeded_guest": "You've used today's {limit} free checks. They renew at 00:00 UTC — or sign in with Google for more.",
@@ -702,6 +733,60 @@
     "daily": {
       "header": "📢 <b>TUMAR.AI DAILY SAFETY TIP</b>",
       "footer": "🛡️ <i>A curated safety tip, not a news alert. For today's security news, send /news to the bot.</i>"
+    }
+  },
+  "center": {
+    "title": "My Safety Center",
+    "subtitle": "What your checks add up to, and what to do next.",
+    "scope": "This session only: Tumar.AI writes no check history to disk, so this page starts empty on every visit.",
+    "empty_title": "Nothing checked yet",
+    "empty_text": "Check a suspicious message, link, screenshot or email address and your safety picture will appear here.",
+    "snapshot_title": "Your safety snapshot",
+    "status_calm": "All clear so far",
+    "status_watch": "Stay alert",
+    "status_act": "Action needed",
+    "score_label": "Safety score",
+    "checks_label": "Checks",
+    "dangerous_label": "Dangerous",
+    "score_explain": "Safety score: the average trust score Tumar.AI gave the things you checked this session (100 = fully trustworthy).",
+    "actions_title": "Do this now",
+    "danger_title": "Dangerous findings",
+    "danger_none": "No dangerous findings this session.",
+    "trend_title": "Progress this session",
+    "trend_caption": "Trust score of each check, oldest to newest.",
+    "recent_title": "Recent checks",
+    "default_action_1": "Never share one-time codes, card details or passwords with anyone who contacts you.",
+    "default_action_2": "Open banking and government services only through their official app or a website you type yourself.",
+    "default_action_3": "Turn on two-step verification for your email, Telegram and banking apps."
+  },
+  "map": {
+    "title": "Kazakhstan Threat Map",
+    "subtitle": "Which kinds of scams are going around, and where.",
+    "demo_notice": "Demo data: every figure on this page is simulated to show how the map will work. No real reports and no user submissions are used.",
+    "your_check": "Your last risky check looks like {category} — one of the scam types tracked on this map.",
+    "no_check": "Check a suspicious message or link, and we'll show which scam type it resembles.",
+    "national_title": "Across Kazakhstan",
+    "region_title": "By region",
+    "week_caption": "Simulated reports per week.",
+    "reports_label": "Reports",
+    "region_label": "Region",
+    "method_note": "When real data arrives, the map will count only scam categories by region and week, from people who opt in. Small counts will be hidden, and no message, link or screenshot will be stored.",
+    "region": {
+      "almaty": "Almaty",
+      "astana": "Astana",
+      "shymkent": "Shymkent",
+      "karaganda": "Karaganda",
+      "aktobe": "Aktobe",
+      "atyrau": "Atyrau",
+      "pavlodar": "Pavlodar",
+      "oskemen": "Oskemen"
+    },
+    "cat": {
+      "phishing": "Phishing",
+      "telegram_fraud": "Telegram fraud",
+      "fake_jobs": "Fake jobs",
+      "marketplace": "Marketplace & delivery scams",
+      "qr_fraud": "QR-code fraud"
     }
   }
 }

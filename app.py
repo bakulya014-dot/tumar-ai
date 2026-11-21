@@ -15,6 +15,8 @@ import streamlit as st
 
 import auth
 from components import icon, labeled, load_styles
+from routing import log_route, run_page
+from services import telemetry
 from i18n import LANGUAGES, t
 
 # Provider keys are read from the environment, so that services stay
@@ -90,11 +92,19 @@ if "language" in st.session_state:
 #
 # Visitors who have neither signed in with Google nor chosen guest mode
 # see only the public landing page — no sidebar, no tools yet.
-if not auth.has_access():
-    st.navigation(
-        [st.Page("views/landing.py", title="Tumar.AI", icon=icon("brand"), default=True)],
-        position="hidden",
-    ).run()
+# Source of truth for access: Streamlit's login (st.user.is_logged_in),
+# or the visitor's explicit choice of guest mode. Logged per page view,
+# content-free: signed in yes/no, guest yes/no, page.
+_signed_in, _guest = auth.is_signed_in(), auth.is_guest()
+
+if not (_signed_in or _guest):
+    log_route("landing", False, False)
+    run_page(
+        st.navigation(
+            [st.Page("views/landing.py", title="Tumar.AI", icon=icon("brand"), default=True)],
+            position="hidden",
+        )
+    )
     st.stop()
 
 # Logo shown at the top of the sidebar on every app page (the landing
@@ -109,6 +119,8 @@ st.logo(
 # greet them once.
 _new_user = auth.record_registration()
 if _new_user is not None:
+    # First run after Google sign-in: the callback succeeded.
+    telemetry.emit("auth", action="login_new" if _new_user else "login")
     _first_name = (auth.user_display()[0] or "").split(" ")[0] or "Tumar.AI"
     st.toast(
         t("account.welcome_new" if _new_user else "account.welcome_back", name=_first_name),
@@ -118,6 +130,12 @@ if _new_user is not None:
 pages = {
     t("nav.section_overview"): [
         st.Page("views/home.py", title=t("nav.home"), icon=icon("home"), default=True),
+        # Personal dashboard: signed-in users only (guests have no account).
+        *(
+            [st.Page("views/safety_center.py", title=t("nav.center"), icon=icon("shield_person"))]
+            if _signed_in
+            else []
+        ),
     ],
     t("nav.section_analyze"): [
         st.Page("views/scam_analyzer.py", title=t("nav.scam"), icon=icon("scam")),
@@ -127,6 +145,7 @@ pages = {
     t("nav.section_monitor"): [
         st.Page("views/breach_checker.py", title=t("nav.breach"), icon=icon("breach")),
         st.Page("views/password_checker.py", title=t("nav.password"), icon=icon("password")),
+        st.Page("views/threat_map.py", title=t("nav.map"), icon=icon("map")),
     ],
     t("nav.section_platform"): [
         st.Page(
@@ -165,6 +184,16 @@ with st.sidebar:
         use_container_width=True,
         icon=icon("logout"),
     )
+    if _email:
+        with st.popover(t("account.delete_data"), use_container_width=True, icon=icon("delete")):
+            st.caption(t("account.delete_explain"))
+            st.button(
+                t("account.delete_confirm"),
+                key="delete_my_data",
+                on_click=auth.delete_my_data,
+                use_container_width=True,
+                type="primary",
+            )
     st.selectbox(
         labeled("language", t("app.language_label")),
         options=list(LANGUAGES),
@@ -174,4 +203,5 @@ with st.sidebar:
     st.caption(t("app.tagline"))
     st.caption(t("app.version_caption"))
 
-selected_page.run()
+log_route(str(selected_page.url_path or "home"), _signed_in, _guest)
+run_page(selected_page)

@@ -74,6 +74,19 @@ def record_sign_in(
         return False
 
 
+def delete_user(email: str, *, path: Path | None = None) -> bool:
+    """Erase everything stored about one person. Returns True if a row existed.
+
+    The registry holds only name, email, language and sign-in dates, so
+    deleting the row removes all of it. Used by "Delete my data".
+    """
+    email = email.strip().lower()
+    if not email:
+        return False
+    with _connect(path) as conn:
+        return conn.execute("DELETE FROM users WHERE email = ?", (email,)).rowcount > 0
+
+
 def user_count(*, path: Path | None = None) -> int:
     """How many people have registered."""
     with _connect(path) as conn:
