@@ -788,5 +788,79 @@
       "marketplace": "Marketplace & delivery scams",
       "qr_fraud": "QR-code fraud"
     }
+  },
+  "protect": {
+    "category": {
+      "phishing": "Phishing",
+      "impersonation": "Impersonation",
+      "malware": "Malware",
+      "account_takeover": "Account takeover",
+      "breach_exposure": "Data breach exposure",
+      "payment_fraud": "Payment fraud",
+      "misinformation": "Misinformation",
+      "unknown": "Unclear type"
+    },
+    "severity": {
+      "low": "low",
+      "medium": "medium",
+      "high": "high",
+      "critical": "critical"
+    },
+    "band": {
+      "low": "low",
+      "medium": "medium",
+      "high": "high"
+    },
+    "severity_label": "Severity: {level}",
+    "confidence_label": "Confidence: {level}",
+    "why_title": "Why this matters:",
+    "why": {
+      "phishing": "It tries to get you to open a fake page or hand over details there.",
+      "impersonation": "It pretends to be a company or person you trust, so you act without checking.",
+      "malware": "It could install harmful software on your device.",
+      "account_takeover": "With a code or password, someone can take over your account.",
+      "breach_exposure": "Your address appeared in a known leak, so old passwords may be in criminals' lists.",
+      "payment_fraud": "It aims to make you send money or card details.",
+      "misinformation": "It spreads false information to push you into acting.",
+      "unknown": "Some warning signs were found, but the type of scam is unclear."
+    },
+    "exposure_title": "What could be affected:",
+    "exposure": {
+      "phishing": "Your logins, card details and money.",
+      "impersonation": "Anything you would give the real organisation: money, codes, personal data.",
+      "malware": "Your device and the accounts used on it.",
+      "account_takeover": "Your email, banking, Telegram or other accounts.",
+      "breach_exposure": "Accounts that use this email, especially with a reused password.",
+      "payment_fraud": "Your money and card details.",
+      "misinformation": "Your decisions, and people you might forward it to.",
+      "unknown": "Possibly your accounts or money. Be careful until you can check."
+    },
+    "confirmed": "Confirmed facts",
+    "suspicious": "Suspicious signals",
+    "ai_assessment": "AI assessment — a judgement, not a certainty",
+    "contain_title": "Contain now",
+    "contain": {
+      "no_click": "Don't click, reply or call back.",
+      "official_app": "Check your account only through the official app or a website you type yourself.",
+      "block_report": "Block the sender and report the message in the app you received it in.",
+      "keep_evidence": "Keep a screenshot in case you report it later.",
+      "tell_family": "If relatives might get the same message, you can warn them — only if you want to.",
+      "no_codes": "Don't share any code you received, with anyone.",
+      "reset_password": "Change the password through the official service, and anywhere you reused it.",
+      "two_factor": "Turn on two-step verification for this account.",
+      "no_pay": "Don't send money or card details.",
+      "call_bank": "If you already paid or shared card details, call your bank using the number on your card.",
+      "watch_signins": "Watch for sign-in alerts and unknown devices in your account settings."
+    },
+    "contain_note": "Tumar never does these for you — every step is yours to take.",
+    "done_title": "What Tumar protected",
+    "done": {
+      "masked": "Your message was checked in memory and not stored. Phone, card and ID numbers are masked before any AI sees it.",
+      "link_not_opened": "The link was analysed from its address only — Tumar never opened it.",
+      "image_not_stored": "The image was checked and discarded, never stored.",
+      "email_not_stored": "Your email was checked against public breach databases and not stored by Tumar.",
+      "password_prefix": "Your password never left Tumar's server: only 5 characters of its hash were sent, and nothing was stored.",
+      "no_action": "No action was taken on your accounts or data."
+    }
   }
 }

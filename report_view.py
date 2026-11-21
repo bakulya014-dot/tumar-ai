@@ -34,6 +34,7 @@ from i18n import t
 from report_labels import METHOD_LABELS as _METHOD_LABELS
 from report_labels import SIGNAL_LABELS as _SIGNAL_LABELS  # noqa: F401  (re-exported for tests)
 from report_labels import signal_label_key
+from services import risk_card
 from services.trust_report import Evidence, TrustReport
 
 
@@ -53,6 +54,8 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
         t("trust.score_label"),
     )
     st.markdown(f"**{t('trust.in_short')}** {t(f'trust.summary.{report.verdict}')}")
+    card = risk_card.build(report)
+    _render_risk_card(report, card)
 
     _render_metrics(report)
 
@@ -74,10 +77,68 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
             st.markdown(f"- {t(key)}")
 
     _render_evidence(report, expand_evidence)
+    st.subheader(components.labeled("privacy", t("protect.done_title")))
+    for key in card.protected_keys:
+        st.markdown(f"- {t(f'protect.done.{key}')}")
     _render_footer(report)
 
 
 DONT_COUNT = 3
+_SEVERITY_VARIANTS = {"low": "ok", "medium": "warn", "high": "danger", "critical": "danger"}
+_EVIDENCE_LIMIT = 4
+
+
+def evidence_label(code: str) -> str:
+    """A translated name for an evidence code; never the user's own text."""
+    if code.startswith("url_"):
+        key = f"scam.url_reason.{code.removeprefix('url_')}"
+        text = t(key)
+        if text != key:
+            return text
+    key = signal_label_key(code)
+    text = t(key)
+    return text if text != key else code.replace("_", " ")
+
+
+def _labels(items: list[Evidence]) -> list[str]:
+    seen: list[str] = []
+    for item in items:
+        label = evidence_label(item.code)
+        if label not in seen:
+            seen.append(label)
+    return seen[:_EVIDENCE_LIMIT]
+
+
+def _render_risk_card(report: TrustReport, card: "risk_card.RiskCard") -> None:
+    """The four questions, at a glance: what, how serious, how sure, what to do now."""
+    if report.verdict == "safe":
+        return
+    with st.container(border=True):
+        components.chip_row([t(f"protect.category.{card.category}")], "neutral")
+        components.chip_row(
+            [
+                t("protect.severity_label", level=t(f"protect.severity.{card.severity}")),
+                t("protect.confidence_label", level=t(f"protect.band.{card.confidence_band}")),
+            ],
+            _SEVERITY_VARIANTS[card.severity],
+        )
+        st.markdown(f"**{t('protect.why_title')}** {t(card.why_key)}")
+        st.markdown(f"**{t('protect.exposure_title')}** {t(card.exposure_key)}")
+        for title_key, items in (
+            ("protect.confirmed", card.confirmed),
+            ("protect.suspicious", card.suspicious),
+            ("protect.ai_assessment", card.ai_assessment),
+        ):
+            labels = _labels(items)
+            if labels:
+                st.caption(t(title_key))
+                components.chip_row(labels)
+    if card.contain_keys:
+        with st.container(border=True):
+            st.markdown(f"**{components.labeled('warning', t('protect.contain_title'))}**")
+            for number, key in enumerate(card.contain_keys, start=1):
+                st.markdown(f"{number}. {t(f'protect.contain.{key}')}")
+            st.caption(t("protect.contain_note"))
 
 
 def dont_keys(report: TrustReport) -> list[str]:
