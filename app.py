@@ -145,6 +145,7 @@ pages = {
     t("nav.section_monitor"): [
         st.Page("views/breach_checker.py", title=t("nav.breach"), icon=icon("breach")),
         st.Page("views/password_checker.py", title=t("nav.password"), icon=icon("password")),
+        st.Page("views/threat_map.py", title=t("nav.map"), icon=icon("map")),
     ],
     t("nav.section_platform"): [
         st.Page(

@@ -17,7 +17,8 @@
     "password": "Password Health",
     "about": "About",
     "film": "Launch Film",
-    "center": "My Safety Center"
+    "center": "My Safety Center",
+    "map": "Threat Map"
   },
   "home": {
     "subtitle": "Your digital tumar — a personal AI amulet against online scams.",
@@ -191,6 +192,30 @@
         "high": "The offline rules found a strong scam signal, such as a request for a one-time code, login details or a lookalike link.",
         "critical": "The offline rules found several strong, independent scam signals."
       }
+    },
+    "in_short": "In short:",
+    "dont_title": "Don't do this",
+    "summary": {
+      "danger": "strong signs of a scam. Do not act on it.",
+      "caution": "warning signs. Check it through an official channel before you act.",
+      "safe": "no known warning signs. Stay alert if it asks for money, codes or passwords."
+    },
+    "dont": {
+      "message_1": "Don't reply, and don't call any number given in the message.",
+      "message_2": "Don't open its links or scan its QR codes.",
+      "message_3": "Don't share one-time codes, card details or passwords — no real bank or service asks for them this way.",
+      "url_1": "Don't open the link.",
+      "url_2": "Don't enter a login, card details or a one-time code on that page.",
+      "url_3": "Don't forward it to friends or family.",
+      "image_1": "Don't follow the instructions in the screenshot.",
+      "image_2": "Don't scan its QR code or open its links.",
+      "image_3": "Don't send money or codes to the person who sent it.",
+      "email_1": "Don't keep using a password that was exposed in a breach.",
+      "email_2": "Don't reuse that password on any other site.",
+      "email_3": "Don't ignore sign-in alerts for this address — check them in the official app.",
+      "password_1": "Don't keep using this password.",
+      "password_2": "Don't reuse it anywhere else.",
+      "password_3": "Don't type it into pages reached from messages or ads."
     }
   },
   "contribute": {
@@ -732,5 +757,35 @@
     "default_action_1": "Never share one-time codes, card details or passwords with anyone who contacts you.",
     "default_action_2": "Open banking and government services only through their official app or a website you type yourself.",
     "default_action_3": "Turn on two-step verification for your email, Telegram and banking apps."
+  },
+  "map": {
+    "title": "Kazakhstan Threat Map",
+    "subtitle": "Which kinds of scams are going around, and where.",
+    "demo_notice": "Demo data: every figure on this page is simulated to show how the map will work. No real reports and no user submissions are used.",
+    "your_check": "Your last risky check looks like {category} — one of the scam types tracked on this map.",
+    "no_check": "Check a suspicious message or link, and we'll show which scam type it resembles.",
+    "national_title": "Across Kazakhstan",
+    "region_title": "By region",
+    "week_caption": "Simulated reports per week.",
+    "reports_label": "Reports",
+    "region_label": "Region",
+    "method_note": "When real data arrives, the map will count only scam categories by region and week, from people who opt in. Small counts will be hidden, and no message, link or screenshot will be stored.",
+    "region": {
+      "almaty": "Almaty",
+      "astana": "Astana",
+      "shymkent": "Shymkent",
+      "karaganda": "Karaganda",
+      "aktobe": "Aktobe",
+      "atyrau": "Atyrau",
+      "pavlodar": "Pavlodar",
+      "oskemen": "Oskemen"
+    },
+    "cat": {
+      "phishing": "Phishing",
+      "telegram_fraud": "Telegram fraud",
+      "fake_jobs": "Fake jobs",
+      "marketplace": "Marketplace & delivery scams",
+      "qr_fraud": "QR-code fraud"
+    }
   }
 }
