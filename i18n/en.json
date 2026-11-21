@@ -862,5 +862,47 @@
       "password_prefix": "Your password never left Tumar's server: only 5 characters of its hash were sent, and nothing was stored.",
       "no_action": "No action was taken on your accounts or data."
     }
+  },
+  "resilience": {
+    "title": "Your cyber resilience",
+    "subtitle": "How prepared you are right now, and what would help most.",
+    "score_label": "Resilience score",
+    "no_guarantee": "Out of 100, from this session only. A higher score means you've taken more protective steps — but no score can promise you are completely safe.",
+    "why_changed": "Why it changed:",
+    "steps_title": "Highest-impact steps",
+    "checklist_title": "Two-step verification checklist",
+    "checklist": {
+      "email": "I use two-step verification on my email",
+      "bank": "I use two-step verification (or app confirmation) for my bank",
+      "telegram": "I set a Telegram cloud password (two-step verification)"
+    },
+    "dealt_with": "I've dealt with this",
+    "how_title": "How the score is worked out",
+    "how_note": "Every point comes from the factors above (✓ = counted now). Nothing is stored after this session.",
+    "item": {
+      "email": "email",
+      "bank": "bank",
+      "telegram": "Telegram"
+    },
+    "factor": {
+      "base": "Starting point",
+      "dangerous_open": "Dangerous findings not yet dealt with",
+      "breach_exposure": "Your email appeared in a known breach",
+      "weak_password": "A weak or breached password was checked",
+      "two_factor_email": "Two-step verification on email",
+      "two_factor_bank": "Two-step verification for your bank",
+      "two_factor_telegram": "Telegram cloud password",
+      "checked_first": "You checked something before acting",
+      "clean_email": "Your email was not found in known breaches",
+      "strong_password": "You checked a strong password"
+    },
+    "step": {
+      "deal_dangerous": "Follow \"Contain now\" for your dangerous finding, then tick \"I've dealt with this\"",
+      "change_breached": "Change the password of the account that uses your breached email",
+      "replace_weak": "Replace the weak password with a long, unique passphrase",
+      "two_factor": "Turn on two-step verification for your {item}",
+      "check_first": "Check a suspicious message or link before you act on it",
+      "check_email": "Check whether your email appears in known breaches"
+    }
   }
 }
