@@ -165,6 +165,16 @@ with st.sidebar:
         use_container_width=True,
         icon=icon("logout"),
     )
+    if _email:
+        with st.popover(t("account.delete_data"), use_container_width=True, icon=icon("delete")):
+            st.caption(t("account.delete_explain"))
+            st.button(
+                t("account.delete_confirm"),
+                key="delete_my_data",
+                on_click=auth.delete_my_data,
+                use_container_width=True,
+                type="primary",
+            )
     st.selectbox(
         labeled("language", t("app.language_label")),
         options=list(LANGUAGES),

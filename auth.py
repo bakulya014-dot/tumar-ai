@@ -15,6 +15,7 @@ from collections.abc import Mapping
 import streamlit as st
 
 import user_store
+from services import telemetry
 from i18n import current_language
 
 PROVIDER = "google"
@@ -99,6 +100,29 @@ def sign_out() -> None:
     st.session_state.pop(_RECORDED_KEY, None)
     if is_signed_in():
         st.logout()
+
+
+def delete_my_data() -> None:
+    """Button callback: erase the signed-in user's stored data, then sign out.
+
+    Removes the account row (name, email, language, sign-in dates) and
+    this session's check history, then signs out. Signing in again later
+    simply registers a fresh account.
+    """
+    _name, email = user_display()
+    if email:
+        try:
+            user_store.delete_user(email)
+        except Exception:
+            # Never leave the person stuck on an error page; the deletion
+            # outcome is logged without the address.
+            telemetry.emit("account", action="delete_failed")
+        else:
+            telemetry.emit("account", action="deleted")
+    for key in list(st.session_state.keys()):
+        if key != "language":  # keep the interface language, nothing else
+            del st.session_state[key]
+    sign_out()
 
 
 def user_display() -> tuple[str, str]:
