@@ -10,6 +10,8 @@ import os
 from typing import Sequence
 
 from google import genai
+
+from services import ai_authority
 from google.genai import errors as genai_errors
 
 from app.news.collector import NewsArticle
@@ -94,6 +96,11 @@ def summarize_news(
         f"Analyze these {len(articles[:6])} cybersecurity news items and synthesize the top {limit} "
         f"threats into a high-impact Telegram digest:\n\n{articles_text}"
     )
+
+    try:
+        ai_authority.require("summarize_public_news")
+    except ai_authority.FeatureDisabled:
+        return _format_rule_based(articles, limit=limit)
 
     try:
         client = genai.Client(api_key=resolved_key)

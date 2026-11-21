@@ -35,7 +35,7 @@ from typing import Sequence
 
 from pydantic import BaseModel
 
-from services import telemetry
+from services import ai_authority, output_guard, telemetry
 from services.breach_checker import check_email, is_valid_email
 from services.common import ServiceError
 from services.image_scanner import SUPPORTED_MIME_TYPES, scan_image, to_trust_report
@@ -155,9 +155,10 @@ class UrlAnalyzer(Analyzer):
         self, subject: TrustSubject, context: AnalysisContext
     ) -> TrustReport:
         assert isinstance(subject.content, str)
-        return scan_url(
+        report = scan_url(
             subject.content, api_key=context.api_key, language=subject.language
         )
+        return output_guard.apply(report, subject.content)
 
 
 class MessageAnalyzer(Analyzer):
@@ -175,9 +176,11 @@ class MessageAnalyzer(Analyzer):
     ) -> TrustReport:
         assert isinstance(subject.content, str)
         message = subject.content.strip()
-        return from_scam_report(
+        report = from_scam_report(
             analyze_message(message, api_key=context.api_key), message
         )
+        # The AI may analyse and recommend; it may not overrule the rules.
+        return output_guard.apply(report, message)
 
 
 class ImageAnalyzer(Analyzer):
@@ -219,7 +222,8 @@ class ImageAnalyzer(Analyzer):
             allow_external=context.allow_external_ai,
             preferred_vision=context.vision_provider,
         )
-        return to_trust_report(result, subject.filename)
+        # The image risk score is deterministic already; AI text is defanged.
+        return output_guard.sanitize(to_trust_report(result, subject.filename))
 
 
 class PasswordAnalyzer(Analyzer):
@@ -324,6 +328,10 @@ class TrustEngine:
             if analyzer is None:
                 record("error", "unsupported_input")
                 raise EngineError("unsupported_input")
+            switched_off = {"email": "breach", "image": "images"}.get(analyzer.kind)
+            if switched_off and not ai_authority.feature_enabled(switched_off):
+                record("error", "feature_disabled")
+                raise EngineError("feature_disabled")
             if isinstance(subject.content, str) and len(subject.content) > MAX_TEXT_CHARS:
                 record("error", "too_long")
                 raise EngineError("too_long")

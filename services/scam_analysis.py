@@ -19,6 +19,7 @@ from pydantic import BaseModel, Field
 
 from services.common import ServiceError
 from services.heuristics import HeuristicReport, scan_message
+from services import ai_authority
 from services.redaction import redact
 from services.providers import (
     AIProvider,
@@ -95,6 +96,10 @@ def analyze_message(
         ScamAnalysisError: With a short error code on any failure.
     """
     heuristics = scan_message(message)
+    try:
+        ai_authority.require("analyze_text")
+    except ai_authority.FeatureDisabled as exc:
+        raise ScamAnalysisError(exc.code) from exc
     chosen = provider or text_provider() or GeminiProvider(api_key)
 
     try:

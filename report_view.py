@@ -25,6 +25,7 @@ branch on the module either.
 
 
 import html
+import re
 from collections import OrderedDict
 
 import streamlit as st
@@ -62,7 +63,8 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
     st.subheader(components.labeled("explain", t("trust.explanation_title")))
     st.write(_text(report.explanation, report.explanation_key))
 
-    actions = report.recommended_actions or [
+    # Model-written actions are plain text, never Markdown (no links, no images).
+    actions = [md_escape(a) for a in report.recommended_actions] or [
         t(key) for key in report.recommended_action_keys
     ]
     if actions:
@@ -157,10 +159,22 @@ def is_offline(report: TrustReport) -> bool:
     return report.analysis_metadata.get("mode") == "offline"
 
 
+_MD_SPECIAL = re.compile(r"([\\`*_{}\[\]()#!<>|~])")
+
+
+def md_escape(text: str) -> str:
+    """Show model-written text literally: no links, images, emphasis or HTML.
+
+    Links are already defanged by services/output_guard.py; this stops
+    the rest of Markdown from turning an AI answer into page content.
+    """
+    return _MD_SPECIAL.sub(r"\\\1", text)
+
+
 def _text(free_text: str, key: str) -> str:
     """AI modules send free text; deterministic modules send a key."""
     if free_text:
-        return free_text
+        return md_escape(free_text)
     return t(key) if key else ""
 
 

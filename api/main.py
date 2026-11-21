@@ -75,6 +75,8 @@ _STATUS_BY_CODE = {
     # The caller can fix these.
     "unsupported_input": 400,
     "too_long": 413,
+    "feature_disabled": 503,
+    "ai_disabled": 503,
     "invalid_url": 400,
     "invalid_email": 400,
     "empty_password": 400,

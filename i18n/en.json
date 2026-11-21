@@ -216,6 +216,14 @@
       "password_1": "Don't keep using this password.",
       "password_2": "Don't reuse it anywhere else.",
       "password_3": "Don't type it into pages reached from messages or ads."
+    },
+    "guard": {
+      "explain_danger": "This message tries to give instructions to AI tools, a strong sign of manipulation. Tumar's built-in rules override the AI's assessment here.",
+      "explain_caution": "Tumar's built-in rules found strong warning signs that the AI assessment did not weigh the same way. Treat it with caution until you can check it.",
+      "rec_1": "Don't act on the message: don't click, pay, or share codes or passwords.",
+      "rec_2": "Check it through the organisation's official app or a number you already know.",
+      "rec_3": "If in doubt, show it to someone you trust before doing anything.",
+      "reason": "The AI's verdict was overruled by strong rule-based evidence."
     }
   },
   "contribute": {
@@ -465,7 +473,9 @@
     "image_dimensions": "That image is too large in pixels. Crop it to the part that matters.",
     "image_too_small": "That image is too small to contain anything readable.",
     "unexpected": "Something went wrong on our side. Your input was not stored. Please try again in a moment.",
-    "too_long": "That text is too long to check. Paste only the suspicious part (up to about 5,000 characters)."
+    "too_long": "That text is too long to check. Paste only the suspicious part (up to about 5,000 characters).",
+    "ai_disabled": "AI analysis is switched off on this server right now.",
+    "feature_disabled": "This check is temporarily switched off. Please try again later."
   },
   "landing": {
     "sign_in": "Sign in",

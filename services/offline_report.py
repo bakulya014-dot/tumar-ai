@@ -45,7 +45,7 @@ from services.trust_report import (
 PROVIDER_FAILURES = frozenset({
     "unreachable", "timeout", "rate_limited", "service_down",
     "model_unavailable", "missing_key", "credentials",
-    "unexpected_answer", "ai_error",
+    "unexpected_answer", "ai_error", "ai_disabled",
 })
 
 OFFLINE_CAP = ABSENCE_CAP  # 60, for confidence and trust score alike
