@@ -18,21 +18,21 @@ from services.trust_report import TrustReport
 
 IS_SIMULATED = True
 
-CATEGORIES = ("phishing", "telegram_fraud", "fake_jobs", "marketplace", "qr_fraud")
+CATEGORIES = ("phishing", "impersonation", "telegram_fraud", "fake_jobs", "marketplace", "qr_fraud")
 REGIONS = (
     "almaty", "astana", "shymkent", "karaganda", "aktobe", "atyrau", "pavlodar", "oskemen",
 )
 
 # Simulated weekly report counts per region and category (illustrative only).
 _DEMO = {
-    "almaty":    (148, 96, 61, 83, 22),
-    "astana":    (121, 74, 48, 59, 17),
-    "shymkent":  (77, 69, 52, 41, 9),
-    "karaganda": (58, 37, 29, 33, 6),
-    "aktobe":    (41, 33, 27, 22, 5),
-    "atyrau":    (36, 21, 31, 18, 4),
-    "pavlodar":  (32, 24, 17, 19, 3),
-    "oskemen":   (29, 22, 15, 16, 3),
+    "almaty":    (148, 71, 96, 61, 83, 22),
+    "astana":    (121, 58, 74, 48, 59, 17),
+    "shymkent":  (77, 39, 69, 52, 41, 9),
+    "karaganda": (58, 26, 37, 29, 33, 6),
+    "aktobe":    (41, 19, 33, 27, 22, 5),
+    "atyrau":    (36, 17, 21, 31, 18, 4),
+    "pavlodar":  (32, 14, 24, 17, 19, 3),
+    "oskemen":   (29, 13, 22, 15, 16, 3),
 }
 
 
@@ -64,6 +64,11 @@ def categorize(report: TrustReport) -> str | None:
     codes = " ".join(e.code.lower() for e in report.evidence)
     if "qr" in codes:
         return "qr_fraud"
+    lookalike = {"url_brand_lookalike", "url_misspelled_domain", "url_homoglyph"}
+    if lookalike & {e.code for e in report.evidence} and not {"credential", "otp_disclosure"} & {
+        e.code for e in report.evidence
+    }:
+        return "impersonation"
     for category, cues in _CUES.items():
         if any(cue in text for cue in cues):
             return category

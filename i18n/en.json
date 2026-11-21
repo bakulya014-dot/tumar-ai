@@ -18,7 +18,8 @@
     "about": "About",
     "film": "Launch Film",
     "center": "My Safety Center",
-    "map": "Threat Map"
+    "map": "Threat Map",
+    "security": "Security & privacy"
   },
   "home": {
     "subtitle": "Your digital tumar — a personal AI amulet against online scams.",
@@ -773,7 +774,7 @@
     "title": "Kazakhstan Threat Map",
     "subtitle": "Which kinds of scams are going around, and where.",
     "demo_notice": "Demo data: every figure on this page is simulated to show how the map will work. No real reports and no user submissions are used.",
-    "your_check": "Your last risky check looks like {category} — one of the scam types tracked on this map.",
+    "your_check": "Your last risky check looks like {category} — one of the scam types tracked on this map. It is shown here only, on your screen, and was not added to these figures.",
     "no_check": "Check a suspicious message or link, and we'll show which scam type it resembles.",
     "national_title": "Across Kazakhstan",
     "region_title": "By region",
@@ -796,7 +797,8 @@
       "telegram_fraud": "Telegram fraud",
       "fake_jobs": "Fake jobs",
       "marketplace": "Marketplace & delivery scams",
-      "qr_fraud": "QR-code fraud"
+      "qr_fraud": "QR-code fraud",
+      "impersonation": "Impersonation"
     }
   },
   "protect": {
@@ -914,5 +916,78 @@
       "check_first": "Check a suspicious message or link before you act on it",
       "check_email": "Check whether your email appears in known breaches"
     }
+  },
+  "status": {
+    "service": {
+      "ai": "AI analysis",
+      "breach": "Breach lookup",
+      "password": "Password check",
+      "images": "Screenshot reading"
+    },
+    "state": {
+      "ready": "working",
+      "degraded": "having trouble",
+      "off": "switched off",
+      "not_configured": "not set up",
+      "limited": "partly available"
+    },
+    "help": {
+      "ai": {
+        "ready": "Powers the scam and link analysis.",
+        "degraded": "The AI service had trouble recently. Checks still run on Tumar's built-in rules and are labelled as such.",
+        "off": "Switched off by the operator. Checks run on Tumar's built-in rules and are labelled as such.",
+        "not_configured": "No AI key on this server. Checks run on Tumar's built-in rules and are labelled as such."
+      },
+      "breach": {
+        "ready": "Checks emails against public breach databases.",
+        "degraded": "The breach database did not answer recently. Try again in a few minutes.",
+        "off": "Switched off by the operator for now."
+      },
+      "password": {
+        "ready": "Checks passwords privately (only 5 hash characters leave the server).",
+        "degraded": "The password database did not answer recently. The strength check still works."
+      },
+      "images": {
+        "ready": "Reads text, QR codes and links in screenshots.",
+        "limited": "Text reading is not installed here, so only QR codes and links are checked.",
+        "off": "Switched off by the operator for now."
+      }
+    }
+  },
+  "security": {
+    "title": "Security & privacy",
+    "subtitle": "What Tumar.AI does with your data, and what it never does.",
+    "data": {
+      "title": "Your data, check by check",
+      "message": "**Messages**: checked in memory and never stored. Before any AI sees the text, phone, card and ID numbers, email addresses and long numbers are masked.",
+      "link": "**Links**: judged from the address only. Tumar never opens the page.",
+      "image": "**Screenshots**: validated, read and discarded, never stored. The image itself goes to an AI provider only when one is set up for images and the \"Allow external AI providers\" switch above the uploader is on (it is on by default; you can turn it off). Text read from the image is masked like a message.",
+      "email": "**Email breach check**: your address is sent to the public XposedOrNot breach database to look it up. Tumar does not store it.",
+      "password": "**Passwords**: never stored and never sent to the AI. Only the first 5 characters of the password's hash go to the Pwned Passwords database (k-anonymity).",
+      "account": "**Google sign-in**: stores only your name, email, language and sign-in dates. \"Delete my data\" in the sidebar erases them."
+    },
+    "ai": {
+      "title": "What the AI can and cannot do",
+      "does": "The AI only analyses what you give it and suggests what to do. Its answer has a fixed format that Tumar checks before showing it.",
+      "never": "It cannot send messages, pay, delete or change anything, contact anyone, open links or use any tools. Every step is yours.",
+      "floor": "If a message tries to manipulate the AI, or Tumar's built-in rules find strong warning signs, the rules win: the AI cannot mark it safe.",
+      "text": "Links in AI answers are shown disarmed (hxxp://), and AI text can never add links or images to the page."
+    },
+    "safeguards": {
+      "title": "Built-in safeguards",
+      "limits": "Daily check limits and size limits on text and images protect the service from abuse.",
+      "errors": "If something breaks, you see a calm message, never technical error details.",
+      "secrets": "Keys and passwords never live in the code; every change is scanned for leaked credentials before release.",
+      "switches": "Each outside service (AI, breach lookup, screenshot reading) can be switched off in minutes if it misbehaves. Checks then fall back to Tumar's built-in rules, labelled as such.",
+      "logs": "Operational logs record only what happened (which check, how long, success or failure), never what you checked, your email or your name."
+    },
+    "limits": {
+      "title": "What we don't claim",
+      "no_guarantee": "No check can catch every scam. A \"safe\" result means no known warning signs were found, not a guarantee.",
+      "demo_map": "The Threat Map uses simulated data for now, and says so.",
+      "session": "My Safety Center and the resilience score last only for your session; Tumar keeps no check history.",
+      "third_parties": "The outside services named above (Google's AI, XposedOrNot, Pwned Passwords) have their own privacy policies."
+    },
+    "footer": "Tumar.AI is an independent project. Questions about your data: use \"Delete my data\" or contact the team."
   }
 }

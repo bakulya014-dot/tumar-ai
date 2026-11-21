@@ -154,6 +154,7 @@ pages = {
             icon=icon("film"),
             url_path="launch-film",
         ),
+        st.Page("views/security.py", title=t("nav.security"), icon=icon("lock")),
         st.Page("views/about.py", title=t("nav.about"), icon=icon("about")),
     ],
 }
