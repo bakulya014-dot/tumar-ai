@@ -50,7 +50,7 @@ points to a look-alike domain. Point out: the QR code is decoded but
 
 **7. How it works and how we measure it (60 s)** — architecture
 `[08-system-architecture.png]`, then the real test/evaluation output
-`[09-test-and-evaluation-results.png]`: 24 test suites pass; the
+`[09-test-and-evaluation-results.png]`: 28 test suites pass; the
 rule-based layer flags 90.9% of scam messages in our labelled corpus
 and 42.9% of legitimate ones — which is why the AI layer and the
 confidence model exist.
