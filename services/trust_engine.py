@@ -94,6 +94,13 @@ class EngineError(ServiceError):
     """Routing failed. `code` selects a localized message in the UI."""
 
 
+# Backstop for every channel. The web pages (5,000), the REST API (5,000)
+# and Telegram (4,096) all cap text below this, but the web limits are
+# enforced in the browser, so a hand-crafted request could otherwise
+# send an unbounded text to the paid AI provider.
+MAX_TEXT_CHARS = 10_000
+
+
 class Analyzer(ABC):
     """The interface every Tumar.AI capability implements."""
 
@@ -317,6 +324,9 @@ class TrustEngine:
             if analyzer is None:
                 record("error", "unsupported_input")
                 raise EngineError("unsupported_input")
+            if isinstance(subject.content, str) and len(subject.content) > MAX_TEXT_CHARS:
+                record("error", "too_long")
+                raise EngineError("too_long")
             try:
                 report = analyzer.analyze(subject, context)
             except ServiceError as exc:

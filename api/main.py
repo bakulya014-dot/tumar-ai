@@ -74,6 +74,7 @@ _NEEDS_AI = frozenset({"message", "url"})
 _STATUS_BY_CODE = {
     # The caller can fix these.
     "unsupported_input": 400,
+    "too_long": 413,
     "invalid_url": 400,
     "invalid_email": 400,
     "empty_password": 400,

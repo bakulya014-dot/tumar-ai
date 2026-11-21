@@ -37,6 +37,11 @@ jobs:
 
       # Every tracked Python file, so new modules (the bot, scripts,
       # news pipeline) are covered without editing this list.
+      # Fails on anything shaped like a real credential in a tracked
+      # file. Prints file, line and kind only, never the value.
+      - name: Scan for committed secrets
+        run: python scripts/check_secrets.py
+
       - name: Check every source file parses
         run: git ls-files -z '*.py' | xargs -0 python -m compileall -q
 
