@@ -16,7 +16,8 @@
     "breach": "Email Breach Checker",
     "password": "Password Health",
     "about": "About",
-    "film": "Launch Film"
+    "film": "Launch Film",
+    "center": "My Safety Center"
   },
   "home": {
     "subtitle": "Your digital tumar — a personal AI amulet against online scams.",
@@ -707,5 +708,29 @@
       "header": "📢 <b>TUMAR.AI DAILY SAFETY TIP</b>",
       "footer": "🛡️ <i>A curated safety tip, not a news alert. For today's security news, send /news to the bot.</i>"
     }
+  },
+  "center": {
+    "title": "My Safety Center",
+    "subtitle": "What your checks add up to, and what to do next.",
+    "scope": "This session only: Tumar.AI writes no check history to disk, so this page starts empty on every visit.",
+    "empty_title": "Nothing checked yet",
+    "empty_text": "Check a suspicious message, link, screenshot or email address and your safety picture will appear here.",
+    "snapshot_title": "Your safety snapshot",
+    "status_calm": "All clear so far",
+    "status_watch": "Stay alert",
+    "status_act": "Action needed",
+    "score_label": "Safety score",
+    "checks_label": "Checks",
+    "dangerous_label": "Dangerous",
+    "score_explain": "Safety score: the average trust score Tumar.AI gave the things you checked this session (100 = fully trustworthy).",
+    "actions_title": "Do this now",
+    "danger_title": "Dangerous findings",
+    "danger_none": "No dangerous findings this session.",
+    "trend_title": "Progress this session",
+    "trend_caption": "Trust score of each check, oldest to newest.",
+    "recent_title": "Recent checks",
+    "default_action_1": "Never share one-time codes, card details or passwords with anyone who contacts you.",
+    "default_action_2": "Open banking and government services only through their official app or a website you type yourself.",
+    "default_action_3": "Turn on two-step verification for your email, Telegram and banking apps."
   }
 }

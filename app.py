@@ -130,6 +130,12 @@ if _new_user is not None:
 pages = {
     t("nav.section_overview"): [
         st.Page("views/home.py", title=t("nav.home"), icon=icon("home"), default=True),
+        # Personal dashboard: signed-in users only (guests have no account).
+        *(
+            [st.Page("views/safety_center.py", title=t("nav.center"), icon=icon("shield_person"))]
+            if _signed_in
+            else []
+        ),
     ],
     t("nav.section_analyze"): [
         st.Page("views/scam_analyzer.py", title=t("nav.scam"), icon=icon("scam")),
