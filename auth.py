@@ -96,6 +96,7 @@ def continue_as_guest() -> None:
 
 
 def sign_out() -> None:
+    telemetry.emit("auth", action="logout")
     st.session_state.pop(_GUEST_KEY, None)
     st.session_state.pop(_RECORDED_KEY, None)
     if is_signed_in():

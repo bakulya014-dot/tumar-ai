@@ -12,6 +12,11 @@ linkColor = "#8FB4FF"
 borderColor = "#263249"
 baseRadius = "12px"
 
+[client]
+# Visitors never see Python tracebacks; app.py shows a translated notice
+# and logs the error type. Errors are still in the server log.
+showErrorDetails = "none"
+
 [server]
 # Uploads above this are refused by Streamlit before they reach the
 # image validator (which enforces its own, configurable 6 MiB limit).
