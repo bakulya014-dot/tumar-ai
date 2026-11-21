@@ -1,22 +1,31 @@
-Tumar.AI test and evaluation output — 2026-11-20 09:55 UTC — feat/phase1-stabilization@4617bac (+uncommitted changes)
+Tumar.AI test and evaluation output — 2026-11-21 16:54 UTC — docs/test-counts@b6a4197 (+uncommitted changes)
 
 ========================================================================
 Automated test suites — python run_tests.py
-exit code 0, 74.3 s
+exit code 0, 148.0 s
 ========================================================================
+[PASS] test_ai_redaction.py
 [PASS] test_api.py
 [PASS] test_api_contract.py
+[PASS] test_auth_config.py
+[PASS] test_bot_i18n.py
+[PASS] test_bot_runtime.py
 [PASS] test_bot_trust_engine.py
+[PASS] test_branding.py
 [PASS] test_breach_checker.py
 [PASS] test_corpus_client.py
 [PASS] test_corpus_store.py
 [PASS] test_deepseek_integration.py
 [PASS] test_evals.py
+[PASS] test_gemini_retry.py
+[PASS] test_heldout_eval.py
 [PASS] test_heuristics.py
 [PASS] test_i18n.py
 [PASS] test_image_scanner.py
+[PASS] test_input_limits.py
 [PASS] test_keystore.py
 [PASS] test_language.py
+[PASS] test_offline_report.py
 [PASS] test_password_check.py
 [PASS] test_providers.py
 [PASS] test_quota.py
@@ -25,18 +34,22 @@ exit code 0, 74.3 s
 [PASS] test_regressions.py
 [PASS] test_report_store.py
 [PASS] test_report_view.py
+[PASS] test_routing.py
+[PASS] test_safety_center.py
 [PASS] test_telegram_bot_features.py
 [PASS] test_telegram_screenshot.py
+[PASS] test_telemetry.py
+[PASS] test_threat_map.py
 [PASS] test_trust_engine.py
 [PASS] test_trust_report.py
 [PASS] test_url_scanner.py
 [PASS] test_user_store.py
 [PASS] test_vision_analysis.py
-All 28 suites passed.
+All 41 suites passed.
 
 ========================================================================
 Offline evaluation (deterministic layer) — python evals/runner.py
-exit code 0, 2.6 s
+exit code 0, 3.1 s
 ========================================================================
 Corpus: 61 messages, 40 URLs
 
@@ -59,11 +72,11 @@ URL HEURISTICS
     detection rate:          100.0%
     false positive rate:     0.0%
 
-Saved: evals\results\20261120-095526.json
+Saved: evals\results\20261121-165438.json
 
 ========================================================================
 Image-scanner evaluation framework — python evals/image_scanner/evaluation.py
-exit code 0, 3.0 s
+exit code 0, 3.4 s
 ========================================================================
 {
   "validated": false,
@@ -80,7 +93,7 @@ exit code 0, 3.0 s
   "vision_failure_rate": null,
   "text_model_failure_rate": null,
   "refused_uploads": [],
-  "run_at": "2026-11-20T09:55:29+00:00",
+  "run_at": "2026-11-21T16:54:41+00:00",
   "label": "",
   "labelled_cases": 1,
   "images_present": 0

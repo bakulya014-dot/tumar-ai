@@ -3,11 +3,11 @@
 Working deadline: **26 November**. Baseline checked on 20 November against
 `main` @ `4617bac`.
 
-## Where we stand (verified on 20 Nov)
+## Where we stand (verified on 20 Nov; tests and deployment rows updated 21 Nov)
 
 | Item | Status | Evidence |
 |---|---|---|
-| Automated tests | ✅ 28 / 28 suites pass | `python run_tests.py` |
+| Automated tests | ✅ 41 / 41 suites pass | `python run_tests.py` |
 | Rule layer, scam messages flagged | 90.9 % (30/33) | `python evals/runner.py` |
 | Rule layer, legitimate messages flagged (false positives) | 42.9 % (12/28) | same run |
 | URL heuristics (weighted rule): detection / false positives | 100 % / 0 % (20+20 URLs) | same run |
@@ -16,12 +16,12 @@ Working deadline: **26 November**. Baseline checked on 20 November against
 | Demo message 3 — Kazakh prize scam | ✅ OTP *disclosure* + manipulation signals | `scan_message` |
 | QR decoding (OpenCV) | ✅ decodes a generated phishing-URL QR code | `decode_qr` |
 | Screenshot OCR / image-scanner accuracy | ⚠️ **not validated**: no labelled images, Tesseract not installed locally | `evals/image_scanner/evaluation.py` |
-| Deployed version | ❓ **not yet checked**: no deployed URL is recorded in the repo | — |
+| Deployed version | ⚠️ https://tumar-ai.streamlit.app is up (health check 200 on 21 Nov); the full flow is **not yet verified** | `docs/KIMEP_DEMO.md` checklist |
 
 ## Must fix before 26 Nov
 
 1. ~~**Stale numbers in the docs.**~~ Done 20 Nov: report, demo script and
-   regenerated `evaluation-results.*` now say 28 suites. Still to do:
+   regenerated `evaluation-results.*` now say 41 suites (updated 21 Nov). Still to do:
    re-capture `09-test-and-evaluation-results.png`, which shows the old run.
 2. **Verify the deployed app end to end** (landing → guest → three demo
    messages → QR upload → Telegram bot `/scan`). Record the URL in the README

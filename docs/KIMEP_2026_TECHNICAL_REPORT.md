@@ -68,9 +68,9 @@ Production uses polling (`bot.py` at the time), so no webhook was removed.
 (Update 2026-11-11: the entry point is now `telegram_bot.main`, and the
 legacy `bot.py` has been removed.)
 
-## 4. Tests executed (2026-11-20)
+## 4. Tests executed (2026-11-21)
 
-`python run_tests.py` — **28 of 28 suites passed** (≈74 s, offline, no
+`python run_tests.py` — **41 of 41 suites passed** (≈148 s, offline, no
 API keys). Verbatim output: `docs/evaluation-results.txt`.
 
 New this pass:
