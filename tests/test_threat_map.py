@@ -45,6 +45,9 @@ def test_categorize_the_users_last_check() -> None:
     qr = Evidence(kind="heuristic", code="qr_link", detail="")
     assert demo.categorize(_report(kind="image", evidence=[qr])) == "qr_fraud"
     assert demo.categorize(_report(preview="Send the SMS code to unlock")) == "phishing"
+    # A leaked email or weak password is exposure, not a scam type (seen in production).
+    assert demo.categorize(_report(kind="email", preview="te**t@example.com")) is None
+    assert demo.categorize(_report(kind="password", verdict="caution", preview="••••")) is None
     print("test_categorize_the_users_last_check PASSED")
 
 
@@ -71,6 +74,8 @@ def test_dont_block_only_for_risky_results() -> None:
 def test_map_page_labels_demo_data_and_shows_the_users_category() -> None:
     state: dict = {}
     report_store.remember(state, _report(preview="Удалённая работа: внесите депозит"))
+    # A newer breach result must not replace the scam check on the map.
+    report_store.remember(state, _report(kind="email", preview="te**t@example.com"))
     at = AppTest.from_file(str(ROOT / "app.py"), default_timeout=60)
     at.session_state["trust_history"] = state["trust_history"]
     at.session_state["tumar_guest"] = True  # the map is open to guests too
