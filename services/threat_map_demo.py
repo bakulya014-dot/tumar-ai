@@ -56,9 +56,15 @@ _CUES = {
 }
 
 
+# Checks about the person's own exposure, not about a scam they received:
+# a leaked email or a weak password is not "phishing" on the map.
+_NOT_SCAMS = {"email", "password"}
+
+
 def categorize(report: TrustReport) -> str | None:
-    """The demo category a risky check most resembles; None for safe results."""
-    if report.verdict == "safe":
+    """The demo category a risky check most resembles; None for safe results
+    and for exposure checks (email breaches, passwords)."""
+    if report.verdict == "safe" or report.subject_type in _NOT_SCAMS:
         return None
     text = f" {report.subject_preview.lower()} "
     codes = " ".join(e.code.lower() for e in report.evidence)
