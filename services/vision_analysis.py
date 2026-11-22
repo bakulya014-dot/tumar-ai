@@ -22,7 +22,7 @@ from pathlib import Path
 
 from pydantic import BaseModel, Field
 
-from services import telemetry
+from services import ai_authority, telemetry
 from services.common import ServiceError
 from services.providers import AIProvider, ProviderError
 
@@ -93,6 +93,10 @@ def analyze_image(
         raise VisionAnalysisError("image_too_large")
     if mime_type not in SUPPORTED_MIME_TYPES:
         raise VisionAnalysisError("unsupported_image")
+    try:
+        ai_authority.require("read_image")
+    except ai_authority.FeatureDisabled as exc:
+        raise VisionAnalysisError(exc.code) from exc
     if not provider.supports_vision() or not provider.available():
         raise VisionAnalysisError("vision_unavailable")
 

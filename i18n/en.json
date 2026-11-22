@@ -18,7 +18,8 @@
     "about": "About",
     "film": "Launch Film",
     "center": "My Safety Center",
-    "map": "Threat Map"
+    "map": "Threat Map",
+    "security": "Security & privacy"
   },
   "home": {
     "subtitle": "Your digital tumar — a personal AI amulet against online scams.",
@@ -216,6 +217,14 @@
       "password_1": "Don't keep using this password.",
       "password_2": "Don't reuse it anywhere else.",
       "password_3": "Don't type it into pages reached from messages or ads."
+    },
+    "guard": {
+      "explain_danger": "This message tries to give instructions to AI tools, a strong sign of manipulation. Tumar's built-in rules override the AI's assessment here.",
+      "explain_caution": "Tumar's built-in rules found strong warning signs that the AI assessment did not weigh the same way. Treat it with caution until you can check it.",
+      "rec_1": "Don't act on the message: don't click, pay, or share codes or passwords.",
+      "rec_2": "Check it through the organisation's official app or a number you already know.",
+      "rec_3": "If in doubt, show it to someone you trust before doing anything.",
+      "reason": "The AI's verdict was overruled by strong rule-based evidence."
     }
   },
   "contribute": {
@@ -465,7 +474,9 @@
     "image_dimensions": "That image is too large in pixels. Crop it to the part that matters.",
     "image_too_small": "That image is too small to contain anything readable.",
     "unexpected": "Something went wrong on our side. Your input was not stored. Please try again in a moment.",
-    "too_long": "That text is too long to check. Paste only the suspicious part (up to about 5,000 characters)."
+    "too_long": "That text is too long to check. Paste only the suspicious part (up to about 5,000 characters).",
+    "ai_disabled": "AI analysis is switched off on this server right now.",
+    "feature_disabled": "This check is temporarily switched off. Please try again later."
   },
   "landing": {
     "sign_in": "Sign in",
@@ -763,7 +774,7 @@
     "title": "Kazakhstan Threat Map",
     "subtitle": "Which kinds of scams are going around, and where.",
     "demo_notice": "Demo data: every figure on this page is simulated to show how the map will work. No real reports and no user submissions are used.",
-    "your_check": "Your last risky check looks like {category} — one of the scam types tracked on this map.",
+    "your_check": "Your last risky check looks like {category} — one of the scam types tracked on this map. It is shown here only, on your screen, and was not added to these figures.",
     "no_check": "Check a suspicious message or link, and we'll show which scam type it resembles.",
     "national_title": "Across Kazakhstan",
     "region_title": "By region",
@@ -786,7 +797,197 @@
       "telegram_fraud": "Telegram fraud",
       "fake_jobs": "Fake jobs",
       "marketplace": "Marketplace & delivery scams",
-      "qr_fraud": "QR-code fraud"
+      "qr_fraud": "QR-code fraud",
+      "impersonation": "Impersonation"
     }
+  },
+  "protect": {
+    "category": {
+      "phishing": "Phishing",
+      "impersonation": "Impersonation",
+      "malware": "Malware",
+      "account_takeover": "Account takeover",
+      "breach_exposure": "Data breach exposure",
+      "payment_fraud": "Payment fraud",
+      "misinformation": "Misinformation",
+      "unknown": "Unclear type"
+    },
+    "severity": {
+      "low": "low",
+      "medium": "medium",
+      "high": "high",
+      "critical": "critical"
+    },
+    "band": {
+      "low": "low",
+      "medium": "medium",
+      "high": "high"
+    },
+    "severity_label": "Severity: {level}",
+    "confidence_label": "Confidence: {level}",
+    "why_title": "Why this matters:",
+    "why": {
+      "phishing": "It tries to get you to open a fake page or hand over details there.",
+      "impersonation": "It pretends to be a company or person you trust, so you act without checking.",
+      "malware": "It could install harmful software on your device.",
+      "account_takeover": "With a code or password, someone can take over your account.",
+      "breach_exposure": "Your address appeared in a known leak, so old passwords may be in criminals' lists.",
+      "payment_fraud": "It aims to make you send money or card details.",
+      "misinformation": "It spreads false information to push you into acting.",
+      "unknown": "Some warning signs were found, but the type of scam is unclear."
+    },
+    "exposure_title": "What could be affected:",
+    "exposure": {
+      "phishing": "Your logins, card details and money.",
+      "impersonation": "Anything you would give the real organisation: money, codes, personal data.",
+      "malware": "Your device and the accounts used on it.",
+      "account_takeover": "Your email, banking, Telegram or other accounts.",
+      "breach_exposure": "Accounts that use this email, especially with a reused password.",
+      "payment_fraud": "Your money and card details.",
+      "misinformation": "Your decisions, and people you might forward it to.",
+      "unknown": "Possibly your accounts or money. Be careful until you can check."
+    },
+    "confirmed": "Confirmed facts",
+    "suspicious": "Suspicious signals",
+    "ai_assessment": "AI assessment — a judgement, not a certainty",
+    "contain_title": "Contain now",
+    "contain": {
+      "no_click": "Don't click, reply or call back.",
+      "official_app": "Check your account only through the official app or a website you type yourself.",
+      "block_report": "Block the sender and report the message in the app you received it in.",
+      "keep_evidence": "Keep a screenshot in case you report it later.",
+      "tell_family": "If relatives might get the same message, you can warn them — only if you want to.",
+      "no_codes": "Don't share any code you received, with anyone.",
+      "reset_password": "Change the password through the official service, and anywhere you reused it.",
+      "two_factor": "Turn on two-step verification for this account.",
+      "no_pay": "Don't send money or card details.",
+      "call_bank": "If you already paid or shared card details, call your bank using the number on your card.",
+      "watch_signins": "Watch for sign-in alerts and unknown devices in your account settings."
+    },
+    "contain_note": "Tumar never does these for you — every step is yours to take.",
+    "done_title": "What Tumar protected",
+    "done": {
+      "masked": "Your message was checked in memory and not stored. Phone, card and ID numbers are masked before any AI sees it.",
+      "link_not_opened": "The link was analysed from its address only — Tumar never opened it.",
+      "image_not_stored": "The image was checked and discarded, never stored.",
+      "email_not_stored": "Your email was checked against public breach databases and not stored by Tumar.",
+      "password_prefix": "Your password never left Tumar's server: only 5 characters of its hash were sent, and nothing was stored.",
+      "no_action": "No action was taken on your accounts or data."
+    }
+  },
+  "resilience": {
+    "title": "Your cyber resilience",
+    "subtitle": "How prepared you are right now, and what would help most.",
+    "score_label": "Resilience score",
+    "no_guarantee": "Out of 100, from this session only. A higher score means you've taken more protective steps — but no score can promise you are completely safe.",
+    "why_changed": "Why it changed:",
+    "steps_title": "Highest-impact steps",
+    "checklist_title": "Two-step verification checklist",
+    "checklist": {
+      "email": "I use two-step verification on my email",
+      "bank": "I use two-step verification (or app confirmation) for my bank",
+      "telegram": "I set a Telegram cloud password (two-step verification)"
+    },
+    "dealt_with": "I've dealt with this",
+    "how_title": "How the score is worked out",
+    "how_note": "Every point comes from the factors above (✓ = counted now). Nothing is stored after this session.",
+    "item": {
+      "email": "email",
+      "bank": "bank",
+      "telegram": "Telegram"
+    },
+    "factor": {
+      "base": "Starting point",
+      "dangerous_open": "Dangerous findings not yet dealt with",
+      "breach_exposure": "Your email appeared in a known breach",
+      "weak_password": "A weak or breached password was checked",
+      "two_factor_email": "Two-step verification on email",
+      "two_factor_bank": "Two-step verification for your bank",
+      "two_factor_telegram": "Telegram cloud password",
+      "checked_first": "You checked something before acting",
+      "clean_email": "Your email was not found in known breaches",
+      "strong_password": "You checked a strong password"
+    },
+    "step": {
+      "deal_dangerous": "Follow \"Contain now\" for your dangerous finding, then tick \"I've dealt with this\"",
+      "change_breached": "Change the password of the account that uses your breached email",
+      "replace_weak": "Replace the weak password with a long, unique passphrase",
+      "two_factor": "Turn on two-step verification for your {item}",
+      "check_first": "Check a suspicious message or link before you act on it",
+      "check_email": "Check whether your email appears in known breaches"
+    }
+  },
+  "status": {
+    "service": {
+      "ai": "AI analysis",
+      "breach": "Breach lookup",
+      "password": "Password check",
+      "images": "Screenshot reading"
+    },
+    "state": {
+      "ready": "working",
+      "degraded": "having trouble",
+      "off": "switched off",
+      "not_configured": "not set up",
+      "limited": "partly available"
+    },
+    "help": {
+      "ai": {
+        "ready": "Powers the scam and link analysis.",
+        "degraded": "The AI service had trouble recently. Checks still run on Tumar's built-in rules and are labelled as such.",
+        "off": "Switched off by the operator. Checks run on Tumar's built-in rules and are labelled as such.",
+        "not_configured": "No AI key on this server. Checks run on Tumar's built-in rules and are labelled as such."
+      },
+      "breach": {
+        "ready": "Checks emails against public breach databases.",
+        "degraded": "The breach database did not answer recently. Try again in a few minutes.",
+        "off": "Switched off by the operator for now."
+      },
+      "password": {
+        "ready": "Checks passwords privately (only 5 hash characters leave the server).",
+        "degraded": "The password database did not answer recently. The strength check still works."
+      },
+      "images": {
+        "ready": "Reads text, QR codes and links in screenshots.",
+        "limited": "Text reading is not installed here, so only QR codes and links are checked.",
+        "off": "Switched off by the operator for now."
+      }
+    }
+  },
+  "security": {
+    "title": "Security & privacy",
+    "subtitle": "What Tumar.AI does with your data, and what it never does.",
+    "data": {
+      "title": "Your data, check by check",
+      "message": "**Messages**: checked in memory and never stored. Before any AI sees the text, phone, card and ID numbers, email addresses and long numbers are masked.",
+      "link": "**Links**: judged from the address only. Tumar never opens the page.",
+      "image": "**Screenshots**: validated, read and discarded, never stored. The image itself goes to an AI provider only when one is set up for images and the \"Allow external AI providers\" switch above the uploader is on (it is on by default; you can turn it off). Text read from the image is masked like a message.",
+      "email": "**Email breach check**: your address is sent to the public XposedOrNot breach database to look it up. Tumar does not store it.",
+      "password": "**Passwords**: never stored and never sent to the AI. Only the first 5 characters of the password's hash go to the Pwned Passwords database (k-anonymity).",
+      "account": "**Google sign-in**: stores only your name, email, language and sign-in dates. \"Delete my data\" in the sidebar erases them."
+    },
+    "ai": {
+      "title": "What the AI can and cannot do",
+      "does": "The AI only analyses what you give it and suggests what to do. Its answer has a fixed format that Tumar checks before showing it.",
+      "never": "It cannot send messages, pay, delete or change anything, contact anyone, open links or use any tools. Every step is yours.",
+      "floor": "If a message tries to manipulate the AI, or Tumar's built-in rules find strong warning signs, the rules win: the AI cannot mark it safe.",
+      "text": "Links in AI answers are shown disarmed (hxxp://), and AI text can never add links or images to the page."
+    },
+    "safeguards": {
+      "title": "Built-in safeguards",
+      "limits": "Daily check limits and size limits on text and images protect the service from abuse.",
+      "errors": "If something breaks, you see a calm message, never technical error details.",
+      "secrets": "Keys and passwords never live in the code; every change is scanned for leaked credentials before release.",
+      "switches": "Each outside service (AI, breach lookup, screenshot reading) can be switched off in minutes if it misbehaves. Checks then fall back to Tumar's built-in rules, labelled as such.",
+      "logs": "Operational logs record only what happened (which check, how long, success or failure), never what you checked, your email or your name."
+    },
+    "limits": {
+      "title": "What we don't claim",
+      "no_guarantee": "No check can catch every scam. A \"safe\" result means no known warning signs were found, not a guarantee.",
+      "demo_map": "The Threat Map uses simulated data for now, and says so.",
+      "session": "My Safety Center and the resilience score last only for your session; Tumar keeps no check history.",
+      "third_parties": "The outside services named above (Google's AI, XposedOrNot, Pwned Passwords) have their own privacy policies."
+    },
+    "footer": "Tumar.AI is an independent project. Questions about your data: use \"Delete my data\" or contact the team."
   }
 }

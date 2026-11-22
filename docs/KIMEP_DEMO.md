@@ -57,9 +57,11 @@ and click "Clear this session's history" under Recent analyses, so the Safety Ce
 1. **Sign in.** Landing page → **Continue with Google** → the demo
    account. *"Tumar.AI keeps only your name, email, language and sign-in
    dates, and you can delete them any time."*
-2. **My Safety Center.** Menu → My Safety Center. It is empty:
-   *"Nothing checked yet. Everything here is this session only; Tumar
-   writes no check history to disk."*
+2. **My Safety Center.** Menu → My Safety Center. Show the **resilience
+   score** (60, the starting point) and tick "I use two-step verification
+   on my email": *"+6, and the page says exactly why. No score promises
+   you are completely safe."* Nothing is checked yet: *"Everything here is
+   this session only; Tumar writes no check history to disk."*
 3. **Paste a realistic phishing message.** Scam Analyzer, paste:
 
    > Kaspi Bank: your card is blocked due to suspicious activity. To
@@ -67,23 +69,35 @@ and click "Clear this session's history" under Recent analyses, so the Safety Ce
    > and tell the operator the code from the SMS. You have 30 minutes.
 
    Press **Analyze message**.
-4. **Indicators.** Point at the verdict (Dangerous), the trust score and
-   confidence, then open **Evidence behind this verdict**: urgency
-   wording, a request for the SMS code, a look-alike Kaspi domain on a
-   cheap TLD with no HTTPS. *"Rules found these; the AI judged the whole
-   message. Each item says who found it."*
+4. **Detect and explain the evidence.** Point at the verdict (Dangerous),
+   then the card under it: **Phishing**, severity and confidence, *why
+   this matters* and *what could be affected*. Then the three kinds of
+   evidence: **Confirmed facts** (no HTTPS), **Suspicious signals**
+   (urgency, a request for the SMS code, a look-alike Kaspi domain) and,
+   when the AI ran, **AI assessment — a judgement, not a certainty**.
+   *"Tumar never presents a guess as a fact."*
 5. **Plain language.** Read the **In short** line and **What is going on?**
-6. **Immediate actions.** **What you should do** and **Don't do this**.
-   *"Personal data such as phone and card numbers is masked before the
-   message ever reaches the AI."*
+6. **A safe next step.** **Contain now**: don't click or reply, check in
+   the official app, block and report, keep a screenshot. *"Tumar
+   recommends; it never acts for you."* Then **What Tumar protected**:
+   *"The link was never opened, and phone and card numbers were masked
+   before any AI saw the message. No action was taken on your accounts."*
 7. **The wider trend.** Menu → **Threat Map**. *"Your check looks like
    Phishing, one of the scam types tracked here."* Say clearly: *"These
    figures are simulated for the prototype; the page says so. Real
    counts will come only from people who opt in, as categories, never
    the messages themselves."*
-8. Back to **My Safety Center**: status "Action needed", the dangerous
-   finding, and the top three actions.
-9. **Close:** *"Tumar.AI is your digital amulet against online scams."*
+8. Back to **My Safety Center**: status "Action needed"; the resilience
+   score moved, and "Why it changed" shows −12 for the open dangerous
+   finding and +4 for checking before acting. Then "Highest-impact steps".
+   Tick **I've dealt with this** on the finding: the 12 points come back.
+9. Optional, 20 s: **Security & privacy** page (Platform menu): *"The AI
+   may analyse and recommend; it cannot send, pay, delete or contact
+   anyone. If a message tries to manipulate the AI, our rules win."*
+10. **Close:** *"Tumar.AI detects a threat, explains the evidence,
+    recommends a safe next step, protects your privacy, and helps
+    communities understand scam trends without exposing personal data.
+    Tumar.AI is your digital amulet against online scams."*
 
 **If the network or the AI fails on stage:** the same message still gets
 a labelled "Offline check" verdict from the built-in rules, and the
@@ -92,7 +106,25 @@ check is not counted against the daily limit. Say so; do not hide it.
 **Russian or Kazakh:** switch the language in the sidebar before step 3;
 everything above, including Threat Map and Safety Center, is translated.
 
-## 3. Remaining risks
+## 3. "Next protection layers" (roadmap slide, not app features)
+
+Present these as what comes next; none is in the app, and the demo must
+not suggest otherwise:
+
+- Family Protection Circle, with explicit consent and durable access controls
+- Telegram bot alerts that you confirm before anything is sent
+- Opt-in community threat intelligence (category counts only)
+- A small-business safety dashboard
+- Partnerships with banks, universities, telecoms and government
+  cyber-awareness programmes
+- Verified real-time threat-intelligence feeds
+- An incident-reporting workflow
+- Durable history, after storage, retention and deletion rules exist
+
+Do not name other security vendors as partners or sources unless a
+written agreement exists.
+
+## 4. Remaining risks
 
 | Risk | Impact | Mitigation |
 |---|---|---|
@@ -103,3 +135,5 @@ everything above, including Threat Map and Safety Center, is translated.
 | Daily quotas reset on restart (in memory) | Limits are approximate | Fine for one instance; shared limits need Redis or a database later |
 | Russian and Kazakh copy not reviewed by a native speaker | Awkward phrasing in front of a local audience | Have a native speaker read the landing, Safety Center, report and Threat Map pages |
 | Family Protection Circle not built | — | Deliberately out of scope: it needs consent flows, access control and lasting storage to be safe |
+| Rules can overrule an AI "safe" | A genuine code delivery the rules flag shows "caution" instead of "safe" | Deliberate, safety-leaning; the page explains the rules overruled the AI |
+| Telegram `/news` digest is AI-written HTML | A manipulated news summary could include links | Public news only, no user data; switch off with `TUMAR_DISABLE_FEATURES=ai` (docs/INCIDENT_CHECKLIST.md) |

@@ -10,7 +10,7 @@ import streamlit as st
 import components
 import report_store
 from i18n import t
-from services import safety_center
+from services import resilience, safety_center
 
 TOOL_PAGES = (
     ("views/scam_analyzer.py", "nav.scam", "scam"),
@@ -26,6 +26,53 @@ st.caption(t("center.scope"))
 
 reports = report_store.history(st.session_state)
 snap = safety_center.snapshot(reports)
+
+# --- Personal Cyber Resilience Score (transparent, session-only) ---
+# Ticks are kept under their own session keys: Streamlit forgets a
+# widget's value once its page is left, and the checklist must survive
+# a visit to another tool.
+TICKS = "_res_ticks"
+ticks: dict[str, bool] = st.session_state.setdefault(TICKS, {})
+
+
+def tick_box(label: str, name: str) -> None:
+    def remember() -> None:
+        ticks[name] = bool(st.session_state[f"_w_{name}"])
+
+    st.checkbox(label, value=ticks.get(name, False), key=f"_w_{name}", on_change=remember)
+
+
+two_factor = {item: ticks.get(f"2fa_{item}", False) for item in resilience.TWO_FACTOR_ITEMS}
+handled = {
+    resilience.report_id(r) for r in reports if ticks.get(f"handled_{resilience.report_id(r)}", False)
+}
+factors = resilience.factors(reports, two_factor, handled)
+current = resilience.score(factors)
+components.section_header(t("resilience.title"), t("resilience.subtitle"), icon_name="shield_person")
+components.stat(str(current), t("resilience.score_label"), components.metric_variant(current, higher_is_worse=False))
+st.caption(t("resilience.no_guarantee"))
+
+changed = resilience.changes(st.session_state.get("_res_prev"), factors)
+if changed:
+    st.markdown(f"**{t('resilience.why_changed')}**")
+    for key, delta in changed:
+        st.markdown(f"- {'+' if delta > 0 else '−'}{abs(delta)} · {t(f'resilience.factor.{key}')}")
+st.session_state["_res_prev"] = factors
+
+st.markdown(f"**{t('resilience.steps_title')}**")
+for number, step in enumerate(resilience.top_steps(reports, two_factor, handled), start=1):
+    label = t(f"resilience.step.{step.key}", item=t(f"resilience.item.{step.detail}") if step.detail else "")
+    st.markdown(f"{number}. {label} (+{step.gain})")
+
+st.markdown(f"**{t('resilience.checklist_title')}**")
+for item in resilience.TWO_FACTOR_ITEMS:
+    tick_box(t(f"resilience.checklist.{item}"), f"2fa_{item}")
+
+with st.expander(t("resilience.how_title")):
+    for factor in factors:
+        mark = "✓" if factor.active else "·"
+        st.markdown(f"{mark} {factor.points:+d} · {t(f'resilience.factor.{factor.key}')}")
+    st.caption(t("resilience.how_note"))
 
 if snap.status == "empty":
     components.empty_state("shield_person", t("center.empty_title"), t("center.empty_text"))
@@ -68,6 +115,8 @@ if danger:
             t(f"trust.kind.{report.subject_type}"),
             report.created_at.strftime("%H:%M"),
         )
+        if report.subject_type not in {"email", "password"}:
+            tick_box(t("resilience.dealt_with"), f"handled_{resilience.report_id(report)}")
 else:
     st.caption(t("center.danger_none"))
 

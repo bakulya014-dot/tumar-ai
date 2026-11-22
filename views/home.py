@@ -19,6 +19,7 @@ import report_store
 from components import feature_card, render_hero, section_header
 from contribution_ui import contribution_box
 from i18n import current_language, t
+from services import service_status
 from report_view import render_trust_report
 from services.common import ServiceError
 from services.trust_engine import AnalysisContext, TrustEngine, TrustSubject
@@ -177,16 +178,21 @@ with tools_right:
 # --- Platform status: only what we actually know ---
 
 section_header(t("home.status_title"), icon_name="status")
-status_left, status_right = st.columns(2)
-with status_left:
-    components.status_badge(
-        t("home.status_ai_ok") if api_key else t("home.status_ai_missing"),
-        "ok" if api_key else "warn",
-    )
-    st.caption(t("home.status_ai_label"))
-with status_right:
-    components.status_badge(t("home.status_privacy_value"), "ok")
-    st.caption(t("home.status_privacy_label"))
+# From configuration and the outcome of real recent calls: no probing.
+_AI_LABELS = {"ready": "home.status_ai_ok", "not_configured": "home.status_ai_missing"}
+services = service_status.statuses(bool(api_key))
+for row_start in range(0, len(services), 2):
+    for column, service in zip(st.columns(2), services[row_start:row_start + 2]):
+        with column:
+            label_key = _AI_LABELS.get(service.state) if service.key == "ai" else None
+            components.status_badge(
+                t(label_key) if label_key else
+                f"{t(f'status.service.{service.key}')}: {t(f'status.state.{service.state}')}",
+                service.variant,
+            )
+            st.caption(t(f"status.help.{service.key}.{service.state}"))
+components.status_badge(t("home.status_privacy_value"), "ok")
+st.caption(t("home.status_privacy_label"))
 
 # --- How it works, for first-time visitors ---
 

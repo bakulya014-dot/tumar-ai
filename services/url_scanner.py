@@ -23,6 +23,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, Field
 
 from services.common import ServiceError
+from services import ai_authority
 from services.gemini_client import GeminiError, generate_structured
 from services.heuristics import url_reasons
 from services.trust_report import Evidence, TrustReport, preview_text
@@ -112,6 +113,10 @@ def scan_url(url: str, api_key: str, language: str = "en") -> TrustReport:
     normalized = normalize_url(url)
     reasons = url_reasons(normalized)
 
+    try:
+        ai_authority.require("analyze_text")
+    except ai_authority.FeatureDisabled as exc:
+        raise UrlScanError(exc.code) from exc
     try:
         analysis = generate_structured(
             api_key=api_key,

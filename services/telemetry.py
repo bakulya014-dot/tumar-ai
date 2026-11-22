@@ -234,6 +234,8 @@ class Metrics:
         self._durations: dict[str, deque[int]] = defaultdict(lambda: deque(maxlen=self._window))
         self._tokens: dict[str, int] = defaultdict(int)
         self._cost = 0.0
+        # label -> (outcome, error code, time.monotonic()) of the latest event
+        self._last: dict[str, tuple[str, str, float]] = {}
 
     def observe(self, record: dict[str, object]) -> None:
         event = str(record.get("event"))
@@ -243,6 +245,7 @@ class Metrics:
         outcome = record.get("outcome") or record.get("action") or "seen"
         with self._lock:
             self._counts[f"{label}:{outcome}"] += 1
+            self._last[label] = (str(outcome), str(record.get("error_code") or ""), time.monotonic())
             duration = record.get("duration_ms")
             if isinstance(duration, int):
                 self._durations[label].append(duration)
@@ -271,8 +274,18 @@ class Metrics:
                 "approx_cost_usd": round(self._cost, 6),
             }
 
+    def last(self, label: str) -> tuple[str, str, float] | None:
+        """(outcome, error code, seconds ago) of the latest event for a label."""
+        with self._lock:
+            entry = self._last.get(label)
+        if entry is None:
+            return None
+        outcome, code, at = entry
+        return outcome, code, time.monotonic() - at
+
     def reset(self) -> None:
         with self._lock:
+            self._last.clear()
             self._counts.clear()
             self._durations.clear()
             self._tokens.clear()

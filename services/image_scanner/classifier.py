@@ -84,6 +84,10 @@ _INJECTION_PATTERNS = (
     r"you are (?:now )?(?:a|an) (?:ai|assistant|model|bot)",
     r"system prompt", r"system message", r"developer message",
     r"as an ai (?:language )?model",
+    # "Previous instructions are cancelled" — announcing a reset to the reader's AI.
+    r"(?:previous|prior|all) instructions (?:are |have been )?(?:cancel+ed|void|revoked|no longer apply)",
+    r"(?:предыдущие|прошлые|все) (?:инструкции|указания) (?:отменены|недействительны|больше не действуют)",
+    r"(?:алдыңғы|бұрынғы) нұсқаулар (?:жойылды|күшін жойды|жарамсыз)",
     r"игнорируй(?:те)? (?:все |предыдущие |прошлые )?(?:инструкции|указания|правила)",
     r"(?:отметь|пометь|классифицируй)(?:те)? (?:это |сообщение )?как (?:безопасн|провер|надежн|надёжн)",
     r"(?:сообщение|изображение) (?:проверено|одобрено|верифицировано)",
