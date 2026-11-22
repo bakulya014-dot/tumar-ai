@@ -54,7 +54,7 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
         report.trust_score,
         t("trust.score_label"),
     )
-    st.markdown(f"**{t('trust.in_short')}** {t(f'trust.summary.{report.verdict}')}")
+    st.markdown(f"**{t('trust.in_short')}** {t(summary_key(report))}")
     card = risk_card.build(report)
     _render_risk_card(report, card)
 
@@ -83,6 +83,18 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
     for key in card.protected_keys:
         st.markdown(f"- {t(f'protect.done.{key}')}")
     _render_footer(report)
+
+
+# Checks whose result is not a scam verdict about a message: they get
+# their own "In short" sentence (a leaked email is not a "scam").
+_OWN_SUMMARY = {"email", "password"}
+
+
+def summary_key(report: TrustReport) -> str:
+    """The "In short" sentence for this result, by what was checked."""
+    if report.subject_type in _OWN_SUMMARY:
+        return f"trust.summary_{report.subject_type}.{report.verdict}"
+    return f"trust.summary.{report.verdict}"
 
 
 DONT_COUNT = 3

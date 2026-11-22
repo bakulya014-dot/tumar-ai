@@ -169,7 +169,8 @@
       "qr_crypto": "QR code with a crypto-currency payment",
       "qr_payment": "QR code with a payment request",
       "qr_contact": "QR code with a contact card",
-      "prompt_injection": "Wording aimed at an automated reader, not at you"
+      "prompt_injection": "Wording aimed at an automated reader, not at you",
+      "red_flag": "AI-identified warning sign"
     },
     "signals_strong": "Signals that carried this verdict",
     "signals_weak": "Weaker signals — common in ordinary messages too",
@@ -225,6 +226,16 @@
       "rec_2": "Check it through the organisation's official app or a number you already know.",
       "rec_3": "If in doubt, show it to someone you trust before doing anything.",
       "reason": "The AI's verdict was overruled by strong rule-based evidence."
+    },
+    "summary_email": {
+      "danger": "this email appears in known data breaches. Change the passwords of accounts that use it, starting with any you reused.",
+      "caution": "this email appears in a known data breach. Change any password you reused with it.",
+      "safe": "this email was not found in known data breaches. Good news, though not a guarantee."
+    },
+    "summary_password": {
+      "danger": "this password is weak or has already leaked. Don't use it.",
+      "caution": "this password could be stronger. A longer passphrase would help.",
+      "safe": "no known weakness found, and it is not in known leaks."
     }
   },
   "contribute": {
