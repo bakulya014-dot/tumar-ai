@@ -28,6 +28,23 @@ from services.trust_report import Evidence, TrustReport
 CATEGORIES = (
     "phishing", "impersonation", "malware", "account_takeover",
     "breach_exposure", "payment_fraud", "misinformation", "unknown",
+    # AI Security Check (subject type "ai_content")
+    "prompt_injection", "evidence_manipulation", "data_exfiltration",
+    "memory_poisoning", "tool_poisoning", "excessive_permissions",
+)
+
+# AI Security Check evidence -> category, most serious first. Rule
+# findings are consulted before the AI's, so the category rests on
+# what was matched whenever something was.
+_AI_CONTENT_CATEGORIES = (
+    ({"ais_exfiltration"}, "data_exfiltration"),
+    ({"ais_tool_poisoning"}, "tool_poisoning"),
+    ({"ais_evidence_manipulation"}, "evidence_manipulation"),
+    ({"ais_memory_poisoning"}, "memory_poisoning"),
+    ({"ais_payment_redirect", "ais_payment_change", "ais_impersonation_supplier", "ais_impersonation_exec"}, "payment_fraud"),
+    ({"ais_direct_injection", "ais_indirect_injection", "ais_hidden_text", "prompt_injection"}, "prompt_injection"),
+    ({"ais_perm_no_approval", "ais_perm_beyond_task", "ais_perm_excessive", "ais_perm_shell", "ais_perm_filesystem",
+      "ais_perm_payments", "ais_perm_messaging", "ais_perm_secrets", "ais_perm_admin", "ais_perm_delete"}, "excessive_permissions"),
 )
 SEVERITIES = ("low", "medium", "high", "critical")
 CONFIDENCE_BANDS = ("low", "medium", "high")
@@ -57,7 +74,16 @@ CONTAIN_KEYS = {
     "payment_fraud": ("no_pay", "call_bank", "block_report", "keep_evidence"),
     "breach_exposure": ("reset_password", "two_factor", "watch_signins"),
     "unknown": ("no_click", "official_app", "keep_evidence"),
+    "prompt_injection": ("ai_hold", "ai_quarantine", "ai_report"),
+    "evidence_manipulation": ("ai_human_review", "ai_original_logs", "ai_report"),
+    "data_exfiltration": ("ai_hold", "ai_rotate", "ai_report"),
+    "memory_poisoning": ("ai_quarantine", "ai_check_decisions", "ai_report"),
+    "tool_poisoning": ("ai_disconnect", "ai_rotate", "ai_report"),
+    "excessive_permissions": ("ai_least_privilege", "ai_require_approval", "ai_hold"),
 }
+# A payment redirect found by the AI Security Check gets the payment steps
+# plus an out-of-band check, not the consumer "block the sender" advice.
+_AI_CONTENT_CONTAIN = {"payment_fraud": ("no_pay", "ai_verify_known_contact", "ai_report")}
 
 
 @dataclass(frozen=True)
@@ -88,6 +114,8 @@ def category(report: TrustReport) -> str:
     if report.verdict == "safe":
         return "unknown"
     codes = _codes(report)
+    if report.subject_type == "ai_content":
+        return _ai_content_category(report)
     if report.subject_type == "email" or "breach" in codes:
         return "breach_exposure"
     if report.subject_type == "password":
@@ -107,6 +135,17 @@ def category(report: TrustReport) -> str:
         return "payment_fraud"
     if codes & {"urgency", "manipulation", "red_flag"}:
         return "phishing"
+    return "unknown"
+
+
+def _ai_content_category(report: TrustReport) -> str:
+    for kinds in ({"heuristic", "external"}, {"ai"}):
+        codes = {e.code for e in report.evidence if e.kind in kinds}
+        for members, name in _AI_CONTENT_CATEGORIES:
+            if codes & members:
+                if name == "payment_fraud" and codes & {"ais_authority_claim", "ais_impersonation_exec"}:
+                    return "impersonation"
+                return name
     return "unknown"
 
 
@@ -150,6 +189,7 @@ def protected_keys(report: TrustReport) -> list[str]:
         "image": ["image_not_stored"],
         "email": ["email_not_stored"],
         "password": ["password_prefix"],
+        "ai_content": ["ai_static_only", "masked_ai"],
     }
     keys = list(per_type.get(report.subject_type, []))
     if report.subject_type in {"message", "image"} and any(
@@ -162,7 +202,12 @@ def protected_keys(report: TrustReport) -> list[str]:
 def build(report: TrustReport) -> RiskCard:
     cat = category(report)
     confirmed, suspicious, ai = _split(report.evidence)
-    contain = list(CONTAIN_KEYS.get(cat, CONTAIN_KEYS["unknown"])) if report.verdict == "danger" else []
+    steps = CONTAIN_KEYS.get(cat, CONTAIN_KEYS["unknown"])
+    if report.subject_type == "ai_content":
+        steps = _AI_CONTENT_CONTAIN.get(cat, steps)
+        if cat in {"impersonation", "unknown"}:
+            steps = _AI_CONTENT_CONTAIN["payment_fraud"] if cat == "impersonation" else CONTAIN_KEYS["prompt_injection"]
+    contain = list(steps) if report.verdict == "danger" else []
     return RiskCard(
         category=cat,
         severity=severity(report),

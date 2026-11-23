@@ -56,7 +56,10 @@ def defang(text: str) -> str:
 
 # Internal prompt markers. An answer that echoes them is leaking the
 # prompt (or the input framing), so that text is dropped, not shown.
-_PROMPT_MARKERS = ("<<<MESSAGE", "MESSAGE>>>", "<<<URL", "URL>>>", "AUTOMATED SCANNER FINDINGS", "SYSTEM PROMPT")
+_PROMPT_MARKERS = (
+    "<<<MESSAGE", "MESSAGE>>>", "<<<URL", "URL>>>", "<<<CONTENT", "<<<TASK",
+    "AUTOMATED SCANNER FINDINGS", "RULE FINDINGS", "SYSTEM PROMPT",
+)
 
 
 def _clean_text(text: str) -> str:
@@ -65,6 +68,11 @@ def _clean_text(text: str) -> str:
     if prompt_boundary.CLOSING_MARKER.search(text):
         return ""
     return defang(text)
+
+
+def clean_text(text: str) -> str:
+    """AI-written text, safe to show: prompt echoes dropped, links defanged."""
+    return _clean_text(text)
 
 
 def sanitize(report: TrustReport) -> TrustReport:

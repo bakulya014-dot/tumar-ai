@@ -38,7 +38,8 @@ from services.heuristics import HeuristicReport, is_strong_url_signal
 from services.scam_analysis import ScamReport
 from services.vision_analysis import VisionFinding, to_analysis_text
 
-SubjectType = Literal["message", "email", "url", "password", "image"]
+# "ai_content": text checked by the AI Security Check (services/ai_security).
+SubjectType = Literal["message", "email", "url", "password", "image", "ai_content"]
 Verdict = Literal["safe", "caution", "danger"]
 
 # Longest subject preview we keep; enough to recognize the item in a

@@ -57,8 +57,9 @@ _CUES = {
 
 
 # Checks about the person's own exposure, not about a scam they received:
-# a leaked email or a weak password is not "phishing" on the map.
-_NOT_SCAMS = {"email", "password"}
+# a leaked email or a weak password is not "phishing" on the map. AI Security
+# Check results describe attacks on AI tools, not the scam types mapped here.
+_NOT_SCAMS = {"email", "password", "ai_content"}
 
 
 def categorize(report: TrustReport) -> str | None:
