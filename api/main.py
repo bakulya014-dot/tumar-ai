@@ -117,11 +117,13 @@ limiter = RateLimiter(settings.rate_limit, settings.rate_window_seconds)
 # the engine without that analyzer makes it structurally impossible
 # rather than merely undocumented. Images are left out too: this API
 # accepts text only, so listing an image analyzer in /v1/analyzers
-# would advertise a capability no request can reach.
+# would advertise a capability no request can reach. The AI Security
+# Check is web-only for now (its context and task options have no API
+# contract yet), so it is left out the same way.
 _API_ANALYZERS = tuple(
     analyzer
     for analyzer in default_analyzers()
-    if analyzer.kind not in ("password", "image")
+    if analyzer.kind not in ("password", "image", "ai_content")
 )
 engine = TrustEngine(_API_ANALYZERS)
 

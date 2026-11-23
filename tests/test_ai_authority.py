@@ -61,6 +61,7 @@ def test_every_ai_call_site_is_gated() -> None:
     gated = {
         "services/scam_analysis.py", "services/url_scanner.py",
         "services/vision_analysis.py", "app/news/summarizer.py",
+        "services/ai_security/analysis.py",
     }
     callers = set()
     for path in [*ROOT.joinpath("services").rglob("*.py"), *ROOT.joinpath("app").rglob("*.py"), *ROOT.joinpath("api").rglob("*.py"), *ROOT.joinpath("telegram_bot").rglob("*.py")]:

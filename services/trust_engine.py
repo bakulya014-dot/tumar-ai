@@ -33,9 +33,13 @@ Design decisions:
 from abc import ABC, abstractmethod
 from typing import Sequence
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from services import ai_authority, output_guard, telemetry
+from services.ai_security import CONTEXTS, DEFAULT_CONTEXT
+from services.ai_security import report as ai_security_report
+from services.ai_security.analysis import AiSecurityError, analyze_content
+from services.ai_security.detector import detect as detect_ai_threats
 from services.breach_checker import check_email, is_valid_email
 from services.common import ServiceError
 from services.image_scanner import SUPPORTED_MIME_TYPES, scan_image, to_trust_report
@@ -62,6 +66,10 @@ class TrustSubject(BaseModel):
     declared_kind: str = ""  # consumer override; empty = auto-detect
     language: str = "en"
     filename: str = ""
+    # Analyzer-specific options chosen by the user, e.g. the AI Security
+    # Check's {"context": "log", "task": "summarise my inbox"}. Analyzers
+    # that need none ignore them.
+    hints: dict[str, str] = Field(default_factory=dict)
 
 
 class AnalysisContext(BaseModel):
@@ -261,6 +269,49 @@ class PasswordAnalyzer(Analyzer):
         return check_password(subject.content)
 
 
+class AiSecurityAnalyzer(Analyzer):
+    """Text that may target an AI system → AI Security Check.
+
+    Reachable ONLY via declared_kind, like passwords: whether a ticket
+    or a tool description should get this check is the user's choice,
+    not a guess, so the Home quick check, the Telegram bot and the API
+    keep routing text exactly as before.
+
+    The rules always run; the AI layer can only add to them. When the
+    AI cannot answer and the caller allows it, the result is the
+    labelled rules-only report (never "safe"), as for messages.
+    """
+
+    kind = "ai_content"
+
+    def can_handle(self, subject: TrustSubject) -> bool:
+        return False
+
+    def analyze(
+        self, subject: TrustSubject, context: AnalysisContext
+    ) -> TrustReport:
+        assert isinstance(subject.content, str)
+        text = subject.content.strip()
+        if not text:
+            raise EngineError("unsupported_input")
+        chosen = subject.hints.get("context", DEFAULT_CONTEXT)
+        chosen = chosen if chosen in CONTEXTS else DEFAULT_CONTEXT
+        task = subject.hints.get("task", "") if chosen == "tool" else ""
+        detection = detect_ai_threats(text, chosen, task)
+        try:
+            ai = analyze_content(
+                text, detection, task, api_key=context.api_key, language=subject.language
+            )
+        except AiSecurityError as exc:
+            if context.offline_fallback and is_provider_failure(exc.code):
+                return ai_security_report.build(
+                    text, detection, None, task_given=bool(task.strip()), offline_reason=exc.code
+                )
+            raise
+        report = ai_security_report.build(text, detection, ai, task_given=bool(task.strip()))
+        return output_guard.sanitize(report)
+
+
 def default_analyzers() -> tuple[Analyzer, ...]:
     """The platform registry, most-specific first.
 
@@ -279,6 +330,7 @@ def default_analyzers() -> tuple[Analyzer, ...]:
         UrlAnalyzer(),
         MessageAnalyzer(),
         PasswordAnalyzer(),
+        AiSecurityAnalyzer(),
     )
 
 

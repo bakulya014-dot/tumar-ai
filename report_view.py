@@ -57,6 +57,11 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
     st.markdown(f"**{t('trust.in_short')}** {t(summary_key(report))}")
     card = risk_card.build(report)
     _render_risk_card(report, card)
+    # The attacker's likely goal, when a module's AI layer named one. It is
+    # model-written, so it is labelled as an AI assessment and shown literally.
+    objective = report.analysis_metadata.get("attack_objective", "")
+    if objective:
+        st.markdown(f"**{t('protect.objective_title')}** {md_escape(objective)}")
 
     _render_metrics(report)
 
@@ -87,7 +92,7 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
 
 # Checks whose result is not a scam verdict about a message: they get
 # their own "In short" sentence (a leaked email is not a "scam").
-_OWN_SUMMARY = {"email", "password"}
+_OWN_SUMMARY = {"email", "password", "ai_content"}
 
 
 def summary_key(report: TrustReport) -> str:

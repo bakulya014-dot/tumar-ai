@@ -43,7 +43,7 @@ _ENV = {
 }
 
 # Check kinds that may call a paid or rate-limited service.
-COUNTED_KINDS = frozenset({"message", "url", "image", "email"})
+COUNTED_KINDS = frozenset({"message", "url", "image", "email", "ai_content"})
 
 
 def limit_for(tier: str) -> int:

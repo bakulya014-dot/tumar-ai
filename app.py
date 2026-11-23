@@ -141,6 +141,7 @@ pages = {
         st.Page("views/scam_analyzer.py", title=t("nav.scam"), icon=icon("scam")),
         st.Page("views/url_scanner.py", title=t("nav.url"), icon=icon("url")),
         st.Page("views/image_scanner.py", title=t("nav.image"), icon=icon("image")),
+        st.Page("views/ai_security.py", title=t("nav.ai_security"), icon=icon("smart_toy")),
     ],
     t("nav.section_monitor"): [
         st.Page("views/breach_checker.py", title=t("nav.breach"), icon=icon("breach")),
