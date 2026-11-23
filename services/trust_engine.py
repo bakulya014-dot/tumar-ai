@@ -222,8 +222,14 @@ class ImageAnalyzer(Analyzer):
             allow_external=context.allow_external_ai,
             preferred_vision=context.vision_provider,
         )
-        # The image risk score is deterministic already; AI text is defanged.
-        return output_guard.sanitize(to_trust_report(result, subject.filename))
+        report = to_trust_report(result, subject.filename)
+        if result.risk.ai_score is None:
+            # Rules only: the score is deterministic; just defang any text.
+            return output_guard.sanitize(report)
+        # The final score averages the rules with the AI's score, so a
+        # fooled AI could pull an injected screenshot down to "safe".
+        # The transcript gets the same floor as pasted text.
+        return output_guard.apply(report, result.text)
 
 
 class PasswordAnalyzer(Analyzer):

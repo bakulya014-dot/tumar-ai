@@ -23,7 +23,7 @@ from urllib.parse import urlparse
 from pydantic import BaseModel, Field
 
 from services.common import ServiceError
-from services import ai_authority
+from services import ai_authority, prompt_boundary
 from services.gemini_client import GeminiError, generate_structured
 from services.heuristics import url_reasons
 from services.trust_report import Evidence, TrustReport, preview_text
@@ -165,9 +165,11 @@ def _build_contents(url: str, reasons: list[str], language: str) -> str:
     """Combine the untrusted URL with the scanner's findings."""
     findings = "\n".join(f"- {code}" for code in reasons)
     summary = findings or "- The scanner detected nothing."
+    # A fresh id per request: the URL cannot close its own block.
+    block_id = prompt_boundary.new_id()
     return (
         f"LANGUAGE: {language}\n\n"
         "URL TO ANALYZE (untrusted data between the markers):\n"
-        f"<<<URL\n{url}\nURL>>>\n\n"
+        f"{prompt_boundary.wrap('URL', url, block_id)}\n\n"
         f"AUTOMATED SCANNER FINDINGS:\n{summary}"
     )
