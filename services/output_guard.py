@@ -25,22 +25,31 @@ from __future__ import annotations
 
 import re
 
-from services import telemetry
+from services import prompt_boundary, telemetry
 from services.image_scanner.classifier import injection_phrases
 from services.offline_report import offline_message_report, offline_url_report
 from services.trust_report import Evidence, TrustReport
 
 _RANK = {"safe": 0, "caution": 1, "danger": 2}
 _TRUST_CAP = {"caution": 60, "danger": 25}
-_URL = re.compile(r"\b(?:https?://|www\.)[^\s<>\"')\]]+", re.IGNORECASE)
+# A link needs a host: a bare "https://" in a sentence ("use https:// sites")
+# is prose, not a link, and is left alone.
+_URL = re.compile(r"\b(?:https?://|www\.)[a-z0-9][^\s<>\"')\]]*", re.IGNORECASE)
+_TRAILING = ".,;:!?"
 
 
 def defang(text: str) -> str:
-    """Make every link in a piece of text unclickable: hxxp://, [.] dots."""
+    """Make every link in a piece of text unclickable: hxxp://, [.] dots.
+
+    Sentence punctuation right after a link is kept as written, so
+    "open kaspi.kz." does not end in "[.]".
+    """
     def one(match: re.Match) -> str:
         url = match.group()
+        tail = url[len(url.rstrip(_TRAILING)):]
+        url = url[: len(url) - len(tail)]
         url = re.sub(r"^http", "hxxp", url, flags=re.IGNORECASE)
-        return url.replace(".", "[.]")
+        return url.replace(".", "[.]") + tail
 
     return _URL.sub(one, text)
 
@@ -52,6 +61,8 @@ _PROMPT_MARKERS = ("<<<MESSAGE", "MESSAGE>>>", "<<<URL", "URL>>>", "AUTOMATED SC
 
 def _clean_text(text: str) -> str:
     if any(marker.lower() in text.lower() for marker in _PROMPT_MARKERS):
+        return ""
+    if prompt_boundary.CLOSING_MARKER.search(text):
         return ""
     return defang(text)
 
