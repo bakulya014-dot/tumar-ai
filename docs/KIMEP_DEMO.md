@@ -2,6 +2,24 @@
 
 ## 1. Deployment checklist (do in this order, the day before)
 
+**After every merge to `main`: reboot, then check.** Streamlit Cloud
+applies a push without restarting the app. Page files (`views/`) run
+fresh on every visit, but modules the app has already imported keep
+their old code until a restart: on 24 November the new home page went
+live while the bank note and feedback box (in `report_view.py`) did
+not appear until a reboot. Language files reload on their own since
+PR #20, but code does not. So after each merge:
+
+1. Wait for the merge commit's CI to pass on GitHub.
+2. Streamlit Cloud → Manage app → ⋮ → **Reboot app**. Wait about a
+   minute until the app loads again.
+3. Check the change itself on https://tumar-ai.streamlit.app, as a
+   guest, before relying on it.
+
+Do not merge anything after the code freeze (Wednesday 26 November,
+evening). If something must change on the morning of the demo, reboot
+and check it again before going on stage.
+
 **Credentials (owner only, never in chat, code or screenshots).**
 These were exposed earlier and must be replaced before the demo:
 
@@ -186,4 +204,5 @@ written agreement exists.
 | AI Security Check misses paraphrases | About 3 in 10 held-out attacks pass the rules (rules-only held-out recall 72%) | Say so on stage; the AI layer adds coverage but is not yet measured with a live key; see evals/ai_security/README.md |
 | AI Security Check is static | It cannot see what an agent would actually do | The page and every result say so |
 | A deploy that changes only translations | Before this fix, new pages showed raw keys until a reboot | Fixed: language files are re-read when they change; rebooting still clears any doubt |
+| A deploy that changes shared code | Changes in already-imported modules (for example `report_view.py`) do not appear until the app restarts | Reboot after every merge, then check (section 1) |
 | Telegram `/news` digest is AI-written HTML | A manipulated news summary could include links | Public news only, no user data; switch off with `TUMAR_DISABLE_FEATURES=ai` (docs/INCIDENT_CHECKLIST.md) |
