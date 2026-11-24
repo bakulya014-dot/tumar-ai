@@ -34,9 +34,23 @@ def _flatten(node: dict, prefix: str = "") -> dict[str, str]:
     return flat
 
 
-@lru_cache(maxsize=None)
 def _load(language: str) -> dict[str, str]:
-    """Read and flatten one language file (cached after first read)."""
+    """One language file, flattened; re-read only when the file changes.
+
+    The cache is keyed on the file's modification time. Streamlit Cloud
+    applies a git push without restarting the process, and it reloads
+    only the Python modules that changed: with a plain cache, a deploy
+    that changed only the JSON kept serving the old strings, and the new
+    AI Security Check page showed raw keys until the app was rebooted.
+    One stat() per lookup is microseconds; the parse still happens once
+    per file version.
+    """
+    path = _I18N_DIR / f"{language}.json"
+    return _load_version(language, path.stat().st_mtime_ns)
+
+
+@lru_cache(maxsize=8)
+def _load_version(language: str, mtime_ns: int) -> dict[str, str]:
     path = _I18N_DIR / f"{language}.json"
     with open(path, encoding="utf-8") as fh:
         return _flatten(json.load(fh))
