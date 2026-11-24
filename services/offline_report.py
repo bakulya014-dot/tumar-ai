@@ -101,7 +101,9 @@ def _report(source, subject_type, text, risk, evidence, reason) -> TrustReport:
     level = risk.level
     verdict = _VERDICTS[level]
     actions = ["trust.offline.rec_do_not_act"] if verdict == "danger" else ["trust.offline.rec_verify"]
-    actions.append("trust.offline.rec_retry")
+    # Switched off by the person (Settings & Safety): "try again later" would
+    # make no sense; say how to get the fuller check instead.
+    actions.append("trust.offline.rec_enable_ai" if reason == "ai_off_by_user" else "trust.offline.rec_retry")
     return TrustReport(
         source=source,
         subject_type=subject_type,

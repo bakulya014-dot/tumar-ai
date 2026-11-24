@@ -14,7 +14,7 @@ from pathlib import Path
 import streamlit as st
 
 import auth
-from components import icon, labeled, load_styles
+from components import apply_text_size, icon, labeled, load_styles
 from routing import log_route, run_page
 from services import telemetry
 from i18n import LANGUAGES, t
@@ -66,6 +66,7 @@ st.set_page_config(
 
 # Aura design system: stylesheet + ambient aurora background.
 load_styles()
+apply_text_size()
 
 # Deep links like ?lang=ru open the app in that language. The user's
 # own selector choice (stored in session state) always wins afterward.
@@ -149,6 +150,7 @@ pages = {
         st.Page("views/threat_map.py", title=t("nav.map"), icon=icon("map")),
     ],
     t("nav.section_platform"): [
+        st.Page("views/settings.py", title=t("nav.settings"), icon=icon("tune"), url_path="settings"),
         st.Page(
             "views/launch_film.py",
             title=t("nav.film"),

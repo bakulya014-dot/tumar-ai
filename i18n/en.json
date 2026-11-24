@@ -20,7 +20,8 @@
     "center": "My Safety Center",
     "map": "Threat Map",
     "security": "Security & privacy",
-    "ai_security": "AI Security Check"
+    "ai_security": "AI Security Check",
+    "settings": "Settings & Safety"
   },
   "home": {
     "subtitle": "Your digital tumar — a personal AI amulet against online scams.",
@@ -218,7 +219,9 @@
         "moderate": "The offline rules found weak warning signs, such as pressure or talk of money, but no strong scam signal. Treat it with caution.",
         "high": "The offline rules found a strong scam signal, such as a request for a one-time code, login details or a lookalike link.",
         "critical": "The offline rules found several strong, independent scam signals."
-      }
+      },
+      "banner_by_choice": "Rules-only check: you switched off external AI analysis in Settings & Safety, so nothing was sent to an AI provider. Rules-only checks can miss more.",
+      "rec_enable_ai": "For a fuller explanation, switch external AI analysis back on in Settings & Safety."
     },
     "in_short": "In short:",
     "dont_title": "Don't do this",
@@ -520,7 +523,8 @@
     "unexpected": "Something went wrong on our side. Your input was not stored. Please try again in a moment.",
     "too_long": "That text is too long to check. Paste only the suspicious part (up to about 5,000 characters).",
     "ai_disabled": "AI analysis is switched off on this server right now.",
-    "feature_disabled": "This check is temporarily switched off. Please try again later."
+    "feature_disabled": "This check is temporarily switched off. Please try again later.",
+    "ai_off_by_user": "External AI analysis is switched off in Settings & Safety."
   },
   "landing": {
     "sign_in": "Sign in",
@@ -1118,6 +1122,82 @@
       "human_review": "Have a person read it before any AI assistant or agent acts on it.",
       "verify": "Confirm any request for money, access or data through a contact you already know.",
       "limit": "Give AI tools only the permissions they need, and require approval for payments, messages and deletions."
+    }
+  },
+  "settings": {
+    "title": "Settings & Safety",
+    "subtitle": "Privacy, language, easier reading, and the habits that stop most scams.",
+    "session_only": "Everything on this page lasts for this browser session only. The free version of Tumar.AI keeps no settings or check history on disk.",
+    "privacy_title": "Privacy",
+    "allow_ai": "Allow external AI analysis",
+    "allow_ai_on": "On: message, link, screenshot and AI Security checks may send the text (with phone, card and ID numbers masked) to an external AI provider for a fuller explanation.",
+    "allow_ai_off": "Off: nothing is sent to an AI provider. Checks use Tumar's built-in rules only, and each result says so. Rules-only checks can miss more.",
+    "clear_button": "Clear current session data",
+    "cleared": "Done. This session's check history, checklist ticks and feedback are cleared. Your language and these settings stay.",
+    "clear_help": "Clears your check history, checklist ticks and feedback from this session. Nothing else is stored, so there is nothing else to delete.",
+    "access_title": "Language and reading",
+    "language": "Language",
+    "large_text": "Larger text",
+    "large_text_help": "Makes text across the app bigger and easier to read.",
+    "simple": "Simple explanations",
+    "simple_help": "Uses plain words in results and hides technical details such as scores and evidence lists.",
+    "resources_title": "Official resources",
+    "resources_note": "External websites, opened in your browser. Tumar.AI is not affiliated with these organisations. When money or account access is involved, contact them through these official channels.",
+    "resources_pending": "This list is being checked against each organisation's official website and will appear once verified. Until then, use the contacts printed on your bank card or in your bank's official app.",
+    "external_link": "external site",
+    "limits": "Tumar.AI helps you spot scams and make safer decisions. It is not a bank, an antivirus or a law-enforcement service, and it can miss sophisticated scams. If money or account access is involved, contact your bank through its official app or the number on your card.",
+    "resource": {
+      "kaspi": "Kaspi's own guide to recognising fraud, and its form for reporting it.",
+      "halyk": "Halyk Bank's official advice on protecting your card and accounts.",
+      "egov": "The official government services portal. Real government services are provided only there.",
+      "police": "Submit a report to the police online, or call 102.",
+      "kz_cert": "Kazakhstan's computer emergency response team, for reporting cyber incidents.",
+      "antifraud": "The National Bank's anti-fraud centre, which works with banks to stop fraudulent transfers."
+    }
+  },
+  "checklist": {
+    "title": "Personal safety checklist",
+    "caption": "Five habits that stop most scams. Ticks last for this session only.",
+    "progress": "{done} of {total} done",
+    "two_factor": "Two-step verification is on for my email, bank and messengers",
+    "two_factor_why": "A stolen password alone is then not enough to get into your account.",
+    "no_codes": "I never share SMS or one-time codes, with anyone",
+    "no_codes_why": "No real bank, shop or government service asks for these codes. Whoever asks is trying to get into your account.",
+    "verify_payments": "I confirm any change of payment details by calling a number I found myself",
+    "verify_payments_why": "Not a number from the message asking for the change: scammers change bank details and add their own phone numbers.",
+    "check_links": "I check suspicious links before opening them",
+    "check_links_why": "Look-alike addresses are the most common way to steal logins and card details.",
+    "updates": "I keep my apps, phone and passwords up to date",
+    "updates_why": "Updates close holes that attackers already use; a reused or old password can unlock several accounts."
+  },
+  "simple": {
+    "details_hidden": "Simple explanations is on, so technical details are hidden. Switch it off in Settings & Safety to see them.",
+    "category": {
+      "phishing": "Fake page or message to steal your details",
+      "impersonation": "Someone pretending to be a company or person you trust",
+      "malware": "Harmful software",
+      "account_takeover": "Someone trying to get into your account",
+      "breach_exposure": "Your details appeared in a data leak",
+      "payment_fraud": "A trick to make you send money",
+      "misinformation": "False information meant to push you into acting",
+      "unknown": "Something looks wrong",
+      "prompt_injection": "Hidden instructions meant for an AI",
+      "evidence_manipulation": "An attempt to hide a real security problem",
+      "data_exfiltration": "An attempt to get passwords or private data sent out",
+      "memory_poisoning": "A false rule planted for an AI to remember",
+      "tool_poisoning": "A tool with hidden instructions",
+      "excessive_permissions": "An AI tool with too much power"
+    },
+    "severity": {
+      "low": "small",
+      "medium": "be careful",
+      "high": "serious",
+      "critical": "very serious"
+    },
+    "band": {
+      "low": "not very sure",
+      "medium": "fairly sure",
+      "high": "quite sure"
     }
   }
 }

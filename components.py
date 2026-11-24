@@ -107,6 +107,49 @@ def load_styles() -> None:
     )
 
 
+# Session preferences set in Settings & Safety. Stored under their own keys,
+# not a widget's: Streamlit forgets a widget's value once its page is left,
+# and a privacy choice must hold on every page until the session ends.
+PREF_ALLOW_AI = "_pref_allow_external_ai"
+PREF_LARGE_TEXT = "_pref_large_text"
+PREF_SIMPLE = "_pref_simple"
+
+
+def pref(name: str, default: bool = False) -> bool:
+    return bool(st.session_state.get(name, default))
+
+
+def allow_external_ai() -> bool:
+    """The person's choice: may checks send text or images to an external AI? (default yes)"""
+    return pref(PREF_ALLOW_AI, True)
+
+
+def pref_toggle(label: str, name: str, default: bool = False, help_text: str = "") -> bool:
+    """A toggle bound to a session preference that survives page changes."""
+    widget = f"_w{name}"
+
+    def remember() -> None:
+        st.session_state[name] = bool(st.session_state[widget])
+
+    return st.toggle(label, value=pref(name, default), key=widget, on_change=remember, help=help_text or None)
+
+
+_LARGE_TEXT_CSS = """
+/* tumar-large-text */
+.stApp [data-testid="stMarkdownContainer"] p, .stApp [data-testid="stMarkdownContainer"] li,
+.stApp label, .stApp [data-testid="stCaptionContainer"], .stApp textarea, .stApp input,
+.stApp button p, .stApp .t-chip { font-size: 1.15rem !important; line-height: 1.6 !important; }
+.stApp h1 { font-size: 2.4rem !important; } .stApp h2 { font-size: 1.9rem !important; }
+.stApp h3 { font-size: 1.5rem !important; }
+"""
+
+
+def apply_text_size() -> None:
+    """Larger text, when chosen in Settings & Safety (session only)."""
+    if pref(PREF_LARGE_TEXT):
+        st.markdown(f"<style>{_LARGE_TEXT_CSS}</style>", unsafe_allow_html=True)
+
+
 def get_gemini_api_key() -> str:
     """Read the Gemini API key from Streamlit's secrets storage.
 

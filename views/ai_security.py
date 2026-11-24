@@ -95,7 +95,10 @@ if analyze_clicked:
                         language=current_language(),
                         hints={"context": context, "task": task.strip()},
                     ),
-                    AnalysisContext(api_key=api_key, offline_fallback=True, channel="web"),
+                    AnalysisContext(
+                        api_key=api_key, offline_fallback=True, channel="web",
+                        allow_external_ai=components.allow_external_ai(),
+                    ),
                 )
             except ServiceError as error:
                 quota_ui.settle(KIND, failed=True)

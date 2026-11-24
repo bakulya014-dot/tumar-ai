@@ -83,7 +83,10 @@ if st.button(
                 try:
                     report = engine.analyze(
                         subject,
-                        AnalysisContext(api_key=api_key, offline_fallback=True, channel="web"),
+                        AnalysisContext(
+                            api_key=api_key, offline_fallback=True, channel="web",
+                            allow_external_ai=components.allow_external_ai(),
+                        ),
                     )
                 except ServiceError as error:
                     quota_ui.settle(kind, failed=True)
