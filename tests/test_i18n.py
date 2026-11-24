@@ -93,9 +93,45 @@ def test_no_empty_translations() -> None:
     print("test_no_empty_translations PASSED")
 
 
+def test_changed_language_file_is_reread_without_a_restart() -> None:
+    """A deploy that changes only the JSON must show the new strings.
+
+    Seen in production: Streamlit Cloud applied a push without
+    restarting, the old cache kept serving the previous file, and the
+    new AI Security Check page showed raw keys until a manual reboot.
+    """
+    import os
+    import shutil
+    import tempfile
+
+    sys.path.insert(0, str(I18N_DIR.parent))
+    import i18n
+
+    original_dir = i18n._I18N_DIR
+    with tempfile.TemporaryDirectory() as tmp:
+        for language in LANGUAGES:
+            shutil.copy(I18N_DIR / f"{language}.json", Path(tmp) / f"{language}.json")
+        i18n._I18N_DIR = Path(tmp)
+        try:
+            before = i18n.translate("nav.home", "en")
+            path = Path(tmp) / "en.json"
+            data = json.loads(path.read_text(encoding="utf-8"))
+            data["nav"]["home"] = "Home (updated)"
+            data["nav"]["brand_new_key"] = "Just deployed"
+            path.write_text(json.dumps(data), encoding="utf-8")
+            stamp = path.stat().st_mtime_ns + 1_000_000_000  # a later version, even on coarse clocks
+            os.utime(path, ns=(stamp, stamp))
+            assert i18n.translate("nav.home", "en") == "Home (updated)", before
+            assert i18n.translate("nav.brand_new_key", "en") == "Just deployed"
+        finally:
+            i18n._I18N_DIR = original_dir
+    print("test_changed_language_file_is_reread_without_a_restart PASSED")
+
+
 if __name__ == "__main__":
     test_key_parity()
     test_placeholder_parity()
     test_every_literal_key_used_in_code_exists()
     test_no_empty_translations()
+    test_changed_language_file_is_reread_without_a_restart()
     print("ALL I18N TESTS PASSED")
