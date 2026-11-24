@@ -1,0 +1,11 @@
+{
+  "_readme": "Official safety resources for Settings & Safety. An entry is shown ONLY when verified is true: a person opened the URL on the organisation's own official site and recorded the date in checked_on. Never add a phone number or link that has not been checked this way. Tumar.AI is not affiliated with any of these organisations.",
+  "resources": [
+    {"id": "kaspi", "name": "Kaspi.kz — security guide", "url": "https://guide.kaspi.kz/client/ru/bank/security/q15364", "kind": "bank", "verified": false, "checked_on": ""},
+    {"id": "halyk", "name": "Halyk Bank — security", "url": "https://halykbank.kz/en/security", "kind": "bank", "verified": false, "checked_on": ""},
+    {"id": "egov", "name": "eGov.kz", "url": "https://egov.kz", "kind": "government", "verified": false, "checked_on": ""},
+    {"id": "police", "name": "Qamqor — report to the police", "url": "https://qamqor.gov.kz", "kind": "reporting", "verified": false, "checked_on": ""},
+    {"id": "kz_cert", "name": "KZ-CERT", "url": "https://cert.gov.kz", "kind": "reporting", "verified": false, "checked_on": ""},
+    {"id": "antifraud", "name": "Anti-Fraud Centre of the National Bank", "url": "https://antifraud.kz", "kind": "reporting", "verified": false, "checked_on": ""}
+  ]
+}

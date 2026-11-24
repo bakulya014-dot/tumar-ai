@@ -62,11 +62,10 @@ _STAGES = (
 page_header(t("image.title"), t("image.subtitle"), "image")
 
 # The privacy decision comes first, above the uploader.
-allow_external = st.toggle(
-    t("image.allow_external"),
-    value=st.session_state.get("allow_external_ai", True),
-    key="allow_external_ai",
-    help=t("image.allow_external_help"),
+# The same session-wide choice as in Settings & Safety: switching it here
+# switches it for every check.
+allow_external = components.pref_toggle(
+    t("image.allow_external"), components.PREF_ALLOW_AI, default=True, help_text=t("image.allow_external_help"),
 )
 st.caption(components.labeled("privacy", t("image.privacy_note")))
 

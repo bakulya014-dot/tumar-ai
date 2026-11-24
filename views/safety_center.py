@@ -7,6 +7,7 @@ Tumar.AI writes no check history to disk, and the page says so.
 
 import streamlit as st
 
+import checklist_ui
 import components
 import report_store
 from i18n import t
@@ -119,6 +120,10 @@ if danger:
             tick_box(t("resilience.dealt_with"), f"handled_{resilience.report_id(report)}")
 else:
     st.caption(t("center.danger_none"))
+
+# --- Safety habits (the same checklist as Settings & Safety) ---
+components.section_header(t("checklist.title"), t("checklist.caption"), icon_name="actions")
+checklist_ui.render()
 
 # --- Progress this session ---
 if len(snap.trend) >= 2:

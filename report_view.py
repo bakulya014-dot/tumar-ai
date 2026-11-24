@@ -36,18 +36,24 @@ from report_labels import METHOD_LABELS as _METHOD_LABELS
 from report_labels import SIGNAL_LABELS as _SIGNAL_LABELS  # noqa: F401  (re-exported for tests)
 from report_labels import signal_label_key
 from services import risk_card
+from services.trust_engine import AI_OFF_BY_USER
 from services.trust_report import Evidence, TrustReport
 
 
 def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> None:
     """Render one Trust Report in the platform's standard layout."""
+    simple = components.pref(components.PREF_SIMPLE)
     if is_offline(report):
         # Above the verdict, so nobody reads a rules-only result as a
         # full AI-backed check.
-        st.warning(t("trust.offline.banner"), icon=components.icon("warning"))
         reason = report.analysis_metadata.get("offline_reason", "")
-        if reason:
-            st.caption(t(f"errors.{reason}"))
+        if reason == AI_OFF_BY_USER:
+            # The person's own choice, not a failure: a calm note, not a warning.
+            st.info(t("trust.offline.banner_by_choice"), icon=components.icon("privacy"))
+        else:
+            st.warning(t("trust.offline.banner"), icon=components.icon("warning"))
+            if reason:
+                st.caption(t(f"errors.{reason}"))
     components.verdict_card(
         components.TRUST_CSS_VARIANTS[report.verdict],
         t(f"trust.verdict.{report.verdict}"),
@@ -56,14 +62,15 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
     )
     st.markdown(f"**{t('trust.in_short')}** {t(summary_key(report))}")
     card = risk_card.build(report)
-    _render_risk_card(report, card)
+    _render_risk_card(report, card, simple)
     # The attacker's likely goal, when a module's AI layer named one. It is
     # model-written, so it is labelled as an AI assessment and shown literally.
     objective = report.analysis_metadata.get("attack_objective", "")
     if objective:
         st.markdown(f"**{t('protect.objective_title')}** {md_escape(objective)}")
 
-    _render_metrics(report)
+    if not simple:
+        _render_metrics(report)
 
     st.subheader(components.labeled("explain", t("trust.explanation_title")))
     st.write(_text(report.explanation, report.explanation_key))
@@ -83,7 +90,11 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
         for key in donts:
             st.markdown(f"- {t(key)}")
 
-    _render_evidence(report, expand_evidence)
+    if simple:
+        # Simple explanations: the evidence trail stays available, one switch away.
+        st.caption(t("simple.details_hidden"))
+    else:
+        _render_evidence(report, expand_evidence)
     st.subheader(components.labeled("privacy", t("protect.done_title")))
     for key in card.protected_keys:
         st.markdown(f"- {t(f'protect.done.{key}')}")
@@ -128,22 +139,27 @@ def _labels(items: list[Evidence]) -> list[str]:
     return seen[:_EVIDENCE_LIMIT]
 
 
-def _render_risk_card(report: TrustReport, card: "risk_card.RiskCard") -> None:
-    """The four questions, at a glance: what, how serious, how sure, what to do now."""
+def _render_risk_card(report: TrustReport, card: "risk_card.RiskCard", simple: bool = False) -> None:
+    """The four questions, at a glance: what, how serious, how sure, what to do now.
+
+    With simple explanations on, the category, severity and confidence use
+    plain words, and the evidence chips (technical names) are left out.
+    """
     if report.verdict == "safe":
         return
+    words = "simple" if simple else "protect"
     with st.container(border=True):
-        components.chip_row([t(f"protect.category.{card.category}")], "neutral")
+        components.chip_row([t(f"{words}.category.{card.category}")], "neutral")
         components.chip_row(
             [
-                t("protect.severity_label", level=t(f"protect.severity.{card.severity}")),
-                t("protect.confidence_label", level=t(f"protect.band.{card.confidence_band}")),
+                t("protect.severity_label", level=t(f"{words}.severity.{card.severity}")),
+                t("protect.confidence_label", level=t(f"{words}.band.{card.confidence_band}")),
             ],
             _SEVERITY_VARIANTS[card.severity],
         )
         st.markdown(f"**{t('protect.why_title')}** {t(card.why_key)}")
         st.markdown(f"**{t('protect.exposure_title')}** {t(card.exposure_key)}")
-        for title_key, items in (
+        for title_key, items in () if simple else (
             ("protect.confirmed", card.confirmed),
             ("protect.suspicious", card.suspicious),
             ("protect.ai_assessment", card.ai_assessment),

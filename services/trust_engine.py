@@ -98,6 +98,12 @@ class AnalysisContext(BaseModel):
     channel: str = "unknown"
 
 
+# The reason recorded on a rules-only report when the person switched
+# external AI off themselves (Settings & Safety), as opposed to the AI
+# failing. The report view words the two differently.
+AI_OFF_BY_USER = "ai_off_by_user"
+
+
 class EngineError(ServiceError):
     """Routing failed. `code` selects a localized message in the UI."""
 
@@ -163,6 +169,9 @@ class UrlAnalyzer(Analyzer):
         self, subject: TrustSubject, context: AnalysisContext
     ) -> TrustReport:
         assert isinstance(subject.content, str)
+        if not context.allow_external_ai:
+            # The person switched external AI off: validate, then rules only.
+            return offline_url_report(normalize_url(subject.content), AI_OFF_BY_USER)
         report = scan_url(
             subject.content, api_key=context.api_key, language=subject.language
         )
@@ -184,6 +193,8 @@ class MessageAnalyzer(Analyzer):
     ) -> TrustReport:
         assert isinstance(subject.content, str)
         message = subject.content.strip()
+        if not context.allow_external_ai:
+            return offline_message_report(message, AI_OFF_BY_USER)
         report = from_scam_report(
             analyze_message(message, api_key=context.api_key), message
         )
@@ -298,6 +309,10 @@ class AiSecurityAnalyzer(Analyzer):
         chosen = chosen if chosen in CONTEXTS else DEFAULT_CONTEXT
         task = subject.hints.get("task", "") if chosen == "tool" else ""
         detection = detect_ai_threats(text, chosen, task)
+        if not context.allow_external_ai:
+            return ai_security_report.build(
+                text, detection, None, task_given=bool(task.strip()), offline_reason=AI_OFF_BY_USER
+            )
         try:
             ai = analyze_content(
                 text, detection, task, api_key=context.api_key, language=subject.language
