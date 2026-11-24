@@ -31,6 +31,7 @@ from collections import OrderedDict
 import streamlit as st
 
 import components
+import feedback_ui
 from i18n import t
 from report_labels import METHOD_LABELS as _METHOD_LABELS
 from report_labels import SIGNAL_LABELS as _SIGNAL_LABELS  # noqa: F401  (re-exported for tests)
@@ -98,7 +99,11 @@ def render_trust_report(report: TrustReport, expand_evidence: bool = False) -> N
     st.subheader(components.labeled("privacy", t("protect.done_title")))
     for key in card.protected_keys:
         st.markdown(f"- {t(f'protect.done.{key}')}")
+    # Every result, whatever the verdict: the tool can be wrong, and money
+    # questions belong with the bank's own channels.
+    st.caption(components.labeled("info", t("trust.bank_note")))
     _render_footer(report)
+    feedback_ui.render(report)
 
 
 # Checks whose result is not a scam verdict about a message: they get
@@ -364,7 +369,12 @@ def _method_keys(report: TrustReport) -> list[str]:
     """Which detection methods actually contributed to this report."""
     kinds = {item.kind for item in report.evidence}
     if not kinds:
-        # No evidence to cite: an AI module still reasoned about it,
-        # a deterministic module still consulted its source.
-        kinds = {"ai"} if report.explanation else {"external"}
+        # No evidence to cite: a rules-only check still ran the scanner
+        # (it found nothing), an AI module still reasoned about it, and a
+        # deterministic module still consulted its source. Without the
+        # first case a rules-only miss was labelled "Breach database".
+        if is_offline(report):
+            kinds = {"heuristic"}
+        else:
+            kinds = {"ai"} if report.explanation else {"external"}
     return [_METHOD_LABELS[kind] for kind in ("heuristic", "ai", "external") if kind in kinds]

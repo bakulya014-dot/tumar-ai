@@ -26,6 +26,10 @@ from services.trust_engine import AnalysisContext, TrustEngine, TrustSubject
 
 MAX_QUICK_LENGTH = 5000
 
+# Fictional training examples (home.train.<name>), one tap to load. They
+# imitate real scam patterns, so the page labels them as fictional.
+TRAINING_EXAMPLES = ("bank", "delivery", "job")
+
 # How many recent rows the dashboard shows before it stops being a
 # summary and starts being a list.
 RECENT_LIMIT = 5
@@ -44,7 +48,7 @@ st.write(t("home.intro"))
 
 # --- Primary action: one paste box for anything ---
 
-section_header(t("home.quick_title"), t("home.quick_intro"), icon_name="quick")
+section_header(t("home.main_action"), t("home.main_action_note"), icon_name="quick")
 
 quick_input = st.text_area(
     t("home.quick_input_label"),
@@ -54,6 +58,19 @@ quick_input = st.text_area(
     placeholder=t("home.quick_input_placeholder"),
     help=t("home.quick_input_help"),
 )
+
+def _load_example(name: str) -> None:
+    st.session_state["quick_input"] = t(f"home.train.{name}")
+
+
+st.caption(t("home.train_intro"))
+for column, name in zip(st.columns(len(TRAINING_EXAMPLES)), TRAINING_EXAMPLES):
+    column.button(
+        t(f"home.train_button.{name}"), key=f"train_{name}", on_click=_load_example, args=(name,),
+        use_container_width=True, icon=components.icon("example"),
+    )
+if quick_input.strip() in {t(f"home.train.{name}") for name in TRAINING_EXAMPLES}:
+    st.info(t("home.train_label"), icon=components.icon("info"))
 
 # Unrecognized text falls through to the AI scam analyzer, which sends
 # it to the AI provider. A password pasted here would go with it, so

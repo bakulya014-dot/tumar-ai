@@ -70,7 +70,21 @@
     "status_ai_missing": "AI engine not configured",
     "status_ai_label": "Powers the scam and link analysis.",
     "status_privacy_value": "No data stored",
-    "status_privacy_label": "Checks run in memory; nothing is written to disk."
+    "status_privacy_label": "Checks run in memory; nothing is written to disk.",
+    "main_action": "Paste a suspicious message or link and we will explain the warning signs.",
+    "main_action_note": "A message, a link or an email address: Tumar works out what it is and checks it. Nothing is stored after this session.",
+    "train_intro": "Not sure what to look for? Load a fictional training example:",
+    "train_label": "Fictional training example. It imitates a common scam pattern and is not a real message from any company.",
+    "train_button": {
+      "bank": "Fake bank verification",
+      "delivery": "Fake parcel delivery",
+      "job": "Fake job offer"
+    },
+    "train": {
+      "bank": "Kaspi Bank: your account will be blocked today after a security check. To keep access, confirm your identity at http://kaspi-verify-account.xyz/login and enter the SMS code we have just sent you.",
+      "delivery": "Kazpost: your parcel KZ84213 is being held at the warehouse. Pay the 350 ₸ redelivery fee within 24 hours or it will be returned: http://kazpost-redelivery.top/pay",
+      "job": "Hi! Remote work: earn 40,000 ₸ a day just for liking posts. To start, send a 5,000 ₸ registration fee to the card I will give you. Only 3 places left, decide today!"
+    }
   },
   "scam": {
     "title": "Scam Analyzer",
@@ -272,7 +286,8 @@
       "danger": "this content tries to manipulate an AI or the people relying on it. Don't let an AI act on it.",
       "caution": "it has warning signs of manipulation. Have a person review it before any AI or anyone acts on it.",
       "safe": "no known manipulation patterns found. Not a guarantee: keep a person in the loop for payments and permissions."
-    }
+    },
+    "bank_note": "Tumar.AI can miss sophisticated scams and is never 100% certain. If money or account access is involved, contact your bank through its official app or the number on your card."
   },
   "contribute": {
     "title": "Help improve scam detection (optional)",
@@ -1199,5 +1214,18 @@
       "medium": "fairly sure",
       "high": "quite sure"
     }
+  },
+  "feedback": {
+    "helpful": "Was this result helpful?",
+    "was_scam": "Was this actually a scam?",
+    "option": {
+      "yes": "Yes",
+      "no": "No",
+      "unsure": "Not sure"
+    },
+    "missed_button": "Report a missed scam",
+    "missed_thanks": "Thank you. We noted that this looked like a scam to you. Nothing from your message was sent anywhere.",
+    "thanks": "Thank you for your feedback.",
+    "privacy": "Your answers stay in this browser session only. No message content is collected."
   }
 }
