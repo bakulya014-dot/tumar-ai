@@ -16,7 +16,7 @@ os.environ["TUMAR_TELEMETRY"] = "off"
 import auth  # noqa: E402
 from i18n import LANGUAGES, _load, translate  # noqa: E402
 from services import service_status, telemetry  # noqa: E402
-from services import threat_map_demo as demo  # noqa: E402
+from services import threat_map_data as demo  # noqa: E402
 from services.trust_report import Evidence, TrustReport  # noqa: E402
 from streamlit.testing.v1 import AppTest  # noqa: E402
 
@@ -69,7 +69,7 @@ def test_every_status_and_security_string_exists() -> None:
         "limits": ("no_guarantee", "demo_map", "session", "third_parties"),
     }
     keys |= {f"security.{s}.{i}" for s, items in sections.items() for i in items}
-    keys |= {f"security.{s}.title" for s in sections} | {"nav.security", "map.cat.impersonation"}
+    keys |= {f"security.{s}.title" for s in sections} | {"nav.security", "map.cat.phishing"}
     for language in LANGUAGES:
         missing = sorted(keys - set(_load(language)))
         assert not missing, (language, missing)
@@ -94,14 +94,14 @@ def test_security_page_and_home_status_render() -> None:
     print("test_security_page_and_home_status_render PASSED")
 
 
-def test_impersonation_on_the_demo_map() -> None:
-    assert "impersonation" in demo.CATEGORIES and demo.IS_SIMULATED
+def test_lookalike_domain_on_the_map_is_phishing() -> None:
+    assert "phishing" in demo.CATEGORIES
     lookalike = TrustReport(source="url_scanner", subject_type="url", subject_preview="halyk-bank-kz.net",
                             verdict="caution", trust_score=50, confidence=60,
                             evidence=[Evidence(kind="heuristic", code="url_brand_lookalike", detail="")])
-    assert demo.categorize(lookalike) == "impersonation"
+    assert demo.categorize(lookalike) == "phishing"
     assert translate("map.your_check", "en", category="x").endswith("was not added to these figures.")
-    print("test_impersonation_on_the_demo_map PASSED")
+    print("test_lookalike_domain_on_the_map_is_phishing PASSED")
 
 
 if __name__ == "__main__":
@@ -109,5 +109,5 @@ if __name__ == "__main__":
     test_kill_switch_shows_as_off()
     test_every_status_and_security_string_exists()
     test_security_page_and_home_status_render()
-    test_impersonation_on_the_demo_map()
+    test_lookalike_domain_on_the_map_is_phishing()
     print("All service status tests passed.")

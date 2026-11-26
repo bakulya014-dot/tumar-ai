@@ -101,10 +101,14 @@ and click "Clear this session's history" under Recent analyses, so the Safety Ce
    *"The link was never opened, and phone and card numbers were masked
    before any AI saw the message. No action was taken on your accounts."*
 7. **The wider trend.** Menu → **Threat Map**. *"Your check looks like
-   Phishing, one of the scam types tracked here."* Say clearly: *"These
-   figures are simulated for the prototype; the page says so. Real
-   counts will come only from people who opt in, as categories, never
-   the messages themselves."*
+   Phishing, one of the schemes in the official statistics."* Point at
+   the headline: *"28,851 internet-fraud cases were registered in 2025,
+   a record and almost one crime in four. In January–July 2026 there
+   were 13,100: fake calls from 'the bank' lead, then phishing."* Every
+   figure names its period and source (Finprom.kz, the Ministry of
+   Internal Affairs, the National Bank's Anti-fraud Centre); open
+   **Sources** if asked. *"Tumar adds nobody's checks to these numbers;
+   your match is made on your screen only."*
 8. Back to **My Safety Center**: status "Action needed"; the resilience
    score moved, and "Why it changed" shows −12 for the open dangerous
    finding and +4 for checking before acting. Then "Highest-impact steps".
@@ -195,7 +199,7 @@ written agreement exists.
 |---|---|---|
 | Live Google sign-in not yet re-verified after the last changes | Demo cannot start signed in | Run the checklist above the day before; guest mode works as a fallback |
 | Streamlit Cloud has no persistent disk | `users.db` resets on each redeploy; "Delete my data" removes the row, a redeploy removes all rows | Acceptable for the pilot; see docs/STORAGE_DECISION.md |
-| Safety Center and Threat Map are prototypes | Questions about real data | Both pages say what they are: session-only, and simulated figures |
+| Safety Center is session-only; Threat Map figures are published statistics typed in by hand | Questions about freshness or about live data | The map shows "last checked" and its sources; refresh `services/threat_map_data.py` when a new period is published |
 | Masking before AI may change AI wording slightly | Codes and phone numbers reach the model as placeholders | Rule findings still tell the model what the message does; AI-mode accuracy not re-measured (needs an API key) |
 | Daily quotas reset on restart (in memory) | Limits are approximate | Fine for one instance; shared limits need Redis or a database later |
 | Russian and Kazakh copy not reviewed by a native speaker | Awkward phrasing in front of a local audience | Have a native speaker read the landing, Safety Center, report and Threat Map pages |

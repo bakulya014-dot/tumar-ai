@@ -18,7 +18,7 @@ sys.path.insert(0, str(ROOT))
 os.environ["TUMAR_TELEMETRY"] = "off"
 
 from i18n import LANGUAGES, translate  # noqa: E402
-from services import quota, risk_card, threat_map_demo  # noqa: E402
+from services import quota, risk_card, threat_map_data  # noqa: E402
 from services.ai_security import CONTEXTS, patterns  # noqa: E402
 from services.ai_security.analysis import THREATS, AiSecurityAnalysis, build_contents  # noqa: E402
 from services.ai_security.detector import detect  # noqa: E402
@@ -282,7 +282,7 @@ def test_every_label_and_page_string_exists_in_every_language() -> None:
 def test_platform_integration() -> None:
     assert "ai_content" in quota.COUNTED_KINDS  # it calls the paid AI, so it is counted
     report = _check(TICKET, _Provider(error="timeout"))
-    assert threat_map_demo.categorize(report) is None  # not a scam type on the map
+    assert threat_map_data.categorize(report) is None  # not a scam type on the map
     print("test_platform_integration PASSED")
 
 
