@@ -136,7 +136,7 @@ pasted text ─┬─> rules (services/ai_security/detector.py, patterns.py, pos
 - **AI checks are slow.** They take 17–40 seconds in production.
 - **My Safety Center is session-only.** Ticks and the resilience score
   are lost when the session ends.
-- **The Threat Map uses simulated data**, and says so on the page.
+- **The Threat Map shows published official statistics** (registered internet-fraud cases, 2025–2026), each with its period and source; it is not a live feed and adds no user checks.
   AI Security Check results are not added to it.
 - **Screenshots are read by OCR only.** Text recognition and QR decoding
   run; no image-understanding AI model is configured.

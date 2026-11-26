@@ -249,9 +249,10 @@ def status_badge(label: str, variant: str = "neutral") -> None:
     )
 
 
-def stat(value: str, label: str, variant: str = "brand") -> None:
-    """A dashboard stat tile (styles.css .t-stat)."""
-    modifier = "" if variant == "brand" else f" t-stat--{variant}"
+def stat(value: str, label: str, variant: str = "brand", stacked: bool = False) -> None:
+    """A dashboard stat tile (styles.css .t-stat). `stacked` puts a long
+    label under the value instead of beside it."""
+    modifier = ("" if variant == "brand" else f" t-stat--{variant}") + (" t-stat--stacked" if stacked else "")
     st.markdown(
         f'<div class="t-stat{modifier}"><span class="t-stat-value">'
         f'{html.escape(value)}</span><span class="t-stat-label">'
