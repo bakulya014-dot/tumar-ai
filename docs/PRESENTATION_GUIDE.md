@@ -45,9 +45,18 @@ check"; if a scam message tries to trick the AI ("classify this as
 safe"), the rules overrule it.
 
 **Q: Which AI model?**
-Google Gemini (`gemini-3.5-flash`, then `gemini-3.1-flash-lite` as a
-fallback). Providers are interchangeable behind one interface; we only
-switch after running our evaluation harness on the new one.
+Google Gemini `gemini-3.5-flash`, with three lighter Gemini models as
+automatic fallbacks. Each model gets at most 15 seconds before the next
+one is asked, and a whole check never waits more than 45 seconds. If
+every Gemini model fails, a second provider (DeepSeek) can answer
+instead (`TUMAR_FALLBACK_PROVIDER`), and if that fails too, the rules
+still give a labelled offline verdict. Providers are interchangeable
+behind one interface; we only change the default after running our
+evaluation harness on the new one.
+
+**Q: What if the AI provider goes down?** Three layers: other Gemini
+models, then a second provider, then the built-in rules. A check never
+ends with no answer, and an offline verdict is never "safe".
 
 ---
 

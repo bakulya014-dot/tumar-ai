@@ -74,12 +74,49 @@ def _code(fn) -> str:
     raise AssertionError("expected GeminiError")
 
 
-def test_timeout_is_reported_as_timeout_without_retry() -> None:
-    with _Scenario(httpx.ReadTimeout("read timed out")) as fake:
-        assert _code(_call) == "timeout"
-    assert fake.models == [PRIMARY], fake.models  # no second 30 s wait
+def test_a_slow_model_hands_over_to_the_next() -> None:
+    # Seen live: an overloaded primary held requests for 30 s. A timeout
+    # moves on to the next model instead of failing the check.
+    with _Scenario(httpx.ReadTimeout("read timed out"), ANSWER) as fake:
+        assert _call().verdict == "safe"
+    assert fake.models == [PRIMARY, FALLBACK], fake.models
     assert fake.pauses == []
-    print("test_timeout_is_reported_as_timeout_without_retry PASSED")
+    print("test_a_slow_model_hands_over_to_the_next PASSED")
+
+
+def test_timeouts_everywhere_are_reported_as_timeout() -> None:
+    every_model = list(gemini_client.MODEL_CANDIDATES)
+    with _Scenario(*[httpx.ReadTimeout("slow")] * len(every_model)) as fake:
+        assert _code(_call) == "timeout"
+    assert fake.models == every_model, fake.models  # each tried once, never twice
+    print("test_timeouts_everywhere_are_reported_as_timeout PASSED")
+
+
+def test_each_attempt_gets_a_bounded_timeout() -> None:
+    seen: list[int] = []
+
+    class _Recording(_Scenario):
+        def generate_content(self, model, contents, config):
+            seen.append(config.http_options.timeout)
+            return super().generate_content(model, contents, config)
+
+    with _Recording(_api_error(503), _api_error(503), _api_error(503), ANSWER):
+        assert _call().verdict == "safe"
+    assert all(t <= gemini_client.MODEL_TIMEOUT_MS for t in seen[:-1]), seen
+    assert seen[-1] <= gemini_client.REQUEST_TIMEOUT_MS, seen
+    print("test_each_attempt_gets_a_bounded_timeout PASSED")
+
+
+def test_the_total_budget_stops_the_chain() -> None:
+    original = gemini_client.TOTAL_BUDGET_MS
+    gemini_client.TOTAL_BUDGET_MS = gemini_client.MIN_ATTEMPT_MS - 1  # no time for any attempt
+    try:
+        with _Scenario() as fake:
+            assert _code(_call) == "unavailable"
+        assert fake.models == []
+    finally:
+        gemini_client.TOTAL_BUDGET_MS = original
+    print("test_the_total_budget_stops_the_chain PASSED")
 
 
 def test_fast_connection_drop_is_retried_once() -> None:
@@ -116,9 +153,10 @@ def test_overload_still_falls_back_to_the_next_model() -> None:
     with _Scenario(_api_error(503), ANSWER) as fake:
         assert _call().verdict == "safe"
     assert fake.models == [PRIMARY, FALLBACK], fake.models
-    with _Scenario(_api_error(429), _api_error(429)) as fake:
+    every_model = list(gemini_client.MODEL_CANDIDATES)
+    with _Scenario(*[_api_error(429)] * len(every_model)) as fake:
         assert _code(_call) == "rate_limited"
-    assert fake.models == [PRIMARY, FALLBACK]
+    assert fake.models == every_model  # each model in the chain is tried once
     print("test_overload_still_falls_back_to_the_next_model PASSED")
 
 
@@ -138,7 +176,10 @@ def test_drop_then_overload_uses_both_models() -> None:
 
 
 if __name__ == "__main__":
-    test_timeout_is_reported_as_timeout_without_retry()
+    test_a_slow_model_hands_over_to_the_next()
+    test_timeouts_everywhere_are_reported_as_timeout()
+    test_each_attempt_gets_a_bounded_timeout()
+    test_the_total_budget_stops_the_chain()
     test_fast_connection_drop_is_retried_once()
     test_second_connection_drop_gives_up()
     test_slow_connection_failure_is_not_retried()

@@ -26,6 +26,7 @@ from services.providers import (
     GeminiProvider,
     ProviderError,
     text_provider,
+    with_fallback,
 )
 
 # System prompt lives in a versioned file, not in code, so we can
@@ -100,7 +101,7 @@ def analyze_message(
         ai_authority.require("analyze_text")
     except ai_authority.FeatureDisabled as exc:
         raise ScamAnalysisError(exc.code) from exc
-    chosen = provider or text_provider() or GeminiProvider(api_key)
+    chosen = provider or with_fallback(text_provider() or GeminiProvider(api_key))
 
     try:
         analysis = chosen.generate_structured(

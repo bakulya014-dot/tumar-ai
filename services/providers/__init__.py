@@ -33,6 +33,7 @@ from services.providers.base import (
 )
 from services.providers.claude import ClaudeProvider
 from services.providers.deepseek import DeepSeekProvider
+from services.providers.failover import FailoverProvider
 from services.providers.gemini import GeminiProvider
 from services.providers.openai import OpenAIProvider
 from services.providers.openai_compatible import OpenAICompatibleProvider
@@ -41,14 +42,17 @@ __all__ = [
     "AIProvider",
     "ClaudeProvider",
     "DeepSeekProvider",
+    "FailoverProvider",
     "GeminiProvider",
     "OpenAICompatibleProvider",
     "OpenAIProvider",
     "ProviderError",
     "ProviderUnsupported",
     "build",
+    "fallback_provider",
     "text_provider",
     "vision_provider",
+    "with_fallback",
 ]
 
 _BUILDERS = {
@@ -79,6 +83,27 @@ def text_provider(preferred: str = "") -> AIProvider | None:
         return None
     provider = build(name)
     return provider if provider and provider.available() else None
+
+
+def fallback_provider() -> AIProvider | None:
+    """The backup text provider named by TUMAR_FALLBACK_PROVIDER, if configured."""
+    name = os.environ.get("TUMAR_FALLBACK_PROVIDER", "").strip().lower()
+    if not name:
+        return None
+    provider = build(name)
+    return provider if provider and provider.available() else None
+
+
+def with_fallback(primary: AIProvider) -> AIProvider:
+    """`primary`, wrapped so a failure is retried once on the backup provider.
+
+    Returns `primary` unchanged when no backup is configured, or when the
+    backup is the same provider (failing over to itself cannot help).
+    """
+    backup = fallback_provider()
+    if backup is None or backup.name == primary.name:
+        return primary
+    return FailoverProvider(primary, backup)
 
 
 def vision_provider(preferred: str = "") -> AIProvider | None:

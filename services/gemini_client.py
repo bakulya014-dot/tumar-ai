@@ -24,9 +24,15 @@ from services.common import ServiceError
 # Models to try, in order. Availability, quotas, and retirement are
 # tracked per model on Google's side, so if the primary model is
 # overloaded or unavailable for this account we fall back to the next.
+# The primary is the model every measured evaluation ran on; the rest
+# are lighter models that stay up when it is overloaded (on 2026-11-26
+# gemini-3.5-flash returned 503 "high demand" for hours while these
+# three answered in about a second).
 MODEL_CANDIDATES: tuple[str, ...] = (
     "gemini-3.5-flash",
+    "gemini-3.5-flash-lite",
     "gemini-3.1-flash-lite",
+    "gemini-3-flash-preview",
 )
 
 # Low temperature = focused, consistent answers (0 = deterministic,
@@ -37,6 +43,16 @@ TEMPERATURE = 0.2
 # Kept at 30 s until telemetry gives us a measured p95 to tune against:
 # raising it blindly only makes a stuck request keep the user waiting.
 REQUEST_TIMEOUT_MS = 30_000
+
+# An overloaded model does not always fail fast: on 2026-11-26
+# gemini-3.5-flash held each request for the full 30 s before answering
+# 503, so every check waited 30 s before the fallback model (which
+# answers in 5-9 s) was even asked. So every model but the last gets a
+# shorter limit and, when it runs out, hands over to the next model, and
+# one request never waits longer than TOTAL_BUDGET_MS in all.
+MODEL_TIMEOUT_MS = 15_000
+TOTAL_BUDGET_MS = 45_000
+MIN_ATTEMPT_MS = 3_000  # not worth starting a model with less time than this
 
 # A dropped connection that fails fast (DNS blip, stale keep-alive,
 # reset) is retried once on the same model after a short pause. A slow
@@ -83,10 +99,17 @@ def generate_structured[ModelT: BaseModel](
 
     response = None
     last_error: genai_errors.APIError | None = None
+    timed_out = False
     attempt = 0
-    for model in MODEL_CANDIDATES:
+    started = telemetry.Timer()
+    for index, model in enumerate(MODEL_CANDIDATES):
+        is_last = index == len(MODEL_CANDIDATES) - 1
         network_retried = False
         while True:
+            remaining = TOTAL_BUDGET_MS - started.ms
+            if remaining < MIN_ATTEMPT_MS:
+                break
+            limit = min(REQUEST_TIMEOUT_MS if is_last else MODEL_TIMEOUT_MS, remaining)
             attempt += 1
             timer = telemetry.Timer()
             try:
@@ -98,6 +121,7 @@ def generate_structured[ModelT: BaseModel](
                         response_mime_type="application/json",
                         response_schema=schema,
                         temperature=TEMPERATURE,
+                        http_options=genai.types.HttpOptions(timeout=limit),
                     ),
                 )
                 _record_call(model, attempt, timer, "ok", response=response)
@@ -110,10 +134,13 @@ def generate_structured[ModelT: BaseModel](
                     break  # A different model may still succeed.
                 raise GeminiError(code) from exc
             except httpx.TimeoutException as exc:
-                # Slow, not down: say so, and do not make the user wait
-                # another full timeout on a second model.
+                # This model is too slow right now; the next one may not
+                # be. The total budget stops this from adding up.
                 _record_call(model, attempt, timer, "error", "timeout")
-                raise GeminiError("timeout") from exc
+                if is_last:
+                    raise GeminiError("timeout") from exc
+                timed_out = True
+                break
             except _RETRIABLE_NETWORK_ERRORS as exc:
                 fast = timer.ms < FAST_FAILURE_S * 1000
                 _record_call(model, attempt, timer, "error", "unreachable")
@@ -129,6 +156,8 @@ def generate_structured[ModelT: BaseModel](
             break
 
     if response is None:
+        if last_error is None and timed_out:
+            raise GeminiError("timeout")
         code = _api_error_code(last_error) if last_error else "unavailable"
         raise GeminiError(code) from last_error
 

@@ -26,7 +26,7 @@ from pydantic import BaseModel, Field
 from services import ai_authority, prompt_boundary
 from services.ai_security.detector import Detection
 from services.common import ServiceError
-from services.providers import AIProvider, GeminiProvider, ProviderError, text_provider
+from services.providers import AIProvider, GeminiProvider, ProviderError, text_provider, with_fallback
 from services.redaction import redact
 
 PROMPT_FILE = Path(__file__).resolve().parent.parent.parent / "prompts" / "ai_security_v1.md"
@@ -116,7 +116,7 @@ def analyze_content(
         ai_authority.require("analyze_text")
     except ai_authority.FeatureDisabled as exc:
         raise AiSecurityError(exc.code) from exc
-    chosen = provider or text_provider() or GeminiProvider(api_key)
+    chosen = provider or with_fallback(text_provider() or GeminiProvider(api_key))
     try:
         answer = chosen.generate_structured(
             system_prompt=_load_system_prompt(),
